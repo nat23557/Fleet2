@@ -1,0 +1,73 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-container">
+    <h2>{{ form.instance.pk|yesno:"Update Driver,Create Driver" }}</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-group">
+            <label for="id_staff_profile">Staff Profile</label>
+            {{ form.staff_profile }}
+            {{ form.staff_profile.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_license_number">License Number</label>
+            {{ form.license_number }}
+            {{ form.license_number.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_years_of_experience">Years of Experience</label>
+            {{ form.years_of_experience }}
+            {{ form.years_of_experience.errors }}
+        </div>
+
+        <!-- Employment Details -->
+        <div class="form-group">
+            <label for="id_employ_date">Employment Date</label>
+            {{ form.employ_date }}
+            {{ form.employ_date.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_salary">Salary (ETB)</label>
+            {{ form.salary }}
+            {{ form.salary.errors }}
+        </div>
+
+        <!-- Djibouti License -->
+        <div class="form-group">
+            <label for="id_djibouti_license_image">Djibouti License Image</label>
+            {{ form.djibouti_license_image }}
+            {{ form.djibouti_license_image.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_djibouti_license_expiration">Djibouti License Expiration</label>
+            {{ form.djibouti_license_expiration }}
+            {{ form.djibouti_license_expiration.errors }}
+        </div>
+
+        <!-- Ethiopian License -->
+        <div class="form-group">
+            <label for="id_ethiopian_license_image">Ethiopian License Image</label>
+            {{ form.ethiopian_license_image }}
+            {{ form.ethiopian_license_image.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_ethiopian_license_expiration">Ethiopian License Expiration</label>
+            {{ form.ethiopian_license_expiration }}
+            {{ form.ethiopian_license_expiration.errors }}
+        </div>
+
+        <button type="submit" class="cta-button">Save</button>
+        <a href="{% url 'driver-list' %}" class="cancel-button">Cancel</a>
+    </form>
+</div>
+{% endblock %}

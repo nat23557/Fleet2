@@ -1,0 +1,153 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="detail-container page-layout">
+    <!-- Actions Sidebar -->
+    <aside id="page-sidebar" aria-label="Actions sidebar">
+        <h4>Actions</h4>
+        <div class="sidebar-actions">
+            <a href="{% url 'accident-list' truck.pk %}" class="cta-button">View Accidents</a>
+            <a href="{% url 'service-list' truck.pk %}" class="cta-button">View Services</a>
+            <a href="{% url 'replaced-item-list' truck.pk %}" class="cta-button">View Replaced Items</a>
+            {% if truck.vehicle_type == 'OFFICE' %}
+              <a href="{% url 'office_usage_list' truck.pk %}" class="cta-button">Office Usage Logs</a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <div>
+    <h2 class="detail-title">Truck Details: {{ truck.plate_number }}</h2>
+    
+    <!-- Real-Time Status Map Section (Full-width, separate from the grid) -->
+    <div id="real-time-status" class="detail-card status-with-panel" data-truck-id="{{ truck.pk }}" data-truck-plate="{{ truck.plate_number }}">
+        <h3 class="card-title">Real-Time Location</h3>
+        <div id="status-map"></div>
+        <aside id="status-side-panel">
+            <div class="side-panel-header">
+                <strong>{{ truck.plate_number }}</strong>
+                <div class="pill status-badge status-{{ truck.status|lower }}">{{ truck.get_status_display }}</div>
+            </div>
+            <div id="status-side-content">
+                <!-- JS populates the latest telemetry here -->
+                <p class="text-muted">Waiting for live data…</p>
+            </div>
+        </aside>
+    </div>
+    
+    <div class="detail-grid">
+        <!-- Truck Overview -->
+        <div class="detail-card">
+            <h3 class="card-title">Truck Information</h3>
+            <p><strong>Type:</strong> {{ truck.truck_type }} ({{ truck.get_vehicle_type_display }})</p>
+            <p>
+                <strong>Status:</strong>
+                <span class="status-badge status-{{ truck.status|lower }}">
+                    {{ truck.get_status_display }}
+                </span>
+            </p>
+           
+            <p><strong>Mileage (km):</strong> {{ truck.mileage_km }}</p>
+
+            <p><strong>Driver:</strong>
+                {% if truck.driver %}
+                    {{ truck.driver.staff_profile.user.username }}
+                {% else %}
+                    <span class="text-muted">No Driver Assigned</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Conditional Office-Specific Section -->
+        {% if truck.vehicle_type == 'OFFICE' %}
+        <div class="detail-card">
+            <h3 class="card-title">Office Vehicle Usage</h3>
+            <p>This is an office vehicle. View detailed usage from the actions sidebar.</p>
+        </div>
+        {% endif %}
+
+        <!-- Accidents -->
+        <div class="detail-card">
+            <h3 class="card-title">Accident Records ({{ truck.accidents.count }})</h3>
+            <ul class="detail-list">
+                {% for acc in truck.accidents.all %}
+                    <li>
+                        <strong>{{ acc.date }} - {{ acc.severity }}</strong>
+                        [ <a href="{% url 'accident-detail' acc.pk %}" class="view-link">View</a> ]
+                    </li>
+                {% empty %}
+                    <li class="text-muted">No accident records found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Services -->
+        <div class="detail-card">
+            <h3 class="card-title">Service Records ({{ truck.services.count }})</h3>
+            <ul class="detail-list">
+                {% for svc in truck.services.all %}
+                    <li>
+                        <strong>{{ svc.date }} - {{ svc.service_type }}</strong>
+                        [ <a href="{% url 'service-detail' svc.pk %}" class="view-link">View</a> ]
+                    </li>
+                {% empty %}
+                    <li class="text-muted">No service records found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Replaced Items -->
+        <div class="detail-card">
+            <h3 class="card-title">Replaced Items ({{ truck.replaced_items.count }})</h3>
+            <ul class="detail-list">
+                {% for item in truck.replaced_items.all %}
+                    <li>
+                        <strong>{{ item.part_name }} on {{ item.date_replaced }}</strong>
+                        [ <a href="{% url 'replaced-item-detail' item.pk %}" class="view-link">View</a> ]
+                    </li>
+                {% empty %}
+                    <li class="text-muted">No replaced items found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    </div>
+    </div>
+
+<!-- Include external CSS and JS directly -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'css/truck_status_map.css' %}">
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+    // Provide hashed static URL for icon to JS
+    window.TRUCK_ICON_URL = "{% static 'images/truck_icon.png' %}";
+  </script>
+<script src="{% static 'js/truck_status_map.js' %}"></script>
+<script>
+  // Sidebar toggle for small screens
+  (function(){
+    var overlay = document.getElementById('sidebar-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'sidebar-overlay';
+      document.body.appendChild(overlay);
+    }
+    var btn = document.getElementById('sidebarToggle');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'sidebarToggle';
+      btn.className = 'sidebar-toggle-floating';
+      btn.type = 'button';
+      btn.textContent = 'Actions';
+      document.body.appendChild(btn);
+    }
+    function close(){ document.body.classList.remove('sidebar-open'); }
+    function open(){ document.body.classList.add('sidebar-open'); }
+    btn.addEventListener('click', function(){
+      if (document.body.classList.contains('sidebar-open')) close(); else open();
+    });
+    overlay.addEventListener('click', close);
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+/* Container styling */
+.report-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Title and headings */
+.report-title {
+    font-size: 2.5rem;
+    text-align: center;
+    color: #017335;
+    margin-bottom: 1.5rem;
+}
+.report-container h3 {
+    color: #017335;
+    text-align: center;
+    margin: 2rem 0 1rem;
+}
+
+/* Form styling */
+.report-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.report-form input[type="number"],
+.report-form input[type="text"] {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.cta-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #017335;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+.cta-button:hover {
+    background-color: #014f24;
+    transform: scale(1.05);
+}
+
+/* Table styling */
+.erp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+.erp-table th,
+.erp-table td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+.erp-table th {
+    background-color: #017335;
+    color: #ffffff;
+}
+.erp-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Ensure charts are displayed one after the other with spacing */
+canvas {
+    display: block;
+    margin: 2rem auto;
+    max-width: 100%;
+}
+
+/* Checkbox styling */
+.checkbox-label {
+    font-size: 0.9rem;
+    margin-right: 1rem;
+    display: inline-block;
+}

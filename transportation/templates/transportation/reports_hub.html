@@ -1,0 +1,135 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/charts.css' %}">
+
+<div class="dashboard">
+  <!-- Filters / Highlights -->
+  <div class="highlights">
+    <form method="get" style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+      <label>Year
+        <input type="number" name="year" value="{{ year }}" min="2000" max="2100" style="padding:.4rem .6rem; border-radius:8px; border:1px solid var(--border); background: var(--surface); color: var(--text);">
+      </label>
+      <label>Month
+        <input type="month" name="month" value="{{ month_str }}" style="padding:.4rem .6rem; border-radius:8px; border:1px solid var(--border); background: var(--surface); color: var(--text);">
+      </label>
+      <button class="cta-button" type="submit">Update</button>
+    </form>
+  </div>
+
+  <!-- KPI Cards (YTD + Month) -->
+  <div class="kpi-grid">
+    <div class="kpi-card accent-green">
+      <div class="kpi-title">YTD Revenue</div>
+      <div class="kpi-value">{{ ytd_revenue|floatformat:2 }}</div>
+      <div class="kpi-icon">💰</div>
+    </div>
+    <div class="kpi-card accent-red">
+      <div class="kpi-title">YTD Expense</div>
+      <div class="kpi-value">{{ ytd_expense|floatformat:2 }}</div>
+      <div class="kpi-icon">💸</div>
+    </div>
+    <div class="kpi-card accent-blue">
+      <div class="kpi-title">YTD Income</div>
+      <div class="kpi-value">{{ ytd_income|floatformat:2 }}</div>
+      <div class="kpi-icon">📈</div>
+    </div>
+    <div class="kpi-card accent-teal">
+      <div class="kpi-title">YTD Profit Margin</div>
+      <div class="kpi-value">{{ ytd_margin|floatformat:1 }}%</div>
+      <div class="kpi-icon">🧮</div>
+    </div>
+    <div class="kpi-card accent-green">
+      <div class="kpi-title">{{ month_str }} Revenue</div>
+      <div class="kpi-value">{{ m_revenue|floatformat:2 }}</div>
+      <div class="kpi-icon">💵</div>
+    </div>
+    <div class="kpi-card accent-blue">
+      <div class="kpi-title">{{ month_str }} Income</div>
+      <div class="kpi-value">{{ m_income|floatformat:2 }}</div>
+      <div class="kpi-icon">📊</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-header"><div class="section-title">Yearly Trend</div></div>
+      <div class="chart-box"><canvas id="trendChart"></canvas></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header"><div class="section-title">Expense Breakdown (YTD)</div></div>
+      <div class="chart-box"><canvas id="expenseChart"></canvas></div>
+    </div>
+
+    <div class="section" style="grid-column:1 / -1;">
+      <div class="section-header"><div class="section-title">Top Trucks (Income)</div></div>
+      <div class="list" id="topTrucks"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const months = JSON.parse('{{ months_labels_json|escapejs }}');
+  const seriesRevenue = JSON.parse('{{ series_revenue_json|escapejs }}');
+  const seriesExpense = JSON.parse('{{ series_expense_json|escapejs }}');
+  const seriesIncome = JSON.parse('{{ series_income_json|escapejs }}');
+  const expenseBreakdown = JSON.parse('{{ expense_breakdown_json|escapejs }}');
+  const topTrucks = JSON.parse('{{ top_trucks_json|escapejs }}');
+
+  function renderTrend(){
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [
+          {label:'Revenue', data: seriesRevenue, borderColor:'#22c55e', backgroundColor:'transparent', tension:.3},
+          {label:'Expense', data: seriesExpense, borderColor:'#ef4444', backgroundColor:'transparent', tension:.3},
+          {label:'Income', data: seriesIncome, borderColor:'#3b82f6', backgroundColor:'transparent', tension:.3}
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false, // use .chart-box height
+        plugins:{ legend:{position:'bottom'} },
+        scales:{
+          y:{ beginAtZero:true, ticks:{ callback:(v)=>v.toLocaleString() } },
+          x:{ ticks:{ autoSkip:true, maxTicksLimit:12 } }
+        }
+      }
+    });
+  }
+
+  function renderExpense(){
+    const labels = expenseBreakdown.map(x=>x.category);
+    const data = expenseBreakdown.map(x=>x.amount);
+    new Chart(document.getElementById('expenseChart').getContext('2d'), {
+      type:'bar', data:{ labels, datasets:[{label:'Amount', data, backgroundColor:'#f59e0b'}]},
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{ legend:{display:false} },
+        scales:{ y:{ beginAtZero:true, ticks:{ callback:(v)=>v.toLocaleString() } } }
+      }
+    });
+  }
+
+  function renderTopTrucks(){
+    const wrap = document.getElementById('topTrucks');
+    topTrucks.forEach(t => {
+      const a = document.createElement('a');
+      a.className='list-item';
+      a.href = '#';
+      a.innerHTML = `<div class="item-meta"><div class="meta-title">${t.truck_plate}</div><div class="meta-sub">Rev: ${t.revenue.toLocaleString()} • Inc: ${t.income.toLocaleString()}</div></div><span class="badge blue">Top</span>`;
+      wrap.appendChild(a);
+    });
+  }
+
+  renderTrend();
+  renderExpense();
+  renderTopTrucks();
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Active Trips</div>
+        <a class="action-link" href="{% url 'trip_list' %}">View all</a>
+      </div>
+      <div class="list">
+        {% for t in active_trips %}
+        <a class="list-item" href="{% url 'trip_detail' t.pk %}">
+          <div class="item-meta">
+            <div class="meta-title">{{ t.truck.plate_number }} • {{ t.start_location }} → {{ t.end_location }}</div>
+            <div class="meta-sub">Started: {{ t.start_time|date:'M d, H:i' }}</div>
+          </div>
+          <span class="badge amber">Live</span>
+        </a>
+        {% empty %}
+        <div class="meta-sub">No active trips.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Recent Trips</div>
+        <a class="action-link" href="{% url 'trip_list' %}">View all</a>
+      </div>
+      <div class="list">
+        {% for t in recent_trips %}
+        <a class="list-item" href="{% url 'trip_detail' t.pk %}">
+          <div class="item-meta">
+            <div class="meta-title">{{ t.truck.plate_number }} • {{ t.start_location }} → {{ t.end_location }}</div>
+            <div class="meta-sub">Driver: {% if t.driver %}{{ t.driver.staff_profile.user.username }}{% else %}N/A{% endif %}</div>
+          </div>
+          {% if t.status == 'IN_PROGRESS' %}
+            <span class="badge amber">In Progress</span>
+          {% else %}
+            <span class="badge green">Completed</span>
+          {% endif %}
+        </a>
+        {% empty %}
+        <div class="meta-sub">No recent trips.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Trucks Snapshot</div>
+        <a class="action-link" href="{% url 'truck-list' %}">Manage</a>
+      </div>
+      <div class="list">
+        {% for tr in trucks_sample %}
+        <a class="list-item" href="{% url 'truck-detail' tr.pk %}">
+          <div class="item-meta">
+            <div class="meta-title">{{ tr.plate_number }} • {{ tr.truck_type }}</div>
+            <div class="meta-sub">Driver: {% if tr.driver %}{{ tr.driver.staff_profile.user.username }}{% else %}N/A{% endif %}</div>
+          </div>
+          {% if tr.status == 'AVAILABLE' %}
+            <span class="badge green">Available</span>
+          {% elif tr.status == 'MAINTENANCE' %}
+            <span class="badge red">Maintenance</span>
+          {% else %}
+            <span class="badge amber">In Use</span>
+          {% endif %}
+        </a>
+        {% empty %}
+        <div class="meta-sub">No trucks to show.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Quick Actions (role-based) -->
+    <div class="section" style="grid-column: 1 / -1;">
+      <div class="section-header">
+        <div class="section-title">Quick Actions</div>
+      </div>
+      <div class="quick-actions">
+        {% if user_role == 'DRIVER' %}
+        <a class="qa-btn" href="{% url 'trip_create' %}">
+          <span class="qa-ico">🧭</span>
+          <div>
+            Start Trip
+            <div class="qa-hint">Create a new trip</div>
+          </div>
+        </a>
+        {% endif %}
+
+        {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
+        <a class="qa-btn" href="{% url 'truck-create' %}">
+          <span class="qa-ico">🚚</span>
+          <div>
+            Register Truck
+            <div class="qa-hint">Add a new vehicle</div>
+          </div>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

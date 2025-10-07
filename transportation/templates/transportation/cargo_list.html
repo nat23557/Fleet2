@@ -1,0 +1,45 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="table-container">
+    <h2>Cargo</h2>
+    <div class="btn-container">
+      <a href="{% url 'cargo-create' %}" class="cta-button">+ Add Cargo</a>
+    </div>
+
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Weight (kg)</th>
+                <th>Fragile?</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cargo in cargo_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ cargo.name }}</td>
+                <td>{{ cargo.weight_in_kg }}</td>
+                <td>{{ cargo.fragile|yesno:"Yes,No" }}</td>
+                <td>{{ cargo.origin }}</td>
+                <td>{{ cargo.destination }}</td>
+                <td>
+                  <a href="{% url 'cargo-update' cargo.pk %}" class="action-link">Edit</a> |
+                  <a href="{% url 'cargo-delete' cargo.pk %}" class="delete-link">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8">No cargo found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

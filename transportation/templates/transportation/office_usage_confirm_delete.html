@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="form-container">
+  <h2>Confirm Deletion</h2>
+  <p>Are you sure you want to delete office usage #{{ usage.pk }}?</p>
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="cta-button">Delete</button>
+    <a href="{% url 'office_usage_list' %}" class="cta-button">Cancel</a>
+  </form>
+</div>
+{% endblock %}

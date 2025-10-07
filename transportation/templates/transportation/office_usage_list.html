@@ -1,0 +1,51 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="table-container">
+  <h2>Office Vehicle Usage Logs</h2>
+  <div class="btn-container">
+    <a href="{% url 'office_usage_create' truck.pk %}" class="cta-button">+ Add Usage</a>
+  </div>
+  <table class="erp-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Truck</th>
+        <th>User</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Distance</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for usage in usages %}
+      <tr>
+        <td>{{ usage.pk }}</td>
+        <td>{{ usage.truck.plate_number }}</td>
+        <td>
+          {% if usage.user %}
+            {{ usage.user.user.username }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>{{ usage.start_time }}</td>
+        <td>{{ usage.end_time|default:"-" }}</td>
+        <td>{{ usage.distance_traveled }}</td>
+        <td>
+          <a href="{% url 'office_usage_detail' usage.pk %}" class="action-link">View</a> |
+          <a href="{% url 'office_usage_update' usage.pk %}" class="action-link">Edit</a> |
+          <a href="{% url 'office_usage_delete' usage.pk %}" class="delete-link">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7">No office usage logs found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

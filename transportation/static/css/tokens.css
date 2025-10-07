@@ -1,0 +1,46 @@
+/* Design tokens (light by default) */
+:root {
+  /* Header height (default, refined via JS) */
+  --header-h: 84px;
+  /* Brand (modern emerald palette) */
+  --brand-50: #ecfdf5;
+  --brand-100: #d1fae5;
+  --brand-200: #a7f3d0;
+  --brand-300: #6ee7b7;
+  --brand-400: #34d399;
+  --brand-500: #10b981;
+  --brand-600: #16a34a; /* primary */
+  --brand-700: #15803d;
+  --brand-800: #166534;
+  --brand-900: #14532d;
+
+  /* Neutrals (cool gray) */
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --text: #1f2937;
+  --subtext: #4b5563;
+  --border: #e5e7eb;
+
+  /* Accents */
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+
+  /* Shape & Elevation */
+  --radius: 8px;
+  --shadow-1: 0 2px 5px rgba(15, 23, 42, .08);
+  --shadow-2: 0 6px 16px rgba(15, 23, 42, .12);
+}
+
+/* Dark theme tokens */
+html[data-theme="dark"] {
+  --bg: #0f172a;      /* slate-900 */
+  --surface: #111827; /* slate-800 */
+  --text: #e5e7eb;
+  --subtext: #94a3b8;
+  --border: #1f2937;
+  --brand-600: #22c55e; /* brighter emerald for contrast */
+  --shadow-1: 0 2px 5px rgba(0,0,0,.6);
+  --shadow-2: 0 6px 16px rgba(0,0,0,.7);
+}

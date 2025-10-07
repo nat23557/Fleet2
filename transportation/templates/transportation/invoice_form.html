@@ -1,0 +1,37 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="form-container">
+  <h2 class="form-title">
+    {% if form.instance.pk %}Update Invoice{% else %}Add Invoice{% endif %}
+  </h2>
+
+  <form method="POST" enctype="multipart/form-data" class="erp-form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+   
+
+    <div class="form-group">
+      <label for="id_attached_image">Attach Image</label>
+      {{ form.attached_image }}
+    </div>
+
+    <div class="form-group">
+      <label for="id_due_date">Due Date</label>
+      {{ form.due_date }}
+      {% if form.due_date.help_text %}
+        <small class="help-text">{{ form.due_date.help_text }}</small>
+      {% endif %}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="cta-button">
+        {% if form.instance.pk %}Update{% else %}Add{% endif %}
+      </button>
+      <a href="{% url 'trip_list' %}" class="cta-button">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

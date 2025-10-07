@@ -1,0 +1,334 @@
+{% load static %}
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Trip PDF</title>
+    <link rel="stylesheet" href="{% static 'css/pdf_styles.css' %}">
+    <img src="{% static 'images/Thermologo.jpg' %}" alt="Thermo Fam Trading PLC" class="logo-img" style="display: none;">
+    <style>
+      @font-face {
+        font-family: 'Noto Sans Ethiopic';
+        src: url('{{ font_data_uri }}') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      body, .erp-table, .erp-table th, .erp-table td {
+        font-family: 'Noto Sans Ethiopic', sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Running footer -->
+    <footer class="pdf-footer">
+      <div class="footerbar">
+        <div>Authorized use only</div>
+        <div class="pageno"></div>
+      </div>
+    </footer>
+
+    <!-- Outermost wrapper for the trip detail page -->
+    <div class="trip-page content" id="tripPageWrapper">
+      <!-- Single hero header (appears once on first page) -->
+      <section class="hero-header">
+        <img class="hero-logo" src="{% static 'images/Thermologo.jpg' %}" alt="{{ company_name }}">
+        <div class="hero-title">{{ company_name }}</div>
+        <div class="hero-subtitle">Trip Summary</div>
+        {% if company_tagline %}<div class="hero-tagline">{{ company_tagline }}</div>{% endif %}
+        <div class="hero-divider"></div>
+      </section>
+      <div class="section-card">
+        <div class="section-header">Trip #{{ trip.pk }}</div>
+        <div class="section-body">
+          <div class="detail-grid" id="tripDetailGrid">
+            <div class="detail-label">Truck:</div>
+            <div class="detail-value">{{ trip.truck.plate_number }}</div>
+            <div></div>
+
+            <div class="detail-label">Driver:</div>
+            <div class="detail-value">{% if trip.driver %}{{ trip.driver.staff_profile.user.username }}{% else %}-{% endif %}</div>
+            <div></div>
+
+            <div class="detail-label">Route:</div>
+            <div class="detail-value">{{ trip.start_location }} → {{ trip.end_location }}</div>
+            <div></div>
+
+            <div class="detail-label">Status:</div>
+            <div class="detail-value">{{ trip.get_status_display }}</div>
+            <div></div>
+
+            <div class="detail-label">Start Time:</div>
+            <div class="detail-value">{{ trip.start_time }}</div>
+            <div></div>
+
+            <div class="detail-label">End Time:</div>
+            <div class="detail-value">{{ trip.end_time }}</div>
+            <div></div>
+
+            <div class="detail-label">Odometer Start:</div>
+            <div class="detail-value">{{ trip.initial_kilometer }}</div>
+            <div></div>
+
+            <div class="detail-label">Odometer End:</div>
+            <div class="detail-value">{{ trip.final_kilometer }}</div>
+            <div></div>
+
+            <div class="detail-label">Distance Traveled:</div>
+            <div class="detail-value">{{ trip.calculated_distance }}</div>
+            <div></div>
+
+            <div class="detail-label">Cargo Type:</div>
+            <div class="detail-value">{{ trip.cargo_type|default:"N/A" }}</div>
+            <div></div>
+
+            <div class="detail-label">Cargo Load:</div>
+            <div class="detail-value">{{ trip.cargo_load|default:"0.00" }}</div>
+            <div></div>
+
+            <div class="detail-label">Tariff Rate:</div>
+            <div class="detail-value">{{ trip.tariff_rate|default:"0.00" }}</div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Basic Trip Information Card -->
+      <div class="trip-info-card" id="tripInfoCard">
+        <div class="erp-table-container" id="tripInfoTableContainer">
+          <div class="detail-grid" id="tripDetailGrid">
+            <div class="detail-item" id="truckInfo">
+              <span class="detail-label">Truck:</span>
+              <span class="detail-value">{{ trip.truck.plate_number }}</span>
+            </div>
+            <div class="detail-item" id="driverInfo">
+              <span class="detail-label">Driver:</span>
+              <span class="detail-value">
+                {% if trip.driver %}
+                  {{ trip.driver.staff_profile.user.username }}
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+            </div>
+            <div class="detail-item" id="routeInfo">
+              <span class="detail-label">Route:</span>
+              <span class="detail-value">{{ trip.start_location }} → {{ trip.end_location }}</span>
+            </div>
+            <div class="detail-item" id="statusInfo">
+              <span class="detail-label">Status:</span>
+              <span class="detail-value">{{ trip.get_status_display }}</span>
+            </div>
+            <div class="detail-item" id="startTimeInfo">
+              <span class="detail-label">Start Time:</span>
+              <span class="detail-value">{{ trip.start_time }}</span>
+            </div>
+            <div class="detail-item" id="endTimeInfo">
+              <span class="detail-label">End Time:</span>
+              <span class="detail-value">{{ trip.end_time }}</span>
+            </div>
+            <div class="detail-item" id="odometerStartInfo">
+              <span class="detail-label">Odometer Start:</span>
+              <span class="detail-value">{{ trip.initial_kilometer }}</span>
+            </div>
+            <div class="detail-item" id="odometerEndInfo">
+              <span class="detail-label">Odometer End:</span>
+              <span class="detail-value">{{ trip.final_kilometer }}</span>
+            </div>
+            <div class="detail-item" id="distanceTraveledInfo">
+              <span class="detail-label">Distance Traveled:</span>
+              <span class="detail-value">{{ trip.calculated_distance }}</span>
+            </div>
+            <div class="detail-item" id="cargoTypeInfo">
+              <span class="detail-label">Cargo Type:</span>
+              <span class="detail-value">{{ trip.cargo_type|default:"N/A" }}</span>
+            </div>
+            <div class="detail-item" id="cargoLoadInfo">
+              <span class="detail-label">Cargo Load:</span>
+              <span class="detail-value">{{ trip.cargo_load|default:"0.00" }}</span>
+            </div>
+            <div class="detail-item" id="tariffRateInfo">
+              <span class="detail-label">Tariff Rate:</span>
+              <span class="detail-value">{{ trip.tariff_rate|default:"0.00" }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="trip-map-section" id="tripMapSection">
+        <!-- Map content goes here if needed -->
+      </div>
+
+      <!-- Trip Action Buttons (rendered only for DRIVER) -->
+      {% if user_role == "DRIVER" %}
+      <div class="detail-actions" id="tripActions">
+        <a href="{% url 'trip_update' trip.pk %}" class="cta-button" id="editTripBtn">Edit Trip</a>
+        <a href="{% url 'trip_complete_confirmation' trip.pk %}" class="cta-button cta-button-danger" id="completeTripBtn">Complete Trip</a>
+      </div>
+      {% endif %}
+
+      <hr>
+
+      <!-- Financial Summary -->
+      <div class="section-card" id="financialSummaryCard">
+        <div class="section-header">Financial Summary</div>
+        <div class="section-body">
+          <div class="detail-grid" id="financialDetailGrid">
+            <div class="detail-label">Total Revenue:</div>
+            <div class="detail-value">{{ financial.total_revenue|default:"0.00" }}</div>
+            <div></div>
+
+            <div class="detail-label">Total Expense:</div>
+            <div class="detail-value">{{ financial.total_expense|default:"0.00" }}</div>
+            <div></div>
+
+            <div class="detail-label">Income Before Tax:</div>
+            <div class="detail-value">{{ financial.income_before_tax|default:"0.00" }}</div>
+            <div></div>
+
+            <div class="detail-label">Payable/Receivable:</div>
+            <div class="detail-value">{{ financial.payable_receivable_amount|default:"0.00" }}</div>
+            <div></div>
+
+            <div class="detail-label">Net Profit Margin:</div>
+            <div class="detail-value">{% if financial.net_profit_margin %}{{ financial.net_profit_margin }}%{% else %}0.00%{% endif %}</div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      {% if operational_expense_details %}
+      <div class="section-card" id="expenseDetailsTableContainer">
+        <div class="section-header">Operational Expense Details</div>
+        <div class="section-body">
+          <table class="erp-table" id="expenseDetailsTable">
+            <thead>
+              <tr>
+                <th class="num">Amount (ETB)</th>
+                <th>Image</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for detail in operational_expense_details %}
+              <tr>
+                <td class="num">{{ detail.amount }}</td>
+                <td>
+                  {% if detail.image and detail.absolute_image_url %}
+                  <img src="{{ detail.absolute_image_url }}" alt="Expense Image" style="max-width:250px; max-height:250px;" />
+                  {% else %}
+                    No Image
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+        <div class="section-card">
+          <div class="section-header">Operational Expense Details</div>
+          <div class="section-body">No operational expense details recorded.</div>
+        </div>
+      {% endif %}
+    
+
+      <hr>
+
+      <!-- Expenses Section -->
+      <div class="section-card" id="expensesSection">
+        <div class="section-header">Expenses</div>
+        <div class="section-body">
+          {% if user_role == "DRIVER" %}
+          <div class="btn-container mb-8" id="addExpenseBtnContainer">
+            <a href="{% url 'expense_create' financial.pk %}" class="cta-button" id="addExpenseBtn">+ Add Expense</a>
+          </div>
+          {% endif %}
+          <div class="erp-table-container" id="expensesTableContainer">
+            <table class="erp-table" id="expensesTable">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th class="num">Amount</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for expense in expenses %}
+                <tr>
+                  <td>{{ expense.get_category_display }}</td>
+                  <td class="num">{{ expense.amount }}</td>
+                  <td>{{ expense.note|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3">No expenses recorded.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Invoices Section -->
+      <div class="section-card" id="invoicesSection">
+        <div class="section-header">Invoice</div>
+        <div class="section-body">
+          <div class="detail-grid" id="invoiceDetailGrid">
+            {% if invoice %}
+              <div class="detail-label">Invoice ID:</div>
+              <div class="detail-value">{{ invoice.id }}</div>
+              <div></div>
+
+              <div class="detail-label">Issue Date:</div>
+              <div class="detail-value">{{ invoice.issue_date|default:"N/A" }}</div>
+              <div></div>
+
+              <div class="detail-label">Due Date:</div>
+              <div class="detail-value">{{ invoice.due_date|default:"N/A" }}</div>
+              <div></div>
+
+              <div class="detail-label">Amount Due:</div>
+              <div class="detail-value">{{ invoice.amount_due }}</div>
+              <div></div>
+
+              <div class="detail-label">Status:</div>
+              <div class="detail-value">{% if invoice.is_paid %}Paid{% else %}Pending{% endif %}</div>
+              <div></div>
+
+              {% if invoice.attached_image %}
+                <div class="detail-label">Image:</div>
+                <div class="detail-value" style="grid-column: span 2;">
+                  {% if invoice and absolute_invoice_image_url %}
+                  <img src="{{ absolute_invoice_image_url }}" alt="Invoice Image" style="max-width:100%;" />
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if user_role == "DRIVER" %}
+                <div></div>
+                <div class="detail-value"><a href="{% url 'invoice_update' invoice.pk %}" class="cta-button">Edit Invoice</a></div>
+                <div></div>
+              {% endif %}
+            {% else %}
+              <div class="detail-label">Invoice:</div>
+              <div class="detail-value">No invoice available.</div>
+              <div></div>
+              {% if user_role == "DRIVER" %}
+                <div></div>
+                <div class="detail-value"><a href="{% url 'invoice_create' trip.pk %}" class="cta-button">Add Invoice</a></div>
+                <div></div>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+    </div> <!-- /trip-page -->
+    <div class="security-header mt-12">
+      AUTHORIZED USE ONLY —  {{ current_time|date:"Y-m-d H:i:s" }}
+    </div>
+  </body>
+</html>

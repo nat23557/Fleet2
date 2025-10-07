@@ -1,0 +1,101 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="grid-2">
+    {% if user_role == 'DRIVER' %}
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">My Profile</div>
+      </div>
+      <div class="list">
+        <div class="list-item">
+          <div class="item-meta">
+            <div class="meta-title">User</div>
+            <div class="meta-sub">{{ me_staff.user.username }}</div>
+          </div>
+          <span class="badge blue">{{ me_staff.get_role_display }}</span>
+        </div>
+        {% if me_driver %}
+        <div class="list-item">
+          <div class="item-meta">
+            <div class="meta-title">License Number</div>
+            <div class="meta-sub">{{ me_driver.license_number }}</div>
+          </div>
+          <span class="badge green">Driver</span>
+        </div>
+        <div class="list-item">
+          <div class="item-meta">
+            <div class="meta-title">License Expiry (ET)</div>
+            <div class="meta-sub">{{ me_driver.ethiopian_license_expiration }}</div>
+          </div>
+          <span class="badge amber">Check</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Top Drivers (30 days)</div>
+        <a class="action-link" href="{% url 'driver-list' %}">Manage</a>
+      </div>
+      <div class="list">
+        {% for d in top_drivers %}
+        <a class="list-item" href="{% url 'driver-detail' d.pk %}">
+          <div class="item-meta">
+            <div class="meta-title">{{ d.staff_profile.user.username }}</div>
+            <div class="meta-sub">License: {{ d.license_number }}</div>
+          </div>
+          <span class="badge blue">{{ d.completed_trips }} trips</span>
+        </a>
+        {% empty %}
+        <div class="meta-sub">No driver activity yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Licenses Expiring (30 days)</div>
+      </div>
+      <div class="list">
+        {% for d in drivers_expiring %}
+        <a class="list-item" href="{% url 'driver-detail' d.pk %}">
+          <div class="item-meta">
+            <div class="meta-title">{{ d.staff_profile.user.username }}</div>
+            <div class="meta-sub">Djibouti: {{ d.djibouti_license_expiration }} • Ethiopia: {{ d.ethiopian_license_expiration }}</div>
+          </div>
+          <span class="badge amber">Review</span>
+        </a>
+        {% empty %}
+        <div class="meta-sub">No upcoming expirations.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Staff</div>
+        <a class="action-link" href="{% url 'staff-list' %}">Manage</a>
+      </div>
+      <div class="list">
+        {% for s in staff_members %}
+        <a class="list-item" href="{% url 'staff-detail' s.pk %}">
+          <div class="item-meta">
+            <div class="meta-title">{{ s.user.username }}</div>
+            <div class="meta-sub">Role: {{ s.get_role_display }}</div>
+          </div>
+          <span class="badge gray">&nbsp;</span>
+        </a>
+        {% empty %}
+        <div class="meta-sub">No staff added.</div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

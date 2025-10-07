@@ -1,0 +1,55 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-container">
+    <h2>{{ form.instance.pk|yesno:"Update Staff,Create Staff" }}</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <!-- User Creation Fields -->
+        <div class="form-group">
+            <label for="id_username">Username</label>
+            {{ form.username }}
+            {{ form.username.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_email">Email</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_password">Password</label>
+            {{ form.password }}
+            {{ form.password.errors }}
+        </div>
+
+        <!-- Staff Details -->
+        <div class="form-group">
+            <label for="id_role">Role</label>
+            {{ form.role }}
+            {{ form.role.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_phone">Phone Number</label>
+            {{ form.phone }}
+            {{ form.phone.errors }}
+        </div>
+
+        <!-- National ID Upload -->
+        <div class="form-group">
+            <label for="id_national_id">National ID Upload (Images Only)</label>
+            <input type="file" name="national_id" accept="image/*" class="form-control">
+            {{ form.national_id.errors }}
+        </div>
+
+        <button type="submit" class="cta-button">Save</button>
+        <a href="{% url 'staff-list' %}" class="cancel-button">Cancel</a>
+    </form>
+</div>
+{% endblock %}

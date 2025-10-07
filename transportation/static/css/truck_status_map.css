@@ -1,0 +1,85 @@
+/* truck_status_map.css */
+
+/* Ensure the real-time status card takes the full width and pushes other elements down */
+#real-time-status {
+    display: block;
+    width: 100%;
+    clear: both;             /* Forces this element to start on a new row */
+    margin: 1.5rem 0;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* Lift constraints from generic .detail-card for the live status block */
+#real-time-status.detail-card {
+    max-height: none;
+    overflow: visible;
+}
+
+/* Grid layout: title spans, map left, panel right */
+#real-time-status.status-with-panel {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas:
+        "title title"
+        "map   panel";
+    align-items: start;
+    gap: 12px;
+}
+#real-time-status .card-title { grid-area: title; margin: 0 0 8px 0; }
+#status-map { grid-area: map; }
+#status-side-panel { grid-area: panel; }
+
+/* Style for the map container inside the real-time status card */
+#status-map {
+    width: 100%;
+    /* Grow large by default, but stay within the viewport below the fixed header */
+    height: clamp(480px, calc(74vh), 860px);
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+    margin: 0 auto;
+}
+
+/* Overlay controls inside the map */
+.map-controls { position: absolute; top: 10px; left: 10px; z-index: 1000; max-width: 320px; }
+.map-controls .ctrl-toggle {
+    background: rgba(255,255,255,0.95);
+    color: #073b27;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.map-controls .ctrl-list { display: grid; gap: 6px; margin-top: 6px; }
+.map-controls.collapsed .ctrl-list { display: none; }
+.map-controls .ctrl-input { min-width: 200px; background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,.15); border-radius: 8px; padding: 6px 8px; }
+.map-controls .ctrl-btn { background: rgba(255,255,255,0.9); color: #073b27; border: 1px solid rgba(0,0,0,.15); border-radius: 8px; padding: 6px 10px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.map-controls .ctrl-btn[aria-pressed="true"] { background: #e6f6ee; border-color: #0a7d43; }
+@media (max-width: 1024px) {
+  .map-controls { max-width: 60vw; }
+  .map-controls .ctrl-input { min-width: 140px; }
+}
+
+/* Fullscreen overlay for the status block */
+#real-time-status.fs {
+    position: fixed;
+    inset: var(--header-h, 0px) 0 0 0;
+    margin: 0 !important;
+    padding: 10px !important;
+    z-index: 1080;
+    background: var(--bg);
+    border-radius: 0;
+}
+#real-time-status.fs #status-map {
+    height: calc(100vh - var(--header-h, 0px) - 20px);
+}
+
+/* Optional: Style for the popup content */
+.leaflet-popup-content {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.95rem;
+    color: #333;
+}

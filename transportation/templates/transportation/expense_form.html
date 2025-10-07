@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="form-container">
+  <h2 class="form-title">
+    {% if form.instance.pk %}Update Expense{% else %}Add Expense{% endif %}
+  </h2>
+  
+  
+  <form method="POST" class="erp-form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="form-group">
+      <label for="id_category">Category</label>
+      {{ form.category }}
+      {% if form.note.help_text %}
+      <small class="form-text text-muted">{{ form.note.help_text }}</small>
+    {% endif %}
+    </div>
+
+    <div class="form-group">
+      <label for="id_amount">Amount</label>
+      {{ form.amount }}
+    </div>
+
+    <div class="form-group">
+      <label for="id_note">Note</label>
+      {{ form.note }}
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="cta-button">
+        {% if form.instance.pk %}Update
+
+        {% else %}Add{% endif %}
+        
+
+      </button>
+      {% if form.instance.pk %}        <a href="{% url 'expense_delete' expense.pk %}" class="cta-button">Delete Expense</a>
+        {% endif %}
+      <!-- If it's an update, we can link back to the trip detail using the expense's related trip. -->
+      {% if form.instance.pk %}
+        <a href="{% url 'trip_detail' form.instance.trip_financial.trip.pk %}" class="cta-button">Cancel</a>
+      {% else %}
+        <!-- If it's a create, we can attempt to link back to the trip detail using the next page or a known route. -->
+        <a href="{% url 'trip_list' %}" class="cta-button">Cancel</a>
+
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

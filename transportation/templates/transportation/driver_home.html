@@ -1,0 +1,91 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:1100px;margin-inline:auto;">
+  <div class="kpi-grid">
+    <div class="kpi-card accent-blue" data-reveal>
+      <div class="kpi-title">Assignment</div>
+      <div class="kpi-value">{% if assigned_truck %}{{ assigned_truck.plate_number }}{% else %}—{% endif %}</div>
+      <div class="kpi-icon">🚚</div>
+    </div>
+    <div class="kpi-card accent-amber" data-reveal>
+      <div class="kpi-title">Trip Status</div>
+      <div class="kpi-value">{% if active_trip %}In Progress{% else %}Idle{% endif %}</div>
+      <div class="kpi-icon">🧭</div>
+    </div>
+  </div>
+
+  <div class="section" style="grid-column:1 / -1;">
+    <div class="section-header">
+      <div class="section-title">Driver Actions</div>
+    </div>
+    <div class="quick-actions" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
+      {% if not has_active_trip %}
+      <a class="qa-btn" href="{% url 'trip_create' %}">
+        <span class="qa-ico">🧭</span>
+        <div>Start Trip<div class="qa-hint">Create a new trip</div></div>
+      </a>
+      {% else %}
+      <a class="qa-btn" href="{% url 'trip_detail' active_trip.pk %}">
+        <span class="qa-ico">📝</span>
+        <div>Open Current Trip<div class="qa-hint">View trip details</div></div>
+      </a>
+      <a class="qa-btn" href="{% url 'trip_update' active_trip.pk %}">
+        <span class="qa-ico">✏️</span>
+        <div>Update Trip Details<div class="qa-hint">Edit cargo load & tariff</div></div>
+      </a>
+      <a class="qa-btn" href="{% url 'expense_create' financial.pk %}">
+        <span class="qa-ico">💸</span>
+        <div>Add Expense<div class="qa-hint">Record a new expense</div></div>
+      </a>
+      {% if invoice %}
+      <a class="qa-btn" href="{% url 'invoice_update' invoice.pk %}">
+        <span class="qa-ico">🖼️</span>
+        <div>Update Invoice<div class="qa-hint">Replace image</div></div>
+      </a>
+      {% else %}
+      <a class="qa-btn" href="{% url 'invoice_create' active_trip.pk %}">
+        <span class="qa-ico">📎</span>
+        <div>Attach Invoice<div class="qa-hint">Upload invoice image</div></div>
+      </a>
+      {% endif %}
+      {% if invoice %}
+      <a class="qa-btn" href="{% url 'trip_complete_confirmation' active_trip.pk %}">
+        <span class="qa-ico">✅</span>
+        <div>Complete Trip<div class="qa-hint">Finish current trip</div></div>
+      </a>
+      {% else %}
+      <div class="qa-btn" aria-disabled="true" style="pointer-events:none;opacity:.6;">
+        <span class="qa-ico">✅</span>
+        <div>Complete Trip<div class="qa-hint">Attach invoice first</div></div>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      <a class="qa-btn" href="{% url 'user-profile' %}">
+        <span class="qa-ico">👤</span>
+        <div>My Profile<div class="qa-hint">Update your details</div></div>
+      </a>
+    </div>
+  </div>
+
+  {% if has_active_trip %}
+  <div class="section" style="grid-column:1 / -1;">
+    <div class="section-header"><div class="section-title">Current Trip Summary</div></div>
+    <div class="list">
+      <div class="list-item">
+        <div class="item-meta">
+          <div class="meta-title">{{ active_trip.truck.plate_number }} • {{ active_trip.start_location|default:'—' }} → {{ active_trip.end_location|default:'—' }}</div>
+          <div class="meta-sub">Started: {{ active_trip.start_time|date:'M d, H:i' }}</div>
+          {% if active_trip.cargo_type or active_trip.cargo_load %}
+          <div class="meta-sub">Cargo: {{ active_trip.cargo_type|default:'—' }} • Load {{ active_trip.cargo_load|default:'—' }}</div>
+          {% endif %}
+        </div>
+        <span class="badge amber">In Progress</span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="detail-container">
+  <h2>Office Vehicle Usage #{{ usage.pk }}</h2>
+  <ul>
+    <li><strong>Truck:</strong> {{ usage.truck.plate_number }}</li>
+    <li><strong>User:</strong>
+      {% if usage.user %}
+        {{ usage.user.user.username }}
+      {% else %}
+        -
+      {% endif %}
+    </li>
+    <li><strong>Start Time:</strong> {{ usage.start_time }}</li>
+    <li><strong>End Time:</strong> {{ usage.end_time|default:"-" }}</li>
+    <li><strong>Start Odometer:</strong> {{ usage.start_odometer }}</li>
+    <li><strong>End Odometer:</strong> {{ usage.end_odometer }}</li>
+    <li><strong>Distance Traveled:</strong> {{ usage.distance_traveled }} km</li>
+    <li><strong>Fuel Consumed:</strong> {{ usage.fuel_consumed|default:"-" }} L</li>
+    <li><strong>Purpose:</strong> {{ usage.purpose|default:"-" }}</li>
+    <li><strong>Notes:</strong> {{ usage.notes|default:"-" }}</li>
+  </ul>
+
+  <div class="detail-actions">
+    <a href="{% url 'office_usage_list' truck.pk%}" class="cta-button">Back to List</a>
+  </div>
+</div>
+{% endblock %}

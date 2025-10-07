@@ -1,0 +1,48 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="table-container">
+  <h2>Replaced Items for Truck {{ truck.plate_number }}</h2>
+  <div class="btn-container">
+    <a href="{% url 'replaced-item-create' truck.pk %}" class="cta-button">+ Replace Item</a>
+  </div>
+
+  <table class="erp-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Part Name</th>
+        <th>Date Replaced</th>
+        <th>Cost</th>
+        <th>Image</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ item.part_name }}</td>
+        <td>{{ item.date_replaced }}</td>
+        <td>${{ item.cost|default:"0.00" }}</td>
+        <td>
+          {% if item.replacement_image %}
+            <a href="{{ item.replacement_image.url }}" target="_blank">View Image</a>
+          {% else %}
+            None
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'replaced-item-detail' item.pk %}" class="action-link">View</a> |
+          <a href="{% url 'replaced-item-update' item.pk %}" class="action-link">Edit</a> |
+          <a href="{% url 'replaced-item-delete' item.pk %}" class="action-link delete-link">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">No replaced items found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="service-detail-container">
+    <div class="service-detail-header">
+        <h2 class="service-detail-title">Service Record</h2>
+    </div>
+
+    <div class="service-detail-content">
+        <div class="service-detail-grid">
+            <div class="service-detail-item">
+                <span class="service-detail-label">🚛 Truck:</span>
+                <span class="service-detail-value">{{ service.truck.plate_number }}</span>
+            </div>
+            <div class="service-detail-item">
+                <span class="service-detail-label">📅 Date:</span>
+                <span class="service-detail-value">{{ service.date }}</span>
+            </div>
+            <div class="service-detail-item">
+                <span class="service-detail-label">🛠 Type:</span>
+                <span class="service-detail-value">{{ service.service_type }}</span>
+            </div>
+            <div class="service-detail-item">
+                <span class="service-detail-label">💲 Cost:</span>
+                <span class="service-detail-value">${{ service.cost|default:"0.00" }}</span>
+            </div>
+            <div class="service-detail-item">
+                <span class="service-detail-label">🏢 Vendor:</span>
+                <span class="service-detail-value">{{ service.vendor|default:"N/A" }}</span>
+            </div>
+            <div class="service-detail-item">
+                <span class="service-detail-label">🔄 Next Service:</span>
+                <span class="service-detail-value">{{ service.next_service_date|default:"N/A" }}</span>
+            </div>
+            <div class="service-detail-item full-width">
+                <span class="service-detail-label">📝 Notes:</span>
+                <span class="service-detail-value">{{ service.notes|default:"N/A" }}</span>
+            </div>
+        </div>
+        
+        {% if service.service_image %}
+        <div class="service-image-section">
+            <h3>📄 Receipt / Image</h3>
+            <a href="{{ service.service_image.url }}" target="_blank">
+                <img src="{{ service.service_image.url }}" alt="Service Document" class="service-detail-image">
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="service-detail-actions">
+        <a href="{% url 'service-list' service.truck.pk %}" class="service-cancel-button">🔙 Back to Services</a>
+    </div>
+</div>
+{% endblock %}

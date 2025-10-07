@@ -1,0 +1,70 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">Report Accident for Truck <span>{{ truck.plate_number }}</span></h2>
+
+    <form method="POST" enctype="multipart/form-data" class="erp-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-group">
+            <label for="id_driver">Driver</label>
+            {{ form.driver }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_date">Date</label>
+            {{ form.date }}
+        </div>
+
+        <!-- Location Input (User Cannot Edit Directly) -->
+        <div class="form-group">
+            <label for="id_location">Accident Location</label>
+            {{ form.location }}
+        </div>
+
+        <!-- Hidden Latitude & Longitude Inputs -->
+        {{ form.latitude }}
+        {{ form.longitude }}
+
+        <!-- MAP CONTAINER -->
+        <div id="map" style="height: 400px; border-radius: 6px; margin-bottom: 1rem;"></div>
+
+        <div class="form-group">
+            <label for="id_severity">Severity</label>
+            {{ form.severity }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_description">Description</label>
+            {{ form.description }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_accident_image">Accident Image</label>
+            {{ form.accident_image }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_cost_of_damage">Cost of Damage</label>
+            {{ form.cost_of_damage }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="cta-button">Save</button>
+            <a href="{% url 'accident-list' truck.pk %}" class="cta-button">Cancel</a>
+            
+        </div>
+    </form>
+</div>
+
+<!-- LEAFLET MAP LIBRARY -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<!-- LOAD THE SECURED EXTERNAL SCRIPT -->
+<script src="{% static 'js/location_picker.js' %}"></script>
+
+{% endblock %}

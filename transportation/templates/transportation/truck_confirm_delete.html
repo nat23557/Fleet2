@@ -1,0 +1,25 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="table-container">
+  {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+ 
+  <h2>Confirm Delete</h2>
+  <p>Are you sure you want to delete truck <strong>{{ truck.plate_number }}</strong>?</p>
+
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="cta-button">Yes, Delete</button>
+    <a href="{% url 'truck-list' %}" class="cancel-button">Cancel</a>
+  </form>
+</div>
+{% endblock %}

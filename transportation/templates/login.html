@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+  <title>ThermoFam ERP | Secure Login</title>
+  <link rel="icon" type="image/png" href="{% static 'images/Thermologo.jpg' %}" />
+
+  <style>
+    /* Page Layout (full viewport height, centered content) */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: #0f0; /* Neon green for a mysterious ambience */
+      font-family: "Courier New", Courier, monospace;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Container for the login form */
+    .login-container {
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); /* Green glow */
+      width: 320px;
+      text-align: center;
+    }
+
+    /* Logo styling: small margin-bottom */
+    .logo-img {
+      width: 80px; /* Adjust as needed */
+      height: auto;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 2px solid #444;
+      box-shadow: 0 0 10px rgba(0,255,0,0.2);
+    }
+
+    /* Headings */
+    .login-container h2 {
+      margin-bottom: 1rem;
+      color: #0f0;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* Labels above text inputs */
+    label {
+      display: block;
+      margin-top: 1rem;
+      text-align: left;
+      color: #0f0;
+      font-weight: bold;
+    }
+
+    /* Username and Password fields */
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      background: #333;
+      border: 1px solid #444;
+      color: #0f0;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+
+    /* Submit button */
+    button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      background-color: #444;
+      color: #0f0;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.3s ease;
+      font-family: inherit;
+    }
+    button:hover {
+      background-color: #666;
+    }
+
+    /* Error message for invalid login attempts */
+    .error-message {
+      color: #f00;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <!-- ThermoFam Logo -->
+    <img 
+      src="{% static 'images/Thermologo.jpg' %}" 
+      alt="ThermoFam Trading PLC" 
+      class="logo-img"
+    >
+
+    <h2>ThermoFam ERP Access</h2>
+    
+    <!-- Show error if login fails -->
+    {% if error_message %}
+      <div class="error-message">{{ error_message }}</div>
+    {% endif %}
+    
+    <form method="POST">
+      {% csrf_token %}
+      <label for="username">Username</label>
+      <input 
+        type="text" 
+        name="username" 
+        id="username" 
+        placeholder="YourUsername"
+        required
+      >
+      
+      <label for="password">Password</label>
+      <input 
+        type="password" 
+        name="password" 
+        id="password" 
+        placeholder="********"
+        required
+      >
+      
+      <button type="submit">Login to ERP</button>
+    </form>
+  </div>
+</body>
+</html>

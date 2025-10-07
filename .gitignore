@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+logs/
+*.log
+
+# envs & IDE
+.venv/ venv/ ENV/ env/
+.vscode/ .idea/
+.DS_Store Thumbs.db
+# .gitignore
+venv/
+__pycache__/
+*.pyc
+*.pyo
+db.sqlite3
+media/
+staticfiles/

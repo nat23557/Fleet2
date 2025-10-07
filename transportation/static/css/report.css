@@ -1,0 +1,82 @@
+/* report.css */
+
+.report-container {
+    margin: 2rem auto;
+    max-width: 1200px;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    justify-content: center;
+    overflow-x: auto;
+  }
+  
+  .report-heading {
+    text-align: center;
+    color: #017335;
+    margin-bottom: 2rem;
+  }
+  
+  .chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+  
+  .gauge-container {
+    max-width: 300px;
+    margin: 0 auto 2rem;
+    text-align: center;
+  }
+  
+  .gauge-label {
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+  
+  /* Navigation menu styling */
+  .user-menu {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+  
+.report-nav {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.report-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 10px;
+}
+
+.report-menu li {
+  display: inline;
+}
+
+.report-menu-btn {
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  background-color: #017335;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.report-menu-btn:hover {
+  background-color: #017335;
+}
+
+.report-menu-btn.active {
+  background-color: #017335;
+  font-weight: bold;
+}

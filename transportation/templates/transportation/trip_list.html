@@ -1,0 +1,195 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+{% if messages %}
+    <div class="message-container">
+      {% for message in messages %}
+        <div class="erp-message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <link rel="stylesheet" href="{% static 'css/messages.css' %}">
+
+  <!-- Load external JavaScript -->
+  <script src="{% static 'js/messages.js' %}"></script>
+<div class="dashboard">
+  <!-- KPI Cards -->
+  {% if is_driver %}
+  <div style="margin-bottom:1.5rem; padding:1rem 1.25rem; border:1px solid var(--border-strong, #e5e7eb); border-radius:12px; background:var(--surface, #f9fafb);">
+    <strong>Driver tools:</strong> manage your trips and submit expense records from this page.
+    {% if has_uncompleted_trip %}
+    <span style="display:block; margin-top:0.5rem;">Finish your active trip before starting another.</span>
+    {% endif %}
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card accent-blue" data-reveal>
+      <div class="kpi-title">My Active Trips</div>
+      <div class="kpi-value" data-countup>{{ active_trips_count }}</div>
+      <div class="kpi-icon">🧭</div>
+    </div>
+    <div class="kpi-card accent-teal" data-reveal>
+      <div class="kpi-title">Completed Today</div>
+      <div class="kpi-value" data-countup>{{ completed_today }}</div>
+      <div class="kpi-icon">✅</div>
+    </div>
+    <div class="kpi-card accent-green" data-reveal>
+      <div class="kpi-title">Recent Completions</div>
+      <div class="kpi-value" data-countup>{{ recent_completed|length }}</div>
+      <div class="kpi-icon">🧾</div>
+    </div>
+  </div>
+  {% else %}
+  <div class="kpi-grid">
+    <div class="kpi-card accent-blue" data-reveal>
+      <div class="kpi-title">Active Trips</div>
+      <div class="kpi-value" data-countup>{{ active_trips_count }}</div>
+      <div class="kpi-icon">🧭</div>
+    </div>
+    <div class="kpi-card accent-teal" data-reveal>
+      <div class="kpi-title">Completed Today</div>
+      <div class="kpi-value" data-countup>{{ completed_today }}</div>
+      <div class="kpi-icon">✅</div>
+    </div>
+    <div class="kpi-card accent-green" data-reveal>
+      <div class="kpi-title">Revenue (this month)</div>
+      <div class="kpi-value" data-countup data-decimals="2">{{ revenue_month|floatformat:2 }}</div>
+      <div class="kpi-icon">💰</div>
+    </div>
+    <div class="kpi-card accent-blue" data-reveal>
+      <div class="kpi-title">Income (this month)</div>
+      <div class="kpi-value" data-countup data-decimals="2">{{ income_month|floatformat:2 }}</div>
+      <div class="kpi-icon">📈</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Quick Actions -->
+  <div class="section" style="grid-column:1 / -1;">
+    <div class="section-header">
+      <div class="section-title">Quick Actions</div>
+      {% if user_role == "ADMIN" %}
+      <a class="action-link" href="{% url 'trip_completed_filter' %}">Completed Trips</a>
+      {% endif %}
+    </div>
+    <div class="quick-actions">
+      {% if is_driver %}
+        {% if has_uncompleted_trip %}
+        <div class="qa-btn" aria-disabled="true" style="pointer-events:none; opacity:0.6;">
+          <span class="qa-ico">🧭</span>
+          <div>Active Trip In Progress<div class="qa-hint">Complete it before starting a new trip</div></div>
+        </div>
+        {% else %}
+        <a class="qa-btn" href="{% url 'trip_create' %}"><span class="qa-ico">🧭</span><div>Start Trip<div class="qa-hint">Create new</div></div></a>
+        {% endif %}
+        <a class="qa-btn" href="{% url 'user-profile' %}"><span class="qa-ico">👤</span><div>My Profile<div class="qa-hint">Update your details</div></div></a>
+      {% else %}
+      <a class="qa-btn" href="{% url 'report_index' %}"><span class="qa-ico">📊</span><div>Reports<div class="qa-hint">Financial KPIs</div></div></a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Active Trips as cards -->
+  <div class="grid-2">
+    {% if show_fleet_map %}
+    <div class="section" style="grid-column: 1 / -1;">
+      <div class="section-header"><div class="section-title">Fleet Live Map</div></div>
+      <div class="chart-box" style="height: clamp(320px, 50vh, 560px);">
+        <div id="fleet-map" style="height:100%; width:100%; border-radius:10px; overflow:hidden; border:1px solid var(--border);"></div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="section">
+      <div class="section-header"><div class="section-title">Active Trips</div></div>
+      <div class="list">
+        {% for trip in trips %}
+        <a class="list-item" href="{% url 'trip_detail' trip.pk %}" data-reveal data-trip="{{ trip.pk }}" data-plate="{{ trip.truck.plate_number }}">
+          <div class="item-meta">
+            <div class="meta-title">{{ trip.truck.plate_number }} • {{ trip.start_location }} → {{ trip.end_location }}</div>
+            <div class="meta-sub">
+              {% if not is_driver %}
+              Driver: {% if trip.driver %}{{ trip.driver.staff_profile.user.username }}{% else %}N/A{% endif %} •
+              {% endif %}
+              Started: {{ trip.start_time|date:'M d, H:i' }}
+            </div>
+            {% if not is_driver %}
+            <div class="meta-sub">Loc: <span class="live-loc">-</span> • Speed: <span class="live-speed">-</span> • Engine: <span class="live-engine">-</span> • Updated: <span class="live-updated">-</span></div>
+            {% endif %}
+          </div>
+          {% if not is_driver %}
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:.4rem;">
+            <span class="badge amber pulse">Live</span>
+            <button class="qa-btn" style="padding:.3rem .6rem; font-weight:700;" data-track-open="{{ trip.pk }}">Track</button>
+          </div>
+          {% else %}
+          <!-- Hide live badge for drivers to avoid implying GPS access -->
+          <div></div>
+          {% endif %}
+        </a>
+        {% empty %}
+        <div class="meta-sub">No active trips.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if not is_driver %}
+    <div class="section">
+      <div class="section-header"><div class="section-title">Recent Completed</div></div>
+      <div class="list">
+        {% for t in recent_completed %}
+        <a class="list-item" href="{% url 'trip_detail' t.pk %}" data-reveal>
+          <div class="item-meta">
+            <div class="meta-title">{{ t.truck.plate_number }} • {{ t.start_location }} → {{ t.end_location }}</div>
+            <div class="meta-sub">Ended: {{ t.end_time|date:'M d, H:i' }}</div>
+          </div>
+          <span class="badge green">Completed</span>
+        </a>
+        {% empty %}
+        <div class="meta-sub">No completed trips yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if user_role == "ADMIN" %}
+  <div class="section">
+    <div class="section-header"><div class="section-title">Pending Invoices</div></div>
+    <div class="list">
+      {% for invoice in pending_invoices %}
+      <a class="list-item" href="{% url 'trip_detail' invoice.trip.pk %}" data-reveal>
+        <div class="item-meta">
+          <div class="meta-title">Trip #{{ invoice.trip.pk }} — {{ invoice.amount_due }} ETB</div>
+          <div class="meta-sub">Issued: {{ invoice.issue_date|default:"N/A" }}</div>
+        </div>
+        <span class="badge red">Unpaid</span>
+      </a>
+      {% empty %}
+      <div class="meta-sub">No pending invoices.</div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{# legacy table removed in favor of cards #}
+{% if not is_driver %}
+<script src="{% static 'js/trip_live.js' %}"></script>
+{% endif %}
+{% if show_fleet_map %}
+<!-- Leaflet for fleet and track maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script src="{% static 'js/fleet_map.js' %}"></script>
+<!-- Track modal markup -->
+<link rel="stylesheet" href="{% static 'css/charts.css' %}">
+<div id="trackModal" class="modal">
+  <div class="modal-content">
+    <span id="trackClose" class="close-button">&times;</span>
+    <div class="chart-box" style="height:60vh;">
+      <div id="trackMapBox" style="height:100%; width:100%;"></div>
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/trip_track_modal.js' %}"></script>
+{% endif %}
+{% endblock %}

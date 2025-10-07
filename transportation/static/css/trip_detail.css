@@ -1,0 +1,194 @@
+/********************************************
+ * Global Page Wrapper
+ ********************************************/
+ .trip-page {
+    margin: 2rem auto;
+    max-width: 1200px;
+    padding: 0 1rem;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+  }
+  
+  /********************************************
+   * Headers / Titles
+   ********************************************/
+  .trip-header {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .trip-title {
+    font-size: 1.75rem;
+    color: var(--brand-600);
+    margin: 0;
+  }
+  
+  /********************************************
+   * Cards & Containers
+   ********************************************/
+  .trip-info-card,
+  .financial-container,
+  .expenses-container,
+  .invoices-container {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-1);
+    color: var(--text);
+  }
+  
+  .erp-table-container {
+    margin-top: 1rem;
+  }
+  
+  .section-title {
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    color: var(--brand-600);
+  }
+  
+  /********************************************
+   * Detail Grid
+   ********************************************/
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .detail-item {
+    background: rgba(0,0,0,.03);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+  }
+  html[data-theme="dark"] .detail-item { background: rgba(255,255,255,.06); }
+  
+  .detail-label {
+    font-weight: 600;
+    color: var(--subtext);
+  }
+  
+  .detail-value {
+    margin-left: 0.25rem;
+    color: var(--text);
+  }
+  
+  /********************************************
+   * Table Styling
+   ********************************************/
+  .erp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--surface);
+  }
+  
+  .erp-table th,
+  .erp-table td {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  
+  /* Let global theme.css color the table header using brand color */
+  .erp-table thead tr {
+    background-color: inherit;
+  }
+  
+  /* Use zebra striping from theme.css which adapts to theme */
+  .erp-table tbody tr:nth-child(even) {
+    background-color: transparent;
+  }
+  
+  /********************************************
+   * Map Section
+   ********************************************/
+  .trip-map-section {
+    margin-bottom: 2rem;
+  }
+  
+  #route-map.trip-map-container {
+    width: 100%;
+    height: clamp(520px, 68vh, 800px);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-1);
+  }
+  
+  .custom-route-icon .marker-pin {
+    width: 24px;
+    height: 24px;
+    background-color: #4287f5;
+    border-radius: 50% 50% 0;
+    transform: rotate(45deg);
+    border: 2px solid #fff;
+  }
+  
+  /********************************************
+   * Action Buttons
+   ********************************************/
+  .detail-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+  
+
+  /* -------------------------------------------------
+   Trip Detail Page Custom Styles
+---------------------------------------------------*/
+
+/* Use global .detail-container styling for the page wrapper */
+#tripDetailPage {
+    /* Inherits from .detail-container (max-width, padding, background, etc.) */
+  }
+  
+  /* Header Section */
+  #tripHeader {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Trip Map Section */
+  #routeMapCard {
+    margin-top: 1.5rem;
+  }
+  .trip-map-container {
+    width: 100%;
+    height: clamp(520px, 68vh, 800px);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+  }
+  
+  /* Action Buttons Container */
+  #tripActionButtons {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  /* Ensure each detail card has proper spacing */
+  .detail-card {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* (Optional) Custom Route Icon Override */
+  .custom-route-icon .marker-pin {
+    width: 24px;
+    height: 24px;
+    background-color: #4287f5;
+    border-radius: 50% 50% 0;
+    transform: rotate(45deg);
+    border: 2px solid #fff;
+  }
+  

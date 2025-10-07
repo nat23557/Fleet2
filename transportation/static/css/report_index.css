@@ -1,0 +1,78 @@
+/* Container for the report index */
+.report-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    /* Ensure horizontal overflow if content is too wide */
+    overflow-x: auto;
+  }
+  
+  /* Title styling */
+  .report-title {
+    text-align: center;
+    font-size: 2rem;
+    color: #017335; /* ThermoFam Green */
+    margin-bottom: 1rem;
+  }
+  
+  /* Description text under the title */
+  .report-description {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 2rem;
+  }
+  
+  /* Report menu list */
+  .report-menu {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+    /* For small viewports, allow horizontal scrolling */
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Each list item should not shrink on narrow screens */
+  .report-menu li {
+    flex-shrink: 0;
+  }
+  
+  /* Button style for each report link */
+  .report-menu-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #017335; /* ThermoFam Green */
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+  
+  .report-menu-btn:hover {
+    background-color: #014f24; /* Darker green on hover */
+  }
+  
+  /* Responsive tweaks for smaller devices */
+  @media (max-width: 768px) {
+    .report-title {
+      font-size: 1.6rem;
+    }
+  
+    .report-description {
+      font-size: 1rem;
+    }
+  
+    .report-menu-btn {
+      padding: 8px 16px;
+      font-size: 0.95rem;
+    }
+  }
+  

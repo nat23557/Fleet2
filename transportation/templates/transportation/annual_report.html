@@ -1,0 +1,105 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="report-container">
+  <h2 class="report-title">Annual Report - {{ year }}</h2>
+
+  <!-- Year Selection Form -->
+  <form method="GET" class="report-form">
+    <label for="year">Select Year:</label>
+    <input type="number" id="year" name="year" value="{{ year }}" min="2000" max="2100">
+    <button type="submit" class="cta-button">Go</button>
+  </form>
+
+  <!-- Overall Totals Table -->
+  <h3>Overall Totals for {{ year }}</h3>
+  <div class="scroll-container">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Total Revenue</th>
+          <th>Total Expense</th>
+          <th>Income Before Tax</th>
+          <th>Net Profit Margin (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ overall_totals.total_revenue|floatformat:2 }}</td>
+          <td>{{ overall_totals.total_expense|floatformat:2 }}</td>
+          <td>{{ overall_totals.income_before_tax|floatformat:2 }}</td>
+          <td>{{ overall_totals.profit_margin|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Per-Truck Totals Table -->
+  <h3>Per-Truck Totals</h3>
+  <div class="scroll-container">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Truck Plate</th>
+          <th>Total Revenue</th>
+          <th>Total Expense</th>
+          <th>Income Before Tax</th>
+          <th>Net Profit Margin (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for truck in truck_data_list %}
+        <tr>
+          <td>{{ truck.truck_plate }}</td>
+          <td>{{ truck.total_revenue|floatformat:2 }}</td>
+          <td>{{ truck.total_expense|floatformat:2 }}</td>
+          <td>{{ truck.income_before_tax|floatformat:2 }}</td>
+          <td>{{ truck.profit_margin|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-muted">No truck data available for this year.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Chart Buttons Section -->
+  <div class="chart-buttons">
+    <button class="view-chart-button"  data-chart="overall">View Overall Chart</button>
+    <button class="view-chart-button"  data-chart="expense">View Expense Chart</button>
+    <button class="view-chart-button" data-chart="perTruck">View Per-Truck Charts</button>
+  </div>
+</div>
+
+<!-- Hidden canvases for chart data (data attributes used for reinitialization) -->
+<canvas id="overallChart" data-overall='{{ overall_chart_data|safe }}' style="display:none;"></canvas>
+<canvas id="expenseChart" data-expense='{{ expense_chart_data|safe }}' style="display:none;"></canvas>
+
+<!-- Modal Structure -->
+<div id="chartModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <!-- The active content will be rendered here dynamically -->
+    <div id="modalChartContainer"></div>
+  </div>
+</div>
+
+<!-- JSON Data for charts (months + per-truck) -->
+<script id="months-data" type="application/json">
+  {{ months_json|safe }}
+</script>
+<script id="truck-chart-data" type="application/json">
+  {{ truck_chart_data|safe }}
+</script>
+
+<!-- Load Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Custom JS for chart handling -->
+<script src="{% static 'js/charts.js' %}"></script>
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{% static 'css/charts.css' %}">
+
+{% endblock %}

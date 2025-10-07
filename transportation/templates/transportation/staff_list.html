@@ -1,0 +1,62 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Display Django messages -->
+{% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="table-container">
+    <h2>Staff Members</h2>
+    <!-- Create New Staff Button -->
+    <div class="btn-container">
+      <a href="{% url 'staff-create' %}" class="cta-button">+ Create Staff</a>
+    </div>
+
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>National ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff_member in staff_members %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ staff_member.user.username }}</td>
+                <td>{{ staff_member.get_role_display }}</td>
+                <td>{{ staff_member.phone }}</td>
+                <td>
+                  {% if staff_member.national_id %}
+                    <a href="{{ staff_member.national_id.url }}" target="_blank">View/Download</a>
+                  {% else %}
+                    None
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'staff-update' staff_member.pk %}" class="action-link">Edit</a> |
+                  <a href="{% url 'staff-delete' staff_member.pk %}" class="delete-link">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6">No staff members found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

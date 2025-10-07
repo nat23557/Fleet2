@@ -1,0 +1,30 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">{{ form.instance.pk|yesno:"Update Service,Add Service" }}</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="erp-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-grid">
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="error-message">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="cta-button">Save</button>
+            <a href="{% url 'service-list' truck.pk %}" class="cancel-button">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

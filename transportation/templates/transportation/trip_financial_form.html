@@ -1,0 +1,43 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="form-container">
+  {% comment %}
+    The title is dynamic. For a trip financial update we expect 'object' to be a TripFinancial instance;
+    for an expense detail update 'object' will be an OperationalExpenseDetail.
+  {% endcomment %}
+  {% if object.financial.trip %}
+    <h2 class="form-title">Update Dispatch Money for Trip #{{ object.financial.trip.pk }}</h2>
+  {% else %}
+    <h2 class="form-title">Update Dispatch Money</h2>
+  {% endif %}
+  
+  <form method="POST" enctype="multipart/form-data" class="erp-form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+
+    {% if expense_formset %}
+      {# Only available in the trip financial update view #}
+      {{ expense_formset.management_form }}
+      {% for form in expense_formset %}
+        <div class="form-group">
+          {{ form.non_field_errors }}
+          {{ form.as_p }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="form-actions">
+      <button type="submit" class="cta-button">Save</button>
+      {% if object.financial.trip %}
+      <a href="{% url 'trip_detail' object.financial.trip.pk %}" class="cta-button">Cancel</a>
+      {% else %}
+        {# In case the context differs, adjust the cancel URL accordingly #}
+        <a href="{% url 'trip_detail' trip.pk %}" class="cta-button">Cancel</a>
+        {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

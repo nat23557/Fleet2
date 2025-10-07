@@ -1,0 +1,65 @@
+/* Ensure the map container is sized */
+#route-map-container {
+    width: 100%;
+    margin: 1rem 0;
+  }
+  
+#route-map {
+    width: 100%;
+    height: clamp(520px, 68vh, 800px);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-1);
+    margin: 0 auto;
+  }
+  
+  /* Example custom marker icon (just a pin shape or your image) */
+  .custom-route-icon .marker-pin {
+    width: 24px;
+    height: 24px;
+    background-color: #4287f5;
+    border-radius: 50% 50% 0;
+    transform: rotate(45deg);
+    border: 2px solid #fff;
+  }
+  .detail-grid {
+    display: flex;
+    flex-wrap: nowrap;    /* Keeps items in one line */
+    overflow-x: auto;     /* Enables horizontal scrolling if needed */
+    gap: 1rem;            /* Optional: adds spacing between items */
+  }
+  
+  .detail-item {
+    flex: 0 0 auto;       /* Prevents items from shrinking */
+  }
+/* Container for the DIV icon. The Leaflet className is 'custom-car-icon'. */
+.custom-car-icon {
+    /* We can override default Leaflet icon styles, or just define our own. */
+    background: transparent; /* No background color by default */
+    border: none;
+  }
+  
+  /* Wrapper to create a circular + shadowed "3D" container for the icon image */
+  .car-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #ffffff, #e0e0e0); /* Subtle gradient */
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.2), 
+                -2px -2px 6px rgba(255,255,255,0.5); /* 3D "neumorphism" effect */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* Ensures image is clipped in a circle if needed */
+  }
+  
+  /* The actual truck/car image */
+  .car-icon-img {
+    width: 42px;
+    height: 42px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #fff; /* White ring around the image */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+    

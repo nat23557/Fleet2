@@ -1,0 +1,31 @@
+<!-- transportation/trip_form_driver.html -->
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="form-container">
+  <h2>{% if object %}Update Trip{% else %}Trip Details{% endif %}</h2>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    
+    <!-- Cargo Type -->
+    <div class="form-group">
+      <label for="id_cargo_type">Cargo Type</label>
+      {{ form.cargo_type }}
+    </div>
+    <!-- Cargo Load -->
+    <div class="form-group">
+      <label for="id_cargo_load">Cargo Load</label>
+      {{ form.cargo_load }}
+    </div>
+    <!-- Tariff Rate -->
+    <div class="form-group">
+      <label for="id_tariff_rate">Tariff Rate</label>
+      {{ form.tariff_rate }}
+    </div>
+
+    <button type="submit" class="cta-button">{% if object %}Update Trip{% else %}Start Trip{% endif %}</button>
+  </form>
+</div>
+{% endblock %}

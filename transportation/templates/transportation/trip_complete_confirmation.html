@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+  <!-- Message container -->
+  {% if messages %}
+    <div class="message-container">
+      {% for message in messages %}
+        <div class="erp-message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="table-container">
+    <h2>Confirm Trip Completion</h2>
+    <p>
+      Are you sure you want to mark trip <strong>#{{ trip.pk }}</strong> as
+      <strong>completed</strong>? This action cannot be reversed.
+    </p>
+
+    <form method="POST" action="{% url 'trip_complete' trip.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="cta-button">Yes, Complete Trip</button>
+      <a href="{% url 'trip_detail' trip.pk %}" class="cancel-button">Cancel</a>
+    </form>
+  </div>
+  <link rel="stylesheet" href="{% static 'css/messages.css' %}">
+
+  <!-- Load external JavaScript -->
+  <script src="{% static 'js/messages.js' %}"></script>
+{% endblock %}

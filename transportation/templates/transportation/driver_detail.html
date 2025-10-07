@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Driver Detail</div>
+      <a class="action-link" href="{% url 'driver-list' %}">Back to list</a>
+    </div>
+    <div class="list">
+      <div class="list-item">
+        <div class="item-meta">
+          <div class="meta-title">Name</div>
+          <div class="meta-sub">{{ driver.staff_profile.user.username }}</div>
+        </div>
+        <span class="badge blue">License {{ driver.license_number }}</span>
+      </div>
+      <div class="list-item">
+        <div class="item-meta">
+          <div class="meta-title">Experience (years)</div>
+          <div class="meta-sub">{{ driver.years_of_experience }}</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-meta">
+          <div class="meta-title">Djibouti License Expiry</div>
+          <div class="meta-sub">{{ driver.djibouti_license_expiration|default:'-' }}</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-meta">
+          <div class="meta-title">Ethiopia License Expiry</div>
+          <div class="meta-sub">{{ driver.ethiopian_license_expiration|default:'-' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

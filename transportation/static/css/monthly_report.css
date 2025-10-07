@@ -1,0 +1,233 @@
+/* 
+1) Main report container 
+   - Keeps content centered and not too wide (max-width).
+*/
+.report-container {
+  max-width: 1200px;   /* Prevents extreme stretch on large screens */
+  margin: 0 auto;      /* Centers horizontally */
+  overflow-x: hidden;  /* Hides overflow if something is too wide */
+  padding: 0 1rem;     /* Padding for breathing room on left/right */
+}
+
+/*
+2) Table scrolling container
+   - Allows horizontal scroll if table is wide
+*/
+.scroll-container {
+  overflow-x: auto;    /* Show a horizontal scrollbar if content exceeds width */
+  margin-bottom: 1rem; /* Spacing below for aesthetics */
+}
+
+/* 
+3) Basic table styling 
+   - Full width table with standard borders.
+*/
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto; 
+}
+
+.erp-table th,
+.erp-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+/*
+4) Container for chart buttons 
+   - Flexbox row, centered items, spaced apart
+*/
+.chart-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+  overflow-x: hidden; /* Clips if somehow it’s too wide */
+}
+
+/*
+5) Individual chart buttons 
+   - Green-themed CTA style with hover transform
+*/
+.view-chart-button {
+  padding: 12px 16px;
+  background-color: #017335;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
+}
+.view-chart-button:hover {
+  background-color: #014f24;
+  transform: scale(1.05);
+}
+
+/*
+6) Modal overlay 
+   - Use flex to center content both vertically and horizontally
+*/
+.modal {
+  display: none;               /* Hidden by default (shown via JS) */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
+  
+  /* Flex centering logic */
+  align-items: center;
+  justify-content: center;
+
+  overflow: auto; /* Can scroll vertically if content is taller than viewport */
+}
+
+/*
+7) Modal content container 
+   - White “card” within overlay, with max-width
+*/
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;        /* Some top margin on large screens */
+  padding: 20px;
+  width: 80%;
+  max-width: 1200px;
+  position: relative;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 
+8) Responsive tweak for smaller screens 
+   - Make modal narrower 
+*/
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%;
+    margin: 5% auto;
+  }
+}
+
+/*
+9) Close button 
+   - “X” in top-right corner within modal content
+*/
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #017335;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.close-button:hover {
+  color: #014f24;
+}
+
+/*
+10) Chart container classes 
+    - For your line/bar charts
+*/
+.chart-display-container,
+.truck-expense-chart-container {
+  width: 100%;
+  margin-top: 1rem;
+  overflow-x: hidden; /* If chart is too wide, it’s clipped. 
+                         Switch to 'overflow-x: auto;' if you prefer a scrollbar. */
+}
+
+/*
+11) Per-Truck selector card 
+    - Light gray background “card”
+*/
+.truck-selector-card {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+.truck-selection-header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.truck-chart-selection-card {
+  text-align: center;
+}
+
+/*
+12) Truck grid container 
+    - Displays truck “cards” in a flexible row that wraps
+*/
+.truck-grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+/*
+13) Truck cards 
+    - Similar style to chart buttons, with a consistent brand color
+*/
+.truck-card {
+  background-color: #017335;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
+}
+.truck-card:hover {
+  background-color: #014f24;
+  transform: scale(1.05);
+}
+
+/*
+14) Hide the #view-chart1-button for viewport <= 600px
+   - You can adapt this as needed for certain UI elements.
+*/
+@media (max-width: 600px) {
+  #view-chart1-button {
+    display: none;
+  }
+}
+/* Container for chart buttons */
+.chart-buttons {
+  display: flex;
+  justify-content: center;       /* Center all buttons horizontally */
+  gap: 20px;                     /* Space between buttons */
+  margin: 2rem auto;            /* Adds vertical spacing and centers container */
+  max-width: 800px;             /* Optional: limit how wide the container can go */
+  padding: 1rem;                /* Optional: give extra breathing room inside */
+  background-color: #f9f9f9;    /* Optional: light background to visually separate */
+  border-radius: 8px;           /* Rounded corners */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Adjust the chart button style */
+.view-chart-button {
+  padding: 14px 20px;           /* Increase padding for a bigger, more ergonomic button */
+  background-color: #017335;    /* Keep your brand color */
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
+}
+.view-chart-button:hover {
+  background-color: #014f24;
+  transform: scale(1.05);
+}

@@ -1,0 +1,57 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="table-container">
+  <h2>Trucks</h2>
+
+  {% if staff_role is None %}  {# Only non-staff users see the button #}
+  <div class="btn-container">
+    <a href="{% url 'truck-create' %}" class="cta-button">+ Register Truck</a>
+  </div>
+  {% endif %}
+
+  <table class="erp-table">
+    <thead>
+      <tr>
+        <th>Plate Number</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Mileage</th>
+        <th>Driver</th>
+        <th>Actions</th>
+        <th>Type</th>
+...
+<td>{{ truck.vehicle_type }}</td>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for truck in trucks %}
+      <tr>
+        <td>{{ truck.plate_number }}</td>
+        <td>{{ truck.truck_type }}</td>
+        <td>{{ truck.get_status_display }}</td>
+        <td>{{ truck.mileage_km }} km</td>
+        <td>
+          {% if truck.driver %}
+            {{ truck.driver.staff_profile.user.username }}
+          {% else %}
+            N/A
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'truck-detail' truck.pk %}" class="action-link">View</a> |
+          <a href="{% url 'truck-update' truck.pk %}" class="action-link">Edit</a> |
+          <a href="{% url 'truck-delete' truck.pk %}" class="delete-link">Delete</a>
+        </td>
+        <td>{{ truck.vehicle_type }}</td>
+
+      </tr>
+      {% empty %}
+      <tr><td colspan="7">No trucks found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

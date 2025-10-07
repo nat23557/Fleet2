@@ -1,0 +1,156 @@
+/*
+  UI polish: elevated header + cohesive buttons
+  - Glassy, animated header with scroll shrink
+  - Accessible button system with variants and sizes
+  - Quick Action cards subtle upgrade
+*/
+
+/* Header: glass gradient + accent underline */
+.header {
+  background: linear-gradient(135deg, var(--brand-700, #15803d), var(--brand-600, #16a34a));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.12);
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
+  backdrop-filter: saturate(160%) blur(10px);
+  padding: 0.85rem 1.5rem; /* slightly tighter by default */
+  transition: padding .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,.35), rgba(255,255,255,0));
+  pointer-events: none;
+}
+
+/* Shrink on scroll for crisp first impression */
+.header.shrink { padding: 0.55rem 1.25rem; box-shadow: 0 10px 28px rgba(2,6,23,.18); }
+.header.shrink .logo-img { transform: scale(.9); opacity: .95; }
+.header .logo-img { transition: transform .18s ease, opacity .18s ease; }
+
+/* Brand text gets a subtle shine */
+.logo-text {
+  background: linear-gradient(90deg, #fff, #f0fff4, #ffffff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.12));
+}
+
+/* Nav links: animated active underline */
+.nav-links a {
+  position: relative;
+  border-radius: 10px;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 10px; right: 10px; bottom: 6px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--brand-400, #34d399), var(--brand-600, #16a34a));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .18s ease;
+}
+.nav-links a:hover::after, .nav-links a:focus-visible::after { transform: scaleX(1); }
+
+/* User menu trigger: elevated pill */
+.user-menu-trigger {
+  box-shadow: 0 4px 14px rgba(0,0,0,.15), inset 0 0 0 1px rgba(255,255,255,.25);
+}
+
+/* Button system */
+.btn, .cta-button, .profile-btn {
+  --btn-bg: var(--surface, #fff);
+  --btn-color: var(--text, #111827);
+  --btn-border: var(--border, #e5e7eb);
+  --btn-shadow: var(--shadow-1, 0 2px 5px rgba(15,23,42,.08));
+  display: inline-flex;
+  gap: .5rem;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  letter-spacing: .2px;
+  text-decoration: none;
+  border-radius: 12px;
+  border: 1px solid var(--btn-border);
+  padding: .6rem .9rem;
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  box-shadow: var(--btn-shadow);
+  transition: transform .14s ease, box-shadow .14s ease, filter .14s ease, background .14s ease, color .14s ease;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.btn:hover, .cta-button:hover, .profile-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-2, 0 6px 16px rgba(15,23,42,.12)); }
+.btn:active, .cta-button:active, .profile-btn:active { transform: translateY(0); filter: brightness(.98); }
+.btn:focus-visible, .cta-button:focus-visible, .profile-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(34,197,94,.35), var(--shadow-2, 0 6px 16px rgba(15,23,42,.12)); }
+
+/* Subtle center ripple on press (no JS) */
+.btn::after, .cta-button::after, .profile-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120px 120px at center, rgba(255,255,255,.35), rgba(255,255,255,0) 60%);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform .24s ease, opacity .24s ease;
+  pointer-events: none;
+}
+.btn:active::after, .cta-button:active::after, .profile-btn:active::after { transform: scale(1); opacity: 1; }
+
+/* Variants */
+.btn-primary, .cta-button, .profile-btn {
+  --btn-bg: linear-gradient(135deg, var(--brand-600, #16a34a), var(--brand-700, #15803d));
+  --btn-color: #fff;
+  --btn-border: rgba(0,0,0,.08);
+}
+
+.btn-outline {
+  --btn-bg: transparent;
+  --btn-color: var(--brand-700, #166534);
+  --btn-border: rgba(34,197,94,.35);
+}
+.btn-outline:hover { --btn-bg: rgba(34,197,94,.08); }
+
+.btn-ghost {
+  --btn-bg: rgba(255,255,255,.14);
+  --btn-color: #fff;
+  --btn-border: rgba(255,255,255,.25);
+}
+.header-cta.btn-ghost { box-shadow: 0 6px 16px rgba(0,0,0,.2), inset 0 0 0 1px rgba(255,255,255,.25); }
+
+.btn-danger {
+  --btn-bg: linear-gradient(135deg, #ef4444, #b91c1c);
+  --btn-color: #fff;
+  --btn-border: rgba(0,0,0,.08);
+}
+
+/* Sizes */
+.btn-sm { padding: .45rem .7rem; border-radius: 10px; font-size: .92rem; }
+.btn-lg { padding: .8rem 1.1rem; border-radius: 14px; font-size: 1.02rem; }
+
+/* Icon alignment */
+.btn .ico { font-size: 1.1em; line-height: 1; }
+.btn .ico.left { margin-right: .35rem; }
+.btn .ico.right { margin-left: .35rem; }
+
+/* Quick Actions: brighter surface and subtle glow */
+.qa-btn {
+  background: linear-gradient(180deg, var(--surface, #fff), rgba(255,255,255,.94));
+  border: 1px solid rgba(2,6,23,.06);
+}
+.qa-btn:hover { box-shadow: 0 10px 28px rgba(2,6,23,.14); }
+
+/* Dark theme tuning */
+html[data-theme="dark"] .header {
+  background: linear-gradient(135deg, #0b3b22, #0e4d2a);
+  border-bottom-color: rgba(255,255,255,.08);
+}
+html[data-theme="dark"] .nav-links a::after { background: linear-gradient(90deg, #86efac, #22c55e); }
+html[data-theme="dark"] .btn-ghost { --btn-bg: rgba(255,255,255,.06); --btn-border: rgba(255,255,255,.08); }
+html[data-theme="dark"] .qa-btn { background: linear-gradient(180deg, #121a1a, #0f1414); border-color: rgba(255,255,255,.06); }
+

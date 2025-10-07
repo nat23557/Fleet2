@@ -1,0 +1,74 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="table-container">
+    <h2>Drivers</h2>
+    <div class="btn-container">
+        <a href="{% url 'driver-create' %}" class="cta-button">+ Create Driver</a>
+    </div>
+
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>License</th>
+                <th>Experience</th>
+                <th>Employment Date</th>
+                <th>Salary</th>
+                <th>Djibouti License</th>
+                <th>Djibouti Expiry</th>
+                <th>Ethiopian License</th>
+                <th>Ethiopian Expiry</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ driver.staff_profile.user.username }}</td>
+                <td>{{ driver.license_number }}</td>
+                <td>{{ driver.years_of_experience }} yrs</td>
+                <td>{{ driver.employ_date|default:"-" }}</td>
+                <td>ETB{{ driver.salary|default:"-" }}</td>
+
+                <!-- Djibouti License Image or Download Link -->
+                <td>
+                    {% if driver.djibouti_license_image %}
+                        <a href="{{ driver.djibouti_license_image.url }}" target="_blank">View/Download</a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+
+                <!-- Djibouti License Expiration -->
+                <td>{{ driver.djibouti_license_expiration|default:"N/A" }}</td>
+
+                <!-- Ethiopian License Image or Download Link -->
+                <td>
+                    {% if driver.ethiopian_license_image %}
+                        <a href="{{ driver.ethiopian_license_image.url }}" target="_blank">View/Download</a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+
+                <!-- Ethiopian License Expiration -->
+                <td>{{ driver.ethiopian_license_expiration|default:"N/A" }}</td>
+
+                <td>
+                    <a href="{% url 'driver-update' driver.pk %}" class="action-link">Edit</a> |
+                    <a href="{% url 'driver-delete' driver.pk %}" class="delete-link">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="11">No drivers found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

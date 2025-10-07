@@ -1,0 +1,74 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="accident-detail-container">
+    <div class="accident-detail-header">
+        <h2 class="accident-detail-title">Accident Detail</h2>
+    </div>
+
+    <div class="accident-detail-content">
+        <div class="accident-detail-grid">
+            <div class="accident-detail-item">
+                <span class="accident-detail-label">🚛 Truck:</span>
+                <span class="accident-detail-value">{{ accident.truck.plate_number }}</span>
+            </div>
+            <div class="accident-detail-item">
+                <span class="accident-detail-label">📅 Date:</span>
+                <span class="accident-detail-value">{{ accident.date }}</span>
+            </div>
+            <div class="accident-detail-item">
+                <span class="accident-detail-label">📍 Location:</span>
+                <span class="accident-detail-value">{{ accident.location }}</span>
+            </div>
+            <div class="accident-detail-item">
+                <span class="accident-detail-label">⚠ Severity:</span>
+                <span class="accident-detail-value">{{ accident.severity }}</span>
+            </div>
+            <div class="accident-detail-item">
+                <span class="accident-detail-label">💲 Cost of Damage:</span>
+                <span class="accident-detail-value">${{ accident.cost_of_damage|default:"0.00" }}</span>
+            </div>
+            <div class="accident-detail-item full-width">
+                <span class="accident-detail-label">📝 Description:</span>
+                <span class="accident-detail-value">{{ accident.description|default:"N/A" }}</span>
+            </div>
+        </div>
+
+        {% if accident.accident_image %}
+        <div class="accident-image-section">
+            <h3>📷 Accident Image</h3>
+            <a href="{{ accident.accident_image.url }}" target="_blank">
+                <img src="{{ accident.accident_image.url }}" alt="Accident Image" class="accident-detail-image">
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- MAP DISPLAY -->
+        {% if accident.latitude and accident.longitude %}
+        <div class="accident-map-section">
+            <h3>📌 Accident Location on Map</h3>
+            <div id="accident-map" class="accident-map" 
+                 data-lat="{{ accident.latitude }}" 
+                 data-lng="{{ accident.longitude }}" 
+                 data-location="{{ accident.location }}">
+            </div>
+        </div>
+        {% else %}
+        <p class="accident-warning"><strong>⚠ Location data not available.</strong></p>
+        {% endif %}
+    </div>
+
+    <div class="accident-detail-actions">
+        <a href="{% url 'accident-list' accident.truck.pk %}" class="accident-cancel-button">🔙 Back to Accidents</a>
+    </div>
+</div>
+
+<!-- LEAFLET MAP LIBRARY -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<!-- Load External Script -->
+<script src="{% static 'js/accident_map.js' %}"></script>
+
+{% endblock %}

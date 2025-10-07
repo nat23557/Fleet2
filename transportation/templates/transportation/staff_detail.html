@@ -1,0 +1,36 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Staff Detail</div>
+      <a class="action-link" href="{% url 'staff-list' %}">Back to list</a>
+    </div>
+    <div class="list">
+      <div class="list-item">
+        <div class="item-meta">
+          <div class="meta-title">Username</div>
+          <div class="meta-sub">{{ staff_member.user.username }}</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="item-meta">
+          <div class="meta-title">Role</div>
+          <div class="meta-sub">{{ staff_member.get_role_display }}</div>
+        </div>
+      </div>
+      {% if staff_member.phone %}
+      <div class="list-item">
+        <div class="item-meta">
+          <div class="meta-title">Phone</div>
+          <div class="meta-sub">{{ staff_member.phone }}</div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

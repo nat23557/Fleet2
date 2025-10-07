@@ -1,0 +1,14 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="table-container">
+    <h2>Confirm Delete</h2>
+    <p>Are you sure you want to delete this service record on <strong>{{ service.date }}</strong>?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="cta-button">Yes, Delete</button>
+        <a href="{% url 'service-list' truck.pk %}" class="cancel-button">Cancel</a>
+    </form>
+</div>
+{% endblock %}

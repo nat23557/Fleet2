@@ -1,0 +1,150 @@
+/* Parent container for the main report area */
+.report-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow-x: hidden;
+  padding: 0 1rem;
+}
+
+/* Table Scrolling Container */
+.scroll-container {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+/* Basic table styling */
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+.erp-table th, .erp-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+/* Buttons Container */
+.chart-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+  overflow-x: hidden;
+}
+
+/* Individual Buttons */
+.view-chart-button {
+  padding: 12px 16px;
+  background-color: #017335;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
+}
+.view-chart-button:hover {
+  background-color: #014f24;
+  transform: scale(1.05);
+}
+
+/* 
+   MODAL OVERLAY 
+   - Covers entire screen with semi-transparent black 
+*/
+.modal {
+  display: none;             /* Hidden by default */
+  position: fixed;           /* Stays in one place as user scrolls */
+  z-index: 1000;             /* Above everything else */
+  left: 0; top: 0;           /* Full-screen coverage */
+  right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Black overlay at 80% opacity */
+  overflow-y: auto;          /* Scroll if modal content is taller than screen */
+}
+
+/* The white "modal-content" card, centered within .modal */
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;  /* Center it plus give some top/bottom space on large screens */
+  padding: 20px;
+  width: 80%;
+  max-width: 1200px;
+  position: relative;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive fallback for smaller screens */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%;
+    margin: 5% auto;
+  }
+}
+
+/* Close Button */
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #017335;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.close-button:hover {
+  color: #014f24;
+}
+
+/* Chart container classes (for line charts, etc.) */
+.chart-display-container,
+.truck-expense-chart-container {
+  width: 100%;
+  margin-top: 1rem;
+  overflow-x: hidden; 
+}
+
+/* Per-Truck Selector and Options */
+.truck-selector-card {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+.truck-selection-header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.truck-chart-selection-card {
+  text-align: center;
+}
+
+/* Truck Grid */
+.truck-grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+/* Truck Cards (Per-Truck Buttons) */
+.truck-card {
+  background-color: #017335;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
+}
+.truck-card:hover {
+  background-color: #014f24;
+  transform: scale(1.05);
+}

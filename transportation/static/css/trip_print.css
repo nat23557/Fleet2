@@ -1,0 +1,103 @@
+@media print {
+    /* Hide interactive elements */
+ .detail-actions, .btn-container, nav, footer {
+      display: none !important;
+    }
+    /* Adjust layout and typography for printing */
+    body, .trip-page {
+      font-size: 12pt;
+      margin: 0;
+      padding: 0;
+    }
+    .trip-info-card, .financial-container, .expenses-container, .invoices-container {
+      border: none;
+      box-shadow: none;
+      margin-bottom: 20px;
+    }
+    /* Ensure the printed map and grid sections display correctly */
+    #route-map {
+      height: 300px;
+      margin-bottom: 20px;
+    }
+  }
+  /* Hide elements not needed in print */
+.no-print {
+    display: none !important;
+  }
+  
+  /* Print header visible only when printing */
+  .print-header {
+    display: none;
+  }
+  @media print {
+    /* Show print header and hide web-only elements */
+    .print-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 2px solid #333;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      z-index: 1000;
+    }
+    .print-header .header-left,
+    .print-header .header-center, 
+    .print-header .header-right {
+      flex: 1;
+    }
+    .print-header .header-center {
+      text-align: center;
+    }
+    .print-header .header-right {
+      text-align: right;
+      font-size: 10pt;
+    }
+    .header-logo {
+      height: 50px;
+    }
+    /* Adjust content wrapper to avoid being hidden by fixed header */
+    .content-wrapper {
+      margin-top: 90px;
+    }
+  
+    /* Add watermark using a pseudo-element */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 35%;
+      left: 25%;
+      width: 50%;
+      height: 50%;
+      background: url("/static/images/Thermologo.jpg") no-repeat center;
+      background-size: contain;
+      opacity: 0.1;
+      z-index: 0;
+    }
+  
+    /* Optimize typography and spacing for print */
+    body, .trip-page {
+      font-size: 11pt;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+    .trip-info-card, .financial-container, .expenses-container, .invoices-container {
+      border: 1px solid #ddd;
+      box-shadow: none;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #fff;
+      position: relative;
+      z-index: 1;
+    }
+    /* Ensure the printed map displays correctly */
+    #route-map {
+      height: 300px !important;
+      margin-bottom: 20px;
+    }
+  }
+  

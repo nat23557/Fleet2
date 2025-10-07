@@ -1,0 +1,7 @@
+Collecting gunicorn
+  Downloading gunicorn-23.0.0-py3-none-any.whl.metadata (4.4 kB)
+Requirement already satisfied: packaging in ./venv/lib/python3.12/site-packages (from gunicorn) (24.2)
+Downloading gunicorn-23.0.0-py3-none-any.whl (85 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.0/85.0 kB 178.1 kB/s eta 0:00:00
+Installing collected packages: gunicorn
+Successfully installed gunicorn-23.0.0

@@ -1,0 +1,112 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="report-container">
+  <h2 class="report-title">Monthly Report for {{ month_str }}</h2>
+
+  <!-- Month Selection Form -->
+  <form method="GET" class="report-form">
+    <label for="month">Select Month (YYYY-MM):</label>
+    <input type="month" id="month" name="month" value="{{ month_str }}" placeholder="YYYY-MM">
+    <button type="submit" class="cta-button">Go</button>
+  </form>
+
+  <!-- Overall Totals Table -->
+  <h3>Overall Totals for {{ month_str }}</h3>
+  <div class="table-wrapper">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Total Revenue</th>
+          <th>Total Expense</th>
+          <th>Income Before Tax</th>
+          <th>Net Profit Margin (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ overall_totals.total_revenue|default:"0.00" }}</td>
+          <td>{{ overall_totals.total_expense|default:"0.00" }}</td>
+          <td>{{ overall_totals.income_before_tax|default:"0.00" }}</td>
+          <td>{{ overall_totals.net_profit_margin|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Breakdown by Truck Table -->
+  <h3>Breakdown by Truck</h3>
+  <div class="table-wrapper">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Truck Plate</th>
+          <th>Total Revenue</th>
+          <th>Total Expense</th>
+          <th>Income Before Tax</th>
+          <th>Net Profit Margin (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for truck in truck_data_list %}
+        <tr>
+          <td>{{ truck.truck_plate }}</td>
+          <td>{{ truck.total_revenue|default:"0.00" }}</td>
+          <td>{{ truck.total_expense|default:"0.00" }}</td>
+          <td>{{ truck.income_before_tax|default:"0.00" }}</td>
+          <td>{{ truck.net_profit_margin|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-muted">No truck data available for this month.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+ 
+</div>
+<!-- Wrap chart buttons in a new container -->
+<div class="chart-buttons">
+  <button class="view-chart-button" data-chart="overall">View Overall Chart</button>
+  <button class="view-chart-button" data-chart="expense">View Expense Chart</button>
+  <button class="view-chart-button" data-chart="perTruck">View Per-Truck Charts</button>
+</div>
+
+<!-- Modal for Pop-Out Charts -->
+<div id="chartModal" class="modal" >
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <div id="modalChartContainer"></div>
+  </div>
+</div>
+
+<!-- Instead of passing the variables directly, use a default fallback so they never produce empty text -->
+
+<script id="months-data" type="application/json">
+  {{ months_json|default:"[]"|safe }}
+  </script>
+  
+  <script id="truck-chart-data" type="application/json">
+  {{ truck_chart_data|default:"[]"|safe }}
+  </script>
+  
+  <script id="overall-totals-data" type="application/json">
+    {{ overall_totals_jslon|default:"{}"|safe }}
+  </script>
+
+  <script id="raw-expense-data" type="application/json">
+  {{ raw_expense_chart_data|default:"[]"|safe }}
+  </script>
+  
+<!-- Load Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Inline JavaScript for Monthly Report Charts -->
+<script src="{% static 'js/monthly_chart.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/monthly_report.css' %}">
+
+{% endblock %}

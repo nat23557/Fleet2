@@ -1,0 +1,86 @@
+/* Overrides to use tokens without touching legacy CSS */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.header, .footer { background: linear-gradient(135deg, var(--brand-700), var(--brand-600)); }
+
+.logo-text, .nav-links a { color: #fff; }
+
+/* Softer hover on nav links for both themes */
+.nav-links a:hover { background: rgba(255,255,255,0.15); }
+
+.user-menu-container { background: var(--surface); box-shadow: var(--shadow-1); }
+
+.profile-btn, .cta-button { background: linear-gradient(135deg, var(--brand-600), var(--brand-700)); color: #fff; border: none; }
+.erp-table thead { background: var(--brand-600); color: #fff; }
+
+/* Tables adapt to theme */
+.erp-table { background-color: var(--surface) !important; color: var(--text); }
+.erp-table th, .erp-table td { border-color: var(--border); color: var(--text); }
+.erp-table tbody tr:nth-child(even) { background-color: rgba(0,0,0,.03); }
+.erp-table tr:hover { background-color: rgba(0,0,0,.06); }
+
+/* Dark theme row contrast */
+html[data-theme="dark"] .erp-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,.04); }
+html[data-theme="dark"] .erp-table tr:hover { background-color: rgba(255,255,255,.08); }
+
+.detail-container, .form-container, .table-container { background: var(--surface); box-shadow: var(--shadow-1); border-color: var(--border); }
+
+.detail-card { background: #f8f8f8; }
+html[data-theme="dark"] .detail-card { background: #1b2126; }
+
+.card-title, .detail-title, .action-link, .table-container h2, .accident-detail-title { color: var(--brand-600); }
+
+/* Map blocks */
+#status-map, .accident-map { box-shadow: var(--shadow-1); border-color: var(--border); }
+
+/* Status badges */
+.status-available { background: var(--success); color: #fff; }
+.status-in_use { background: var(--warning); color: #000; }
+.status-maintenance { background: var(--danger); color: #fff; }
+
+/* Dark mode tweaks */
+html[data-theme="dark"] body { background: var(--bg); color: var(--text); }
+html[data-theme="dark"] .nav-links a:hover { background: rgba(255,255,255,0.1); }
+
+/* Theme toggle button */
+.theme-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35);
+  padding: 6px 10px; border-radius: 6px; cursor: pointer;
+}
+
+/* Truck status layout */
+#real-time-status.status-with-panel { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; position: relative; }
+#status-side-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; box-shadow: var(--shadow-1); max-height: clamp(420px, 74vh, 820px); overflow: auto; }
+
+/* Marker badge */
+.truck-icon-wrapper { position: relative; width: 100%; height: 100%; display: flex; align-items: end; justify-content: center; }
+.truck-icon-img { width: 48px; height: 48px; border-radius: 8px; box-shadow: var(--shadow-1); }
+.truck-status-chip { position: absolute; top: -2px; right: -2px; font-size: 10px; padding: 2px 6px; border-radius: 10px; background: var(--success); color: #fff; border: 1px solid rgba(0,0,0,.1); }
+html[data-theme="dark"] .truck-status-chip { border-color: rgba(255,255,255,.15); }
+
+/* Page sidebar (actions) */
+.page-layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
+#page-sidebar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 12px; position: sticky; top: calc(var(--header-h, 0px) + 12px); max-height: calc(100vh - var(--header-h, 0px) - 24px); overflow: auto; }
+#page-sidebar h4 { margin: 8px 0 12px; color: var(--brand-600); }
+#page-sidebar .sidebar-actions { display: grid; gap: 8px; }
+#page-sidebar .sidebar-actions a { width: 100%; }
+
+/* Sidebar toggle default hidden on large screens */
+.sidebar-toggle-floating { display: none; }
+
+/* Off‑canvas for small screens */
+@media (max-width: 992px) {
+  .page-layout { grid-template-columns: 1fr; }
+  #page-sidebar { position: fixed; left: 0; top: var(--header-h, 0px); height: calc(100% - var(--header-h, 0px)); width: 280px; transform: translateX(-100%); transition: transform .25s ease; z-index: 1040; border-radius: 0; }
+  body.sidebar-open #page-sidebar { transform: translateX(0); }
+  #sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 1030; }
+  body.sidebar-open #sidebar-overlay { display: block; }
+  .sidebar-toggle-floating { position: fixed; left: 12px; bottom: calc(72px + env(safe-area-inset-bottom, 0px)); z-index: 1050; display: inline-flex; align-items: center; gap: 6px; background: var(--brand-600); color: #fff; border: none; border-radius: 24px; padding: 10px 14px; box-shadow: var(--shadow-2); }
+  /* Avoid overlap with Edge‑Peek Rail when open */
+  body.rail-open .sidebar-toggle-floating { left: calc(var(--rail-w-expanded, 280px) + 16px); bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+}

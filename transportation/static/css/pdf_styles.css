@@ -1,0 +1,223 @@
+/* pdf_styles.css */
+
+/* Theme */
+:root {
+  --accent: #8BC34A;
+  --subtitle: #666666;
+  --text: #1a1a1a;
+  --muted: #f6f7f9;
+}
+
+/* Common PDF capture styles: hide interactive elements */
+.pdf-capture #printBtn,
+.pdf-capture .detail-actions,
+.pdf-capture .btn-container,
+.pdf-capture .action-link,
+.pdf-capture .cta-button {
+  display: none !important;
+}
+
+/* (Optional) Hide security header on the live site; show only in PDF capture */
+.security-header { 
+  display: none; 
+}
+.pdf-capture .security-header {
+  display: block;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  font-size: 10pt;
+}
+
+/* Page setup for WeasyPrint */
+@page {
+  size: A4;
+  margin: 20mm 16mm 18mm 16mm;
+  @bottom-center { content: element(pdf-footer); }
+}
+
+/* Running header/footer */
+.pdf-footer {
+  position: running(pdf-footer);
+}
+
+/* Global reset/typography */
+html, body { color: var(--text); }
+body { font-size: 11pt; line-height: 1.45; }
+
+/* Layout wrappers */
+.pdf-page {
+  width: 100%;
+  margin: 0 auto;
+}
+.content {
+  margin-top: 6mm;
+}
+
+/* Center the invoice image */
+.center-invoice-image {
+  text-align: center;
+  margin-top: 20px;
+}
+.center-invoice-image img {
+  max-width: 80%;
+  height: auto;
+}
+
+/* Expense Table Styles */
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.erp-table th,
+.erp-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  font-size: 14pt;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.erp-table td:first-child {
+  font-weight: bold;
+  font-size: 16pt;
+}
+
+/* Print media query enhancements */
+@media print {
+  #printBtn { 
+    display: none; 
+  }
+  .detail-actions, .btn-container, .action-link, .cta-button { 
+    display: none !important; 
+  }
+}
+
+/* Compact Ledger-Style Expense Table */
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+  font-family: 'Noto Sans Ethiopic', sans-serif;
+  font-size: 10pt; /* Smaller font size */
+}
+
+.erp-table thead tr {
+  background-color: var(--muted);
+  border-bottom: 1px solid #c8cdd3;
+}
+
+.erp-table th,
+.erp-table td {
+  padding: 6px;  /* Reduced padding */
+  border: 1px solid #d4d9de;  /* Thinner, solid border */
+  text-align: left;
+  vertical-align: middle;
+}
+
+.erp-table th {
+  font-weight: bold;
+}
+
+.erp-table tbody tr:nth-child(even) {
+  background-color: #fbfcfd;
+}
+.erp-table tbody tr:nth-child(odd) {
+  background-color: #fff;
+}
+
+/* Emphasize first column */
+.erp-table td:first-child,
+.erp-table th:first-child {
+  font-weight: bold;
+  font-size: 10pt;
+}
+
+/* Right align numeric columns */
+.erp-table td.num,
+.erp-table th.num {
+  text-align: right;
+}
+
+/* Section cards */
+.section-card {
+  border: 1px solid #e2e6ea;
+  border-radius: 6px;
+  background: #fff;
+  margin: 10px 0 14px 0;
+}
+.section-card .section-header {
+  background: var(--accent);
+  color: white;
+  padding: 8px 10px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  font-weight: 700;
+  font-size: 12pt;
+}
+.section-card .section-body {
+  padding: 10px 12px;
+}
+
+/* Key/value grid */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  grid-gap: 8px 12px;
+}
+.detail-item { display: contents; }
+.detail-label { color: #3a3f44; font-weight: 600; }
+.detail-value { color: #0f1114; }
+
+/* Header styles (running) */
+.brandbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 6px;
+}
+.brandbar .brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.brandbar .brand img { height: 28px; width: auto; }
+.brandbar .title { font-weight: 800; font-size: 14pt; }
+.brandbar .subtitle { color: var(--subtitle); font-size: 9.5pt; }
+
+/* Footer styles (running) */
+.footerbar {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid #d4d9de;
+  padding-top: 5px;
+  color: #4c5561; font-size: 9pt;
+}
+.footerbar .pageno::after {
+  content: "Page " counter(page) " of " counter(pages);
+}
+
+/* First-page hero header (not running, appears once in content) */
+.hero-header { text-align: center; margin-bottom: 8mm; }
+.hero-logo { height: 34px; width: auto; display: inline-block; }
+.hero-title { font-weight: 800; font-size: 16pt; margin-top: 6px; }
+.hero-subtitle { color: var(--subtitle); font-size: 10pt; }
+.hero-tagline { color: var(--subtitle); font-size: 9.5pt; margin-top: 2px; }
+.hero-divider { height: 2px; background: var(--accent); margin: 6px auto 0 auto; width: 100%; }
+
+/* Use hardcoded path for font, not Django template tag */
+@font-face {
+  font-family: 'Noto Sans Ethiopic';
+  src: url("/static/fonts/NotoSansEthiopic-Regular.ttf") format("truetype");
+}
+
+body, .erp-table, .erp-table th, .erp-table td {
+  font-family: 'Noto Sans Ethiopic', sans-serif;
+}
+
+/* Utility */
+.mt-8 { margin-top: 8px; }
+.mb-8 { margin-bottom: 8px; }
+.mt-12 { margin-top: 12px; }
+.mb-12 { margin-bottom: 12px; }

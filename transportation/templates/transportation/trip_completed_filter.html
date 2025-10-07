@@ -1,0 +1,56 @@
+{% extends "index.html" %}
+{% load static %}
+{% load tz %}  {# Load the timezone template tag #}
+
+{% block content %}
+<div class="form-container">
+  <h2>Filter Completed Trips</h2>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="cta-button">Filter</button>
+  </form>
+</div>
+
+{% if trips %}
+<div class="table-container">
+  <h2>Filtered Completed Trips</h2>
+  <table class="erp-table">
+    <thead>
+      <tr>
+        <th>Truck</th>
+        <th>Driver</th>
+        <th>Route</th>
+        <th>Status</th>
+        <th>End Time</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trip in trips %}
+      <tr>
+        <td>{{ trip.truck.plate_number }}</td>
+        <td>
+          {% if trip.driver %}
+            {{ trip.driver.staff_profile.user.username }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>{{ trip.start_location }} → {{ trip.end_location }}</td>
+        <td>{{ trip.get_status_display }}</td>
+        <td>{{ trip.end_time|timezone:"Africa/Addis_Ababa" }}</td> {# Apply timezone filter here #}
+        <td>
+          <a href="{% url 'trip_detail' trip.pk %}" class="action-link">View</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6">No completed trips found for this timeframe.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

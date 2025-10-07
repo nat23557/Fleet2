@@ -1,0 +1,35 @@
+/* Message Container */
+.message-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 400px;
+    z-index: 1000;
+  }
+  
+  /* Message Styling */
+  .erp-message {
+    background-color: #ff4d4d; /* Red for error */
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    font-size: 14px;
+    display: none; /* Initially hidden */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  
+  /* Success Message */
+  .erp-message.success {
+    background-color: #28a745; /* Green */
+  }
+  
+  /* Warning Message */
+  .erp-message.warning {
+    background-color: #ffc107; /* Yellow */
+    color: black;
+  }
+  

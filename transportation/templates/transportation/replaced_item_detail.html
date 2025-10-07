@@ -1,0 +1,56 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="replaced-item-detail-container">
+    <div class="replaced-item-detail-header">
+        <h2 class="replaced-item-detail-title">Replaced Item Detail</h2>
+    </div>
+
+    <div class="replaced-item-detail-content">
+        <div class="replaced-item-detail-grid">
+            <div class="replaced-item-detail-item">
+                <span class="replaced-item-detail-label">🚛 Truck:</span>
+                <span class="replaced-item-detail-value">{{ item.truck.plate_number }}</span>
+            </div>
+            <div class="replaced-item-detail-item">
+                <span class="replaced-item-detail-label">🔧 Part Name:</span>
+                <span class="replaced-item-detail-value">{{ item.part_name }}</span>
+            </div>
+            <div class="replaced-item-detail-item">
+                <span class="replaced-item-detail-label">📅 Date Replaced:</span>
+                <span class="replaced-item-detail-value">{{ item.date_replaced }}</span>
+            </div>
+            <div class="replaced-item-detail-item">
+                <span class="replaced-item-detail-label">💲 Cost:</span>
+                <span class="replaced-item-detail-value">${{ item.cost|default:"0.00" }}</span>
+            </div>
+            <div class="replaced-item-detail-item">
+                <span class="replaced-item-detail-label">🔢 Serial Number:</span>
+                <span class="replaced-item-detail-value">{{ item.part_serial_number|default:"N/A" }}</span>
+            </div>
+            <div class="replaced-item-detail-item">
+                <span class="replaced-item-detail-label">📆 Warranty Expiration:</span>
+                <span class="replaced-item-detail-value">{{ item.warranty_expiration|default:"N/A" }}</span>
+            </div>
+            <div class="replaced-item-detail-item full-width">
+                <span class="replaced-item-detail-label">📝 Notes:</span>
+                <span class="replaced-item-detail-value">{{ item.notes|default:"N/A" }}</span>
+            </div>
+        </div>
+
+        {% if item.replacement_image %}
+        <div class="replaced-item-image-section">
+            <h3>📷 Replacement Image / Receipt</h3>
+            <a href="{{ item.replacement_image.url }}" target="_blank">
+                <img src="{{ item.replacement_image.url }}" alt="Replacement Document" class="replaced-item-detail-image">
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="replaced-item-detail-actions">
+        <a href="{% url 'replaced-item-list' item.truck.pk %}" class="replaced-item-cancel-button">🔙 Back to Replaced Items</a>
+    </div>
+</div>
+{% endblock %}

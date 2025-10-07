@@ -1,0 +1,22 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Link to your custom CSS file containing .cta-button styling -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/report_index.css' %}">
+
+<div class="report-container">
+  <h1 class="report-title">Financial Reports</h1>
+  <p class="report-description">Select the type of report you wish to view:</p>
+
+  <ul class="report-menu">
+    <!-- Use the .cta-button class for styling -->
+    <li>
+      <a href="{% url 'monthly-report' %}" class="cta-button">Monthly Report</a>
+    </li>
+    <li>
+      <a href="{% url 'annual-report' %}" class="cta-button">Annual Report</a>
+    </li>
+  </ul>
+</div>
+{% endblock %}

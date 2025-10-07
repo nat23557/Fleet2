@@ -1,0 +1,764 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Thermo Fam Trading PLC - ERP System</title>
+  <!-- Favicon Icon -->
+  <link rel="icon" type="image/png" href="{% static 'images/Thermologo.jpg' %}">
+  <!-- Design tokens and theme overrides -->
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <!-- New UI polish: header + buttons -->
+  <link rel="stylesheet" href="{% static 'css/ui.css' %}">
+</head>
+<body>
+
+
+  <!-- HEADER / NAVBAR -->
+  <header class="header">
+    <nav class="navbar">
+      <!-- LOGO & BRAND NAME -->
+      <div class="logo">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/Thermologo.jpg' %}" alt="Thermo Fam Trading PLC" class="logo-img">
+          
+        </a>
+        <a href="{% url 'home' %}" class="logo-text">Thermo Fam Trading PLC</a>
+      </div>
+
+      <!-- Compact actions + user menu (Profile, Theme, Logout) -->
+      <div class="nav-links" style="overflow:visible;">
+        {% if driver_can_start_trip %}
+        <a href="{% url 'trip_create' %}" class="btn btn-ghost btn-sm header-cta" title="Start Trip">🧭 Start Trip</a>
+        {% endif %}
+        <div class="user-menu" id="userMenu" aria-label="User menu container">
+          <button id="userMenuBtn" class="user-menu-trigger" type="button" aria-haspopup="true" aria-expanded="false" title="Menu">
+            {{ request.user.first_name|default:request.user.username|slice:":1" }}
+          </button>
+          <div id="userMenuPopup" class="user-menu-popup" role="menu" aria-hidden="true">
+            <a class="menu-item" role="menuitem" href="{% url 'user-profile' %}">👤 Profile</a>
+            <button id="themeToggle" class="menu-item" role="menuitem" type="button">🌗 Theme</button>
+            <a class="menu-item" role="menuitem" href="{% url 'logout' %}">🚪 Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- WRAPPER ensures footer sticks to bottom when content is short -->
+  <div class="wrapper">
+
+    <!-- MAIN CONTENT (Block to be overridden by child templates) -->
+    <main class="main-content">
+      {% block content %}
+      <section class="dashboard">
+        <div class="dashboard-hero">
+          <div class="dashboard-hero-main">
+            <p class="dashboard-hello">Hi {{ request.user.first_name|default:request.user.username }},</p>
+            {% if user_role == 'DRIVER' %}
+            <h1>Focus on your current trip.</h1>
+            <p class="dashboard-subtext">Review your active assignment and keep your profile details up to date.</p>
+            {% else %}
+            <h1>Here&apos;s what&apos;s happening with your fleet.</h1>
+            <p class="dashboard-subtext">Monitor key metrics, driver performance, and trip activity in a single glance.</p>
+            {% endif %}
+          </div>
+          <div class="dashboard-hero-meta">
+            <span class="role-chip">{{ user_role|title }}</span>
+            {% if current_time %}
+            <time datetime="{{ current_time|date:'c' }}" class="meta-date">{{ current_time|date:"l, F j, Y" }}</time>
+            <span class="meta-time">{{ current_time|date:"g:i A" }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
+        <!-- Highlights: rolling summary to surface what matters now -->
+        <div class="highlights" aria-live="polite">
+          <div class="highlight-item visible">🧭 Active Trips: <strong data-kpi="active_trips_count">{{ active_trips_count|default:0 }}</strong></div>
+          <div class="highlight-item">💰 Revenue ({{ start_of_month|date:'M Y' }}): <strong>ETB <span data-kpi="revenue_month" data-decimals="2">{{ revenue_month|default:0|floatformat:2 }}</span></strong> <span class="delta-pill {% if revenue_change_pct >= 0 %}delta-up{% else %}delta-down{% endif %}" data-kpi="revenue_change_pct">{% if revenue_change_pct >= 0 %}+{% endif %}{{ revenue_change_pct|default:0|floatformat:1 }}%</span></div>
+          <div class="highlight-item">⚠️ Overdue Invoices: <strong data-kpi="overdue_unpaid_count">{{ overdue_unpaid_count|default:0 }}</strong></div>
+        </div>
+
+        <!-- KPI Cards: compact yet rich -->
+        <section class="kpi-grid" style="margin-top:.5rem;">
+          <a class="kpi-link" href="{% url 'truck-list' %}" aria-label="Trucks available">
+          <div class="kpi-card accent-green" data-reveal>
+            <div>
+              <div class="kpi-title">Trucks Available</div>
+              <div class="kpi-value" data-countup data-kpi="trucks_available">{{ trucks_available|default:0 }}</div>
+            </div>
+            <div class="kpi-icon">✅</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'truck-list' %}" aria-label="Trucks in use">
+          <div class="kpi-card accent-amber" data-reveal>
+            <div>
+              <div class="kpi-title">Trucks In Use</div>
+              <div class="kpi-value" data-countup data-kpi="trucks_in_use">{{ trucks_in_use|default:0 }}</div>
+            </div>
+            <div class="kpi-icon">🚚</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'trip_completed_filter' %}" aria-label="Completed today">
+          <div class="kpi-card accent-teal" data-reveal>
+            <div>
+              <div class="kpi-title">Completed Today</div>
+              <div class="kpi-value" data-countup data-kpi="completed_today">{{ completed_today|default:0 }}</div>
+            </div>
+            <div class="kpi-icon">✅</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'monthly-report' %}" aria-label="Revenue this month">
+          <div class="kpi-card accent-green" data-reveal>
+            <div>
+              <div class="kpi-title">Revenue ({{ start_of_month|date:'M Y' }})</div>
+              <div class="kpi-value" data-countup data-decimals="2" data-kpi="revenue_month">{{ revenue_month|default:0|floatformat:2 }}</div>
+              <div class="delta-pill {% if revenue_change_pct >= 0 %}delta-up{% else %}delta-down{% endif %}" data-kpi="revenue_change_pct">{% if revenue_change_pct >= 0 %}+{% endif %}{{ revenue_change_pct|default:0|floatformat:1 }}%</div>
+            </div>
+            <div class="kpi-icon">💰</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'monthly-report' %}" aria-label="Income this month">
+          <div class="kpi-card accent-emerald" data-reveal>
+            <div>
+              <div class="kpi-title">Income ({{ start_of_month|date:'M Y' }})</div>
+              <div class="kpi-value" data-countup data-decimals="2" data-kpi="income_month">{{ income_month|default:0|floatformat:2 }}</div>
+              <div class="delta-pill {% if income_change_pct >= 0 %}delta-up{% else %}delta-down{% endif %}" data-kpi="income_change_pct">{% if income_change_pct >= 0 %}+{% endif %}{{ income_change_pct|default:0|floatformat:1 }}%</div>
+            </div>
+            <div class="kpi-icon">📈</div>
+          </div>
+          </a>
+        </section>
+
+        {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
+        <!-- Pending Invoices (active) -->
+        <section class="section" data-reveal>
+          <div class="section-header">
+            <div class="section-title">Pending Invoices</div>
+            <a class="action-link" href="{% url 'trip_list' %}">View All</a>
+          </div>
+          <div class="list" style="max-height:none;">
+            {% for invoice in pending_invoices %}
+            <a class="list-item" href="{% url 'invoice_update' invoice.pk %}">
+              <div class="item-meta">
+                <div class="meta-title">Trip #{{ invoice.trip.pk }} • {{ invoice.trip.truck.plate_number|default:'—' }}</div>
+                <div class="meta-sub">Amount: {{ invoice.amount_due|default:0 }} ETB • Due: {{ invoice.due_date|default:'N/A' }}</div>
+              </div>
+              <span class="badge red">Unpaid</span>
+            </a>
+            {% empty %}
+            <div class="meta-sub">No pending invoices.</div>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+
+        <!-- Quick Actions: blend of operations into the front page -->
+        <section class="section" style="margin-top:.5rem;" data-reveal>
+          <div class="section-header">
+            <div class="section-title">Quick Actions</div>
+          </div>
+          <div class="quick-actions">
+            <a class="qa-btn" href="{% url 'truck-list' %}"><span class="qa-ico">🚚</span><div>View Trucks<div class="qa-hint">Open fleet</div></div></a>
+            <a class="qa-btn" href="{% url 'truck-create' %}"><span class="qa-ico">🚚</span><div>Register Truck<div class="qa-hint">Add a new vehicle</div></div></a>
+            <a class="qa-btn" href="{% url 'driver-create' %}"><span class="qa-ico">👤</span><div>Register Driver<div class="qa-hint">Create driver profile</div></div></a>
+            {% if user_role == 'ADMIN' %}
+            <a class="qa-btn" href="{% url 'staff-create' %}"><span class="qa-ico">🏢</span><div>Create Staff<div class="qa-hint">Add back-office staff</div></div></a>
+            {% endif %}
+            <a class="qa-btn" href="{% url 'trip_completed_filter' %}"><span class="qa-ico">✅</span><div>Completed Trips<div class="qa-hint">View all completed</div></div></a>
+            <a class="qa-btn" href="{% url 'report_index' %}"><span class="qa-ico">📊</span><div>Open Reports<div class="qa-hint">Monthly & annual</div></div></a>
+          </div>
+        </section>
+
+        <!-- Alerts -->
+        <section class="section" id="alerts-section" data-reveal>
+          <div class="section-header"><div class="section-title">Alerts</div></div>
+          <div class="list" style="max-height:none;">
+            <a class="list-item" href="{% url 'trip_list' %}">
+              <div class="item-meta">
+                <div class="meta-title">Unpaid invoices</div>
+                <div class="meta-sub">Including overdue</div>
+              </div>
+              <span class="badge red" data-kpi="unpaid_invoices_count">{{ unpaid_invoices_count|default:0 }}</span>
+            </a>
+            <a class="list-item" href="{% url 'trip_list' %}">
+              <div class="item-meta">
+                <div class="meta-title">Overdue invoices</div>
+              </div>
+              <span class="badge red" data-kpi="overdue_unpaid_count">{{ overdue_unpaid_count|default:0 }}</span>
+            </a>
+            <a class="list-item" href="{% url 'truck-list' %}" title="Open a truck to view services">
+              <div class="item-meta">
+                <div class="meta-title">Services due (30 days)</div>
+              </div>
+              <span class="badge amber" data-kpi="services_due_count">{{ services_due_count|default:0 }}</span>
+            </a>
+            <a class="list-item" href="{% url 'driver-list' %}">
+              <div class="item-meta">
+                <div class="meta-title">Licenses expiring (30 days)</div>
+              </div>
+              <span class="badge amber" data-kpi="licenses_expiring_count">{{ licenses_expiring_count|default:0 }}</span>
+            </a>
+          </div>
+        </section>
+
+        <!-- Fleet Live Map -->
+        <section class="section" data-reveal>
+          <div class="section-header"><div class="section-title">Fleet Live Map</div></div>
+          <div class="chart-box" style="height: clamp(320px, 50vh, 560px);">
+            <div id="fleet-map" data-mode="all" style="height:100%; width:100%; border-radius:10px; overflow:hidden; border:1px solid var(--border);"></div>
+          </div>
+        </section>
+
+        <!-- Active Trips -->
+        <section class="section" data-reveal>
+          <div class="section-header">
+            <div class="section-title">Active Trips</div>
+            <span class="panel-count">{{ active_trips_count|default:0 }} ongoing</span>
+          </div>
+          {% if active_trips_list %}
+          <div class="list" style="max-height:none;">
+            {% for trip in active_trips_list %}
+            <div class="list-item">
+              <div class="item-meta">
+                <div class="meta-title"><a class="action-link" href="{% url 'trip_detail' trip.pk %}">{{ trip.truck.plate_number|default:'Unassigned' }} • {{ trip.start_location|default:'—' }} → {{ trip.end_location|default:'—' }}</a></div>
+                {% if trip.driver %}
+                <div class="meta-sub">Driver: {{ trip.driver.staff_profile.user.get_full_name|default:trip.driver.staff_profile.user.username }}</div>
+                {% endif %}
+              </div>
+              <div class="list-meta">
+                <span class="status-chip in-progress">In Progress</span>
+                <time class="list-sub" datetime="{{ trip.start_time|date:'c' }}">{{ trip.start_time|date:"M j, g:i A"|default:'—' }}</time>
+                <div><a href="{% url 'operational_expense_add' trip.pk %}" class="action-link">Op Expense</a></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="empty-state">No active trips at the moment.</p>
+          {% endif %}
+        </section>
+
+        <!-- Recent Trip Activity removed to avoid tables/horizontal scrolling -->
+
+        <!-- Fleet Status -->
+        <section class="section" data-reveal>
+          <div class="section-header"><div class="section-title">Fleet Status</div></div>
+          {% if trucks_overview %}
+          <div class="list" style="max-height:none;">
+            {% for truck in trucks_overview %}
+            <a class="list-item" href="{% url 'truck-detail' truck.pk %}">
+              <div class="item-meta">
+                <div class="meta-title">{{ truck.plate_number }}</div>
+                <div class="meta-sub">{{ truck.truck_type|default:'—' }} • Capacity: {{ truck.capacity_in_tons|default:'—' }} t{% if truck.driver %} • Driver: {{ truck.driver.staff_profile.user.get_full_name|default:truck.driver.staff_profile.user.username }}{% endif %}</div>
+              </div>
+              <span class="status-chip {{ truck.status|lower }}">{{ truck.get_status_display }}</span>
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="empty-state">Add trucks to see their live status and assignment.</p>
+          {% endif %}
+        </section>
+
+        <!-- Driver Leaderboard removed per client preference -->
+
+        <!-- Financial Overview -->
+        <section class="section" data-reveal>
+          <div class="section-header"><div class="section-title">Financial Overview</div></div>
+          <div class="finance-grid">
+            <div class="finance-item">
+              <span class="finance-label">Revenue (Total)</span>
+              <span class="finance-value">ETB {{ finance_metrics.total_revenue|default:0|floatformat:2 }}</span>
+            </div>
+            <div class="finance-item">
+              <span class="finance-label">Expenses (Total)</span>
+              <span class="finance-value">ETB {{ finance_metrics.total_expense|default:0|floatformat:2 }}</span>
+            </div>
+            <div class="finance-item">
+              <span class="finance-label">Net Income (Total)</span>
+              <span class="finance-value">ETB {{ finance_metrics.net_income|default:0|floatformat:2 }}</span>
+            </div>
+          </div>
+        </section>
+        {% elif user_role == 'DRIVER' %}
+        {% if driver_context_ready %}
+        <div class="dashboard-grid driver-focus-grid">
+          <section class="panel span-2">
+            <header class="panel-header">
+              <h2 class="panel-title">Current Trip</h2>
+            </header>
+            <div class="panel-body">
+              {% if current_trip %}
+              <div class="assignment-card">
+                <div>
+                  <h3>{{ current_trip.truck.plate_number|default:'Unassigned' }}</h3>
+                  <p class="list-sub">{{ current_trip.start_location|default:'—' }} → {{ current_trip.end_location|default:'—' }}</p>
+                </div>
+                <span class="status-chip in-progress">{{ current_trip.get_status_display }}</span>
+              </div>
+              <p class="list-sub">Started: <time datetime="{{ current_trip.start_time|date:'c' }}">{{ current_trip.start_time|date:"M j, g:i A"|default:'—' }}</time></p>
+              {% if current_trip.cargo_type or current_trip.cargo_load %}
+              <p class="list-sub">Cargo: {{ current_trip.cargo_type|default:'—' }} • Load {{ current_trip.cargo_load|default:'—' }}</p>
+              {% endif %}
+              {% elif assigned_truck %}
+              <div class="assignment-card">
+                <div>
+                  <h3>{{ assigned_truck.plate_number }}</h3>
+                  <p class="list-sub">{{ assigned_truck.truck_type|default:'Truck' }} • Capacity {{ assigned_truck.capacity_in_tons|default:'—' }} t</p>
+                </div>
+                <span class="status-chip {{ assigned_truck.status|lower }}">{{ assigned_truck.get_status_display }}</span>
+              </div>
+              <p class="list-sub">No trip is currently in progress. You will see your assignment here once it begins.</p>
+              {% else %}
+              <p class="empty-state">You do not have an active trip. Use the Operations workspace to start one when available.</p>
+              {% endif %}
+            </div>
+          </section>
+
+          <section class="panel span-2">
+            <header class="panel-header">
+              <h2 class="panel-title">Driver Tools</h2>
+            </header>
+            <div class="panel-body">
+              <p class="list-sub">Access Operations to register trip updates, expenses, and invoice images, and keep your profile up to date.</p>
+              <div class="quick-actions" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+                <a class="qa-btn" href="{% url 'operations_hub' %}">
+                  <span class="qa-ico">🧭</span>
+                  <div>
+                    Open Operations
+                    <div class="qa-hint">Manage current trip activity</div>
+                  </div>
+                </a>
+                <a class="qa-btn" href="{% url 'user-profile' %}">
+                  <span class="qa-ico">👤</span>
+                  <div>
+                    My Profile
+                    <div class="qa-hint">Review personal details</div>
+                  </div>
+                </a>
+              </div>
+              {% if driver_has_active_trip %}
+              <p class="list-sub" style="margin-top:1rem;">A trip is currently in progress. Start a new trip only after completing it.</p>
+              {% endif %}
+            </div>
+          </section>
+        </div>
+        {% else %}
+        <p class="empty-state">We are preparing your driver dashboard. Please contact the administrator if this message persists.</p>
+        {% endif %}
+        {% else %}
+        <section class="hero">
+          <h1>Welcome to Thermo Fam Trading PLC ERP</h1>
+          <p>Your unified solution for supply chain, inventory, and import/export management.</p>
+          <a href="{% url 'truck-list' %}" class="cta-button">Manage Trucks</a>
+        </section>
+        {% endif %}
+      </section>
+      {% comment %}
+      <div class="dashboard">
+        <!-- AUTO HIGHLIGHTS BAR -->
+        <div class="highlights" aria-live="polite">
+          <div class="highlight-item visible">🧭 Active Trips: <strong>{{ active_trips_count }}</strong></div>
+          <div class="highlight-item">💰 Revenue ({{ start_of_month|date:'M' }}): <strong>{{ revenue_month|default:0|floatformat:2 }}</strong></div>
+          <div class="highlight-item">⚠️ Overdue Invoices: <strong>{{ overdue_unpaid_count }}</strong></div>
+        </div>
+        <!-- KPI CARDS -->
+        <div class="kpi-grid">
+          <a class="kpi-link" href="{% url 'trip_list' %}" aria-label="Active trips">
+          <div class="kpi-card accent-blue">
+            <div>
+              <div class="kpi-title">Active Trips</div>
+              <div class="kpi-value" data-countup data-kpi="active_trips_count">{{ active_trips_count }}</div>
+            </div>
+            <div class="kpi-icon">🧭</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'truck-list' %}" aria-label="Trucks available">
+          <div class="kpi-card accent-green">
+            <div>
+              <div class="kpi-title">Trucks Available</div>
+              <div class="kpi-value" data-countup data-kpi="trucks_available">{{ trucks_available }}</div>
+            </div>
+            <div class="kpi-icon">✅</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'truck-list' %}" aria-label="Trucks in use">
+          <div class="kpi-card accent-amber">
+            <div>
+              <div class="kpi-title">Trucks In Use</div>
+              <div class="kpi-value" data-countup data-kpi="trucks_in_use">{{ trucks_in_use }}</div>
+            </div>
+            <div class="kpi-icon">🚚</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'truck-list' %}" aria-label="Maintenance trucks">
+          <div class="kpi-card accent-red">
+            <div>
+              <div class="kpi-title">Maintenance</div>
+              <div class="kpi-value" data-countup data-kpi="trucks_maintenance">{{ trucks_maintenance }}</div>
+            </div>
+            <div class="kpi-icon">🛠️</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'driver-list' %}" aria-label="Drivers">
+          <div class="kpi-card accent-gray">
+            <div>
+              <div class="kpi-title">Drivers</div>
+              <div class="kpi-value" data-countup data-kpi="driver_count">{{ driver_count }}</div>
+            </div>
+            <div class="kpi-icon">👨‍✈️</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'trip_completed_filter' %}" aria-label="Completed today">
+          <div class="kpi-card accent-teal">
+            <div>
+              <div class="kpi-title">Completed Today</div>
+              <div class="kpi-value" data-countup data-kpi="completed_today">{{ completed_today }}</div>
+            </div>
+            <div class="kpi-icon">✅</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'monthly-report' %}" aria-label="Revenue this month">
+          <div class="kpi-card accent-green">
+            <div>
+              <div class="kpi-title">Revenue ({{ start_of_month|date:'M Y' }})</div>
+              <div class="kpi-value" data-countup data-decimals="2" data-kpi="revenue_month">{{ revenue_month|default:0|floatformat:2 }}</div>
+              <div class="delta-pill {% if revenue_change_pct >= 0 %}delta-up{% else %}delta-down{% endif %}" data-kpi="revenue_change_pct">{% if revenue_change_pct >= 0 %}+{% endif %}{{ revenue_change_pct|floatformat:1 }}%</div>
+            </div>
+            <div class="kpi-icon">💰</div>
+          </div>
+          </a>
+
+          <a class="kpi-link" href="{% url 'monthly-report' %}" aria-label="Income this month">
+          <div class="kpi-card accent-blue">
+            <div>
+              <div class="kpi-title">Income ({{ start_of_month|date:'M Y' }})</div>
+              <div class="kpi-value" data-countup data-decimals="2" data-kpi="income_month">{{ income_month|default:0|floatformat:2 }}</div>
+              <div class="delta-pill {% if income_change_pct >= 0 %}delta-up{% else %}delta-down{% endif %}" data-kpi="income_change_pct">{% if income_change_pct >= 0 %}+{% endif %}{{ income_change_pct|floatformat:1 }}%</div>
+            </div>
+            <div class="kpi-icon">📈</div>
+          </div>
+          </a>
+          <a class="kpi-link" href="{% url 'report_index' %}" aria-label="Overdue invoices">
+          <div class="kpi-card accent-red">
+            <div>
+              <div class="kpi-title">Overdue Invoices</div>
+              <div class="kpi-value" data-countup data-kpi="overdue_unpaid_count">{{ overdue_unpaid_count }}</div>
+            </div>
+            <div class="kpi-icon">⚠️</div>
+          </div>
+          </a>
+        </div>
+
+        <!-- LISTS -->
+        <div class="grid-2">
+          <!-- Fleet Live Map (all trucks) -->
+          <div class="section" style="grid-column: 1 / -1;">
+            <div class="section-header"><div class="section-title">Fleet Live Map</div></div>
+            <div class="chart-box" style="height: clamp(320px, 50vh, 560px);">
+              <div id="fleet-map" data-mode="all" style="height:100%; width:100%; border-radius:10px; overflow:hidden; border:1px solid var(--border);"></div>
+            </div>
+          </div>
+          <div class="section" id="alerts-section">
+            <div class="section-header">
+              <div class="section-title">Alerts</div>
+            </div>
+            <div class="list">
+              <div class="list-item">
+                <div class="item-meta">
+                  <div class="meta-title">Unpaid invoices</div>
+                  <div class="meta-sub">Including overdue</div>
+                </div>
+                <span class="badge red" data-kpi="unpaid_invoices_count">{{ unpaid_invoices_count }}</span>
+              </div>
+              <div class="list-item">
+                <div class="item-meta">
+                  <div class="meta-title">Overdue invoices</div>
+                </div>
+                <span class="badge red" data-kpi="overdue_unpaid_count">{{ overdue_unpaid_count }}</span>
+              </div>
+              <div class="list-item">
+                <div class="item-meta">
+                  <div class="meta-title">Services due (30 days)</div>
+                </div>
+                <span class="badge amber" data-kpi="services_due_count">{{ services_due_count }}</span>
+              </div>
+              <div class="list-item">
+                <div class="item-meta">
+                  <div class="meta-title">Licenses expiring (30 days)</div>
+                </div>
+                <span class="badge amber" data-kpi="licenses_expiring_count">{{ licenses_expiring_count }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <div class="section-title">Recent Trips</div>
+              <a class="action-link" href="{% url 'trip_list' %}">View all</a>
+            </div>
+            <div class="list">
+              {% for t in recent_trips %}
+              <a class="list-item" href="{% url 'trip_detail' t.pk %}">
+                <div class="item-meta">
+                  <div class="meta-title">{{ t.truck.plate_number }} • {{ t.start_location }} → {{ t.end_location }}</div>
+                  <div class="meta-sub">Driver: {% if t.driver %}{{ t.driver.staff_profile.user.username }}{% else %}N/A{% endif %}</div>
+                </div>
+                {% if t.status == 'IN_PROGRESS' %}
+                  <span class="badge amber">In Progress</span>
+                {% else %}
+                  <span class="badge green">Completed</span>
+                {% endif %}
+              </a>
+              {% empty %}
+              <div class="meta-sub">No recent trips.</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <div class="section-title">Active Trips</div>
+            </div>
+            <div class="list">
+              {% for t in active_trips %}
+              <a class="list-item" href="{% url 'trip_detail' t.pk %}">
+                <div class="item-meta">
+                  <div class="meta-title">{{ t.truck.plate_number }} • {{ t.start_location }} → {{ t.end_location }}</div>
+                  <div class="meta-sub">Started: {{ t.start_time|date:'M d, H:i' }}</div>
+                </div>
+                <span class="badge amber">Live</span>
+              </a>
+              {% empty %}
+              <div class="meta-sub">No active trips.</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <div class="section-title">Trucks Snapshot</div>
+              <a class="action-link" href="{% url 'truck-list' %}">Manage</a>
+            </div>
+            <div class="list">
+              {% for tr in trucks_sample %}
+              <a class="list-item" href="{% url 'truck-detail' tr.pk %}">
+                <div class="item-meta">
+                  <div class="meta-title">{{ tr.plate_number }} • {{ tr.truck_type }}</div>
+                  <div class="meta-sub">Driver: {% if tr.driver %}{{ tr.driver.staff_profile.user.username }}{% else %}N/A{% endif %}</div>
+                </div>
+                {% if tr.status == 'AVAILABLE' %}
+                  <span class="badge green">Available</span>
+                {% elif tr.status == 'MAINTENANCE' %}
+                  <span class="badge red">Maintenance</span>
+                {% else %}
+                  <span class="badge amber">In Use</span>
+                {% endif %}
+              </a>
+              {% empty %}
+              <div class="meta-sub">No trucks to show.</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <div class="section-title">Top Drivers (30 days)</div>
+              {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
+              <a class="action-link" href="{% url 'driver-list' %}">View all</a>
+              {% endif %}
+            </div>
+            <div class="list">
+              {% for d in top_drivers %}
+              <a class="list-item" href="{% url 'driver-detail' d.pk %}">
+                <div class="item-meta">
+                  <div class="meta-title">{{ d.staff_profile.user.username }}</div>
+                  <div class="meta-sub">License: {{ d.license_number }}</div>
+                </div>
+                <span class="badge blue">{{ d.completed_trips }} trips</span>
+              </a>
+              {% empty %}
+              <div class="meta-sub">No driver activity yet.</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Quick Actions for faster workflows -->
+          <div class="section" style="grid-column: 1 / -1;">
+            <div class="section-header">
+              <div class="section-title">Quick Actions</div>
+            </div>
+            <div class="quick-actions">
+              {% if user_role == 'DRIVER' %}
+              {% if driver_has_active_trip %}
+              <div class="qa-btn" aria-disabled="true" style="pointer-events:none; opacity:0.6;">
+                <span class="qa-ico">🧭</span>
+                <div>
+                  Active Trip In Progress
+                  <div class="qa-hint">Complete your current trip before starting a new one.</div>
+                </div>
+              </div>
+              {% else %}
+              <a class="qa-btn" href="{% url 'trip_create' %}">
+                <span class="qa-ico">🧭</span>
+                <div>
+                  Start Trip
+                  <div class="qa-hint">Create a new trip</div>
+                </div>
+              </a>
+              {% endif %}
+              <a class="qa-btn" href="{% url 'trip_list' %}">
+                <span class="qa-ico">📝</span>
+                <div>
+                  Manage Expenses
+                  <div class="qa-hint">Update dispatch records</div>
+                </div>
+              </a>
+              <a class="qa-btn" href="{% url 'trip_list' %}">
+                <span class="qa-ico">🧾</span>
+                <div>
+                  Invoice Image
+                  <div class="qa-hint">Upload or edit invoice</div>
+                </div>
+              </a>
+              <a class="qa-btn" href="{% url 'user-profile' %}">
+                <span class="qa-ico">👤</span>
+                <div>
+                  My Profile
+                  <div class="qa-hint">View or update your details</div>
+                </div>
+              </a>
+              {% endif %}
+
+              {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
+              <a class="qa-btn" href="{% url 'truck-create' %}">
+                <span class="qa-ico">🚚</span>
+                <div>
+                  Register Truck
+                  <div class="qa-hint">Add a new vehicle</div>
+                </div>
+              </a>
+              <a class="qa-btn" href="{% url 'driver-create' %}">
+                <span class="qa-ico">👤</span>
+                <div>
+                  Register Driver
+                  <div class="qa-hint">Create driver profile</div>
+                </div>
+              </a>
+              {% endif %}
+              {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
+              <a class="qa-btn" href="{% url 'report_index' %}">
+                <span class="qa-ico">📊</span>
+                <div>
+                  Reports
+                  <div class="qa-hint">View monthly/annual</div>
+                </div>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endcomment %}
+      {% endblock %}
+    </main>
+
+  </div> <!-- /wrapper -->
+
+  
+
+  <!-- Theme toggle (persisted) -->
+  <script>
+    (function() {
+      const key = 'tfam-theme';
+      const saved = localStorage.getItem(key);
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      document.addEventListener('DOMContentLoaded', function(){
+        var btn = document.getElementById('themeToggle');
+        if (!btn) return;
+        btn.addEventListener('click', function(){
+          const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          if (current === 'light') document.documentElement.removeAttribute('data-theme');
+          else document.documentElement.setAttribute('data-theme', 'dark');
+          localStorage.setItem(key, current);
+        });
+      });
+    })();
+  </script>
+  <!-- Link to your JS file -->
+  <script src="{% static 'js/script.js' %}"></script>
+  <!-- User menu toggle with vertical scale animation -->
+  <script>
+    (function(){
+      document.addEventListener('DOMContentLoaded', function(){
+        var menu = document.getElementById('userMenu');
+        var btn  = document.getElementById('userMenuBtn');
+        var pop  = document.getElementById('userMenuPopup');
+        if (!menu || !btn || !pop) return;
+
+        function open(){
+          menu.classList.add('open');
+          btn.setAttribute('aria-expanded','true');
+          pop.setAttribute('aria-hidden','false');
+        }
+        function close(){
+          menu.classList.remove('open');
+          btn.setAttribute('aria-expanded','false');
+          pop.setAttribute('aria-hidden','true');
+        }
+        function toggle(){ menu.classList.contains('open') ? close() : open(); }
+
+        btn.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
+        pop.addEventListener('click', function(e){ e.stopPropagation(); });
+        document.addEventListener('click', function(){ close(); });
+        document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+
+        // Set CSS var for header height to aid layouts that offset by header
+        var header = document.querySelector('.header');
+        if (header) {
+          function setHeaderH(){
+            document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+          }
+          function onScroll(){
+            if (window.scrollY > 8) header.classList.add('shrink');
+            else header.classList.remove('shrink');
+            // header height may change slightly when shrinking
+            setHeaderH();
+          }
+          setHeaderH();
+          onScroll();
+          window.addEventListener('resize', setHeaderH);
+          window.addEventListener('scroll', onScroll, { passive: true });
+        }
+      });
+    })();
+  </script>
+  <!-- Dashboard animations -->
+  <script src="{% static 'js/dashboard.js' %}"></script>
+  {% if user_role != 'DRIVER' %}
+  <!-- Leaflet and fleet map for dashboard (hidden for drivers) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script src="{% static 'js/fleet_map.js' %}"></script>
+  {% endif %}
+  <!-- Additional scripts from child templates -->
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
