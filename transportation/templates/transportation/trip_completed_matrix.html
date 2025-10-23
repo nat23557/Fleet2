@@ -1,0 +1,71 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="form-container">
+    <h2>Completed Trips (Compare by Truck)</h2>
+    <form method="POST" style="display:flex; gap:1rem; align-items:end; flex-wrap:wrap;">
+      {% csrf_token %}
+      <div>{{ form.timeframe.label_tag }} {{ form.timeframe }}</div>
+      <div>{{ form.start_date.label_tag }} {{ form.start_date }}</div>
+      <div>{{ form.end_date.label_tag }} {{ form.end_date }}</div>
+      <button type="submit" class="cta-button">Apply</button>
+    </form>
+  </div>
+
+  {% for block in truck_blocks %}
+  <div class="section" data-reveal>
+    <div class="section-header">
+      <div class="section-title">Truck: {{ block.truck.plate_number }} • {{ block.columns|length }} trips</div>
+    </div>
+    <div class="table-container desktop-only">
+      <table class="erp-table">
+        <thead>
+          <tr>
+            <th>Detail</th>
+            {% for c in block.columns %}
+            <th>Trip #{{ c.truck_trip_number|default:c.id }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Route</td>{% for c in block.columns %}<td>{{ c.route }}</td>{% endfor %}</tr>
+          <tr><td>Driver</td>{% for c in block.columns %}<td>{{ c.driver|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Start</td>{% for c in block.columns %}<td>{{ c.start|date:'Y-m-d H:i' }}</td>{% endfor %}</tr>
+          <tr><td>End</td>{% for c in block.columns %}<td>{{ c.end|date:'Y-m-d H:i' }}</td>{% endfor %}</tr>
+          <tr><td>Distance (km)</td>{% for c in block.columns %}<td>{{ c.distance|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Cargo</td>{% for c in block.columns %}<td>{{ c.cargo|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Load</td>{% for c in block.columns %}<td>{{ c.load|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Tariff</td>{% for c in block.columns %}<td>{{ c.tariff|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Revenue</td>{% for c in block.columns %}<td>{{ c.revenue|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Expense</td>{% for c in block.columns %}<td>{{ c.expense|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Income</td>{% for c in block.columns %}<td>{{ c.income|default:'—' }}</td>{% endfor %}</tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile cards: one card per trip (no horizontal scroll) -->
+    <div class="mobile-only" style="display:none;">
+      <div class="list" style="max-height:none;">
+        {% for c in block.columns %}
+        <div class="list-item" style="align-items:flex-start;">
+          <div class="item-meta">
+            <div class="meta-title">Trip #{{ c.truck_trip_number|default:c.id }} • {{ c.route }}</div>
+            <div class="meta-sub">Driver: {{ c.driver|default:'—' }}</div>
+            <div class="meta-sub">Start: {{ c.start|date:'Y-m-d H:i' }} • End: {{ c.end|date:'Y-m-d H:i' }}</div>
+            <div class="meta-sub">Dist: {{ c.distance|default:'—' }} km • Load: {{ c.load|default:'—' }}</div>
+            <div class="meta-sub">Tariff: {{ c.tariff|default:'—' }}</div>
+            <div class="meta-sub">Revenue: {{ c.revenue|default:'—' }} • Expense: {{ c.expense|default:'—' }} • Income: {{ c.income|default:'—' }}</div>
+          </div>
+          <a class="qa-btn" href="{% url 'trip_detail' c.id %}" style="padding:.35rem .6rem; font-weight:700;">Open</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p class="empty-state">No completed trips found for this timeframe.</p>
+  {% endfor %}
+</div>
+{% endblock %}

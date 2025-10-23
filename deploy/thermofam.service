@@ -1,0 +1,18 @@
+[Unit]
+Description=Thermo Fam ERP (Gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/thermofam
+EnvironmentFile=/etc/thermofam.env
+ExecStart=/opt/thermofam/venv/bin/gunicorn --workers 3 --timeout 120 --bind 127.0.0.1:8000 transport_mgmt.wsgi:application
+Restart=always
+RestartSec=3
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target
+

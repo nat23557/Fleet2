@@ -24,11 +24,11 @@
     <nav class="navbar">
       <!-- LOGO & BRAND NAME -->
       <div class="logo">
-        <a href="{% url 'home' %}">
+        <a href="{% url 'home_hub' %}">
           <img src="{% static 'images/Thermologo.jpg' %}" alt="Thermo Fam Trading PLC" class="logo-img">
           
         </a>
-        <a href="{% url 'home' %}" class="logo-text">Thermo Fam Trading PLC</a>
+        <a href="{% url 'home_hub' %}" class="logo-text">Thermo Fam Trading PLC</a>
       </div>
 
       <!-- Compact actions + user menu (Profile, Theme, Logout) -->
@@ -141,7 +141,7 @@
         </section>
 
         {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
-        <!-- Pending Invoices (active) -->
+        <!-- Pending Invoices (actions: view image + mark paid) -->
         <section class="section" data-reveal>
           <div class="section-header">
             <div class="section-title">Pending Invoices</div>
@@ -149,13 +149,19 @@
           </div>
           <div class="list" style="max-height:none;">
             {% for invoice in pending_invoices %}
-            <a class="list-item" href="{% url 'invoice_update' invoice.pk %}">
+            <div class="list-item">
               <div class="item-meta">
-                <div class="meta-title">Trip #{{ invoice.trip.pk }} • {{ invoice.trip.truck.plate_number|default:'—' }}</div>
+              <div class="meta-title">Trip #{{ invoice.trip.truck_trip_number|default:invoice.trip.pk }} • {{ invoice.trip.truck.plate_number|default:'—' }}</div>
                 <div class="meta-sub">Amount: {{ invoice.amount_due|default:0 }} ETB • Due: {{ invoice.due_date|default:'N/A' }}</div>
               </div>
-              <span class="badge red">Unpaid</span>
-            </a>
+              <div style="display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;">
+                {% if invoice.attached_image %}
+                <a class="cta-button btn-sm" href="{{ invoice.attached_image.url }}" target="_blank" rel="noopener">View Image</a>
+                {% endif %}
+                <a class="cta-button btn-sm" href="{% url 'invoice_update' invoice.pk %}">Add Image</a>
+                <a class="btn btn-sm" href="{% url 'mark_invoice_paid' invoice.id %}">Mark Paid</a>
+              </div>
+            </div>
             {% empty %}
             <div class="meta-sub">No pending invoices.</div>
             {% endfor %}
@@ -169,11 +175,14 @@
             <div class="section-title">Quick Actions</div>
           </div>
           <div class="quick-actions">
+            {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
+            <a class="qa-btn" href="{% url 'admin_actions_hub' %}"><span class="qa-ico">🛠️</span><div>Administrative Actions<div class="qa-hint">Users, trucks, drivers</div></div></a>
+            {% endif %}
             <a class="qa-btn" href="{% url 'truck-list' %}"><span class="qa-ico">🚚</span><div>View Trucks<div class="qa-hint">Open fleet</div></div></a>
-            <a class="qa-btn" href="{% url 'truck-create' %}"><span class="qa-ico">🚚</span><div>Register Truck<div class="qa-hint">Add a new vehicle</div></div></a>
-            <a class="qa-btn" href="{% url 'driver-create' %}"><span class="qa-ico">👤</span><div>Register Driver<div class="qa-hint">Create driver profile</div></div></a>
+            <a class="qa-btn" href="{% url 'truck-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">🚚</span><div>Register Truck<div class="qa-hint">Add a new vehicle</div></div></a>
+            <a class="qa-btn" href="{% url 'driver-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">👤</span><div>Register Driver<div class="qa-hint">Create driver profile</div></div></a>
             {% if user_role == 'ADMIN' %}
-            <a class="qa-btn" href="{% url 'staff-create' %}"><span class="qa-ico">🏢</span><div>Create Staff<div class="qa-hint">Add back-office staff</div></div></a>
+            <a class="qa-btn" href="{% url 'staff-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">🏢</span><div>Create Staff<div class="qa-hint">Add back-office staff</div></div></a>
             {% endif %}
             <a class="qa-btn" href="{% url 'trip_completed_filter' %}"><span class="qa-ico">✅</span><div>Completed Trips<div class="qa-hint">View all completed</div></div></a>
             <a class="qa-btn" href="{% url 'report_index' %}"><span class="qa-ico">📊</span><div>Open Reports<div class="qa-hint">Monthly & annual</div></div></a>

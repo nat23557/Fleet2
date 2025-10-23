@@ -1,0 +1,26 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="section" data-reveal>
+    <div class="section-header">
+      <div class="section-title">Administrative Actions</div>
+    </div>
+    <div class="quick-actions" style="row-gap:.8rem;">
+      {% if user_role == 'ADMIN' %}
+      <a class="qa-btn" href="{% url 'staff-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">👥</span><div>Create User<div class="qa-hint">Add staff account</div></div></a>
+      {% endif %}
+      <a class="qa-btn" href="{% url 'truck-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">🚚</span><div>Register Truck<div class="qa-hint">Add new vehicle</div></div></a>
+      <a class="qa-btn" href="{% url 'driver-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">👤</span><div>Register Driver<div class="qa-hint">Create driver profile</div></div></a>
+      <a class="qa-btn" href="{% url 'cargo-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">📦</span><div>Create Cargo<div class="qa-hint">Add cargo item</div></div></a>
+
+      <a class="qa-btn" href="{% url 'truck-list' %}"><span class="qa-ico">📋</span><div>Manage Trucks<div class="qa-hint">View & edit trucks</div></div></a>
+      <a class="qa-btn" href="{% url 'driver-list' %}"><span class="qa-ico">📋</span><div>Manage Drivers<div class="qa-hint">View & edit drivers</div></div></a>
+      {% if user_role == 'ADMIN' %}
+      <a class="qa-btn" href="{% url 'report_index' %}"><span class="qa-ico">📊</span><div>Reports<div class="qa-hint">Financial KPIs</div></div></a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

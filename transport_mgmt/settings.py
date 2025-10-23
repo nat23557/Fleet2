@@ -3,7 +3,12 @@ from pathlib import Path
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'django-insecure-(0ic)q_*o-j8!=utd@1vx7ui#-h+88xifh)vo+elwcb^e^ac76'
+# Read secret from env in production; fall back to the existing
+# development key so local setup continues to work.
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-(0ic)q_*o-j8!=utd@1vx7ui#-h+88xifh)vo+elwcb^e^ac76'
+)
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 

@@ -22,6 +22,8 @@ from decimal import Decimal
 from django.forms import inlineformset_factory
 from io import BytesIO
 from django.db.models.functions import Coalesce
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.urls import reverse
 
 from .models import (
     Staff, Driver, Truck, Cargo, Trip, TripFinancial, MajorAccident,
@@ -36,6 +38,7 @@ from .forms import (
 import json
 from datetime import datetime, timedelta
 from calendar import monthrange
+from collections import defaultdict, namedtuple
 
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -238,7 +241,14 @@ def login_view(request):
                 # If not found or no valid role, store None
                 request.session['user_role'] = None
 
-            # Redirect to home (index) after login
+            # Redirect to a simple hub after login (for ADMIN/MANAGER);
+            # drivers still get redirected by index() logic if they visit home.
+            try:
+                role = get_user_role(request)
+                if role in ['ADMIN', 'MANAGER']:
+                    return redirect('home_hub')
+            except Exception:
+                pass
             return redirect('home')
         else:
             error_message = "Invalid username or password."
@@ -598,7 +608,7 @@ def staff_create(request):
         form = StaffForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = StaffForm()
     return render(request, "transportation/staff_form.html", {
@@ -619,7 +629,7 @@ def staff_update(request, pk):
         form = StaffForm(request.POST, request.FILES, instance=staff_member)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = StaffForm(instance=staff_member)
     return render(request, "transportation/staff_form.html", {
@@ -648,7 +658,7 @@ def staff_delete(request, pk):
             )
         except Exception as e:
             messages.error(request, f"Error deleting user: {str(e)}")
-        return redirect('home')
+        return _redirect_back(request)
     return render(request, "transportation/staff_confirm_delete.html", {
         "staff_member": staff_member,
         "user_role": user_role
@@ -697,7 +707,7 @@ def driver_create(request):
         form = DriverForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = DriverForm()
     return render(request, "transportation/driver_form.html", {
@@ -718,7 +728,7 @@ def driver_update(request, pk):
         form = DriverForm(request.POST, request.FILES, instance=driver)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = DriverForm(instance=driver)
     return render(request, "transportation/driver_form.html", {
@@ -737,7 +747,7 @@ def driver_delete(request, pk):
     driver = get_object_or_404(Driver, pk=pk)
     if request.method == "POST":
         driver.delete()
-        return redirect('home')
+        return _redirect_back(request)
     return render(request, "transportation/driver_confirm_delete.html", {
         "driver": driver,
         "user_role": user_role
@@ -753,7 +763,8 @@ def truck_list(request):
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
     if not allowed:
         return redirect('home')
-    trucks = Truck.objects.all()
+    from django.db.models import Count
+    trucks = Truck.objects.all().annotate(total_trips=Count('trip'))
     return render(request, 'transportation/truck_list.html', {
         'trucks': trucks,
         'user_role': user_role
@@ -1408,6 +1419,336 @@ def driver_home(request):
     return render(request, 'transportation/driver_home.html', ctx)
 
 
+# Small helper for consistent post-submit navigation
+def _redirect_back(request, fallback_name=None):
+    """Redirect to ?next, posted next, or safe referer; else to role-based hub/home.
+
+    fallback_name: named URL to use if no next/referer is present. If None, picks
+    'home_hub' for ADMIN/MANAGER, 'driver_home' for DRIVER, else 'home'.
+    """
+    nxt = request.POST.get('next') or request.GET.get('next') or request.META.get('HTTP_REFERER')
+    if nxt and url_has_allowed_host_and_scheme(nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return redirect(nxt)
+    if fallback_name:
+        try:
+            return redirect(fallback_name)
+        except Exception:
+            pass
+    role = get_user_role(request)
+    if role in ['ADMIN', 'MANAGER']:
+        return redirect('home_hub')
+    if role == 'DRIVER':
+        return redirect('driver_home')
+    return redirect('home')
+
+# --------------------------------
+# Simple Landing Hub and Focused Pages
+# --------------------------------
+
+@login_required
+def home_hub(request):
+    """A very simple post-login hub with four clear choices.
+
+    Shows counts for Active Trips and Completed Trips to match the requested UX.
+    Admin/Manager only; drivers keep using driver_home.
+    """
+    # Drivers continue to their dedicated home
+    if get_user_role(request) == 'DRIVER':
+        return redirect('driver_home')
+
+    allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
+    if not allowed:
+        return redirect('home')
+
+    active_count = Trip.objects.filter(status=Trip.STATUS_IN_PROGRESS).count()
+    completed_count = Trip.objects.filter(status=Trip.STATUS_COMPLETED).count()
+
+    return render(request, 'transportation/simple_hub.html', {
+        'user_role': user_role,
+        'active_trips_count': active_count,
+        'completed_trips_count': completed_count,
+    })
+
+
+@login_required
+def fleet_map_page(request):
+    """Dedicated interactive map page for fleet live locations.
+
+    Reuses existing Leaflet + fleet_map.js scripts and live endpoints.
+    """
+    allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
+    if not allowed:
+        return redirect('home')
+
+    # Optionally refresh GPS data for the map
+    update_gps_records()
+
+    return render(request, 'transportation/fleet_map.html', {
+        'user_role': user_role,
+    })
+
+
+@login_required
+def active_trips_overview(request):
+    """All active trips in one place without duplicate info.
+
+    Render concise cards/rows with key details and a link to each trip.
+    """
+    allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
+    if not allowed:
+        return redirect('home')
+
+    trips = (Trip.objects
+             .filter(status=Trip.STATUS_IN_PROGRESS)
+             .select_related('truck', 'driver__staff_profile__user')
+             .order_by('-start_time', '-id'))
+
+    return render(request, 'transportation/active_trips.html', {
+        'user_role': user_role,
+        'trips': trips,
+        'active_trips_count': trips.count(),
+    })
+
+
+@login_required
+def completed_trips_matrix(request):
+    """Completed trips grouped by Truck in a comparison matrix.
+
+    Uses the same filter form as trip_completed_filter; shows one table per truck,
+    with trips as columns and detail rows for side-by-side comparison.
+    """
+    allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
+    if not allowed:
+        return redirect('home')
+
+    from .forms import CompletedTripsFilterForm
+    form = CompletedTripsFilterForm(request.POST or None)
+
+    trips_qs = Trip.objects.filter(status=Trip.STATUS_COMPLETED).select_related('truck', 'driver__staff_profile__user')
+    # Apply timeframe filters similar to existing page
+    if request.method == 'POST' and form.is_valid():
+        tf = form.cleaned_data.get('timeframe')
+        if tf == 'custom':
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            if start_date and end_date:
+                trips_qs = trips_qs.filter(end_time__date__gte=start_date, end_time__date__lte=end_date)
+        else:
+            now = timezone.now()
+            from dateutil.relativedelta import relativedelta
+            if tf == '1_month':
+                date_from = now - relativedelta(months=1)
+            elif tf == '3_months':
+                date_from = now - relativedelta(months=3)
+            elif tf == '1_year':
+                date_from = now - relativedelta(years=1)
+            elif tf == '2_years':
+                date_from = now - relativedelta(years=2)
+            else:
+                date_from = None
+            if date_from:
+                trips_qs = trips_qs.filter(end_time__gte=date_from)
+
+    trips_qs = trips_qs.order_by('-end_time', '-id')
+
+    # Group trips by truck
+    grouped = defaultdict(list)
+    for t in trips_qs:
+        grouped[t.truck].append(t)
+
+    # Prefetch financials per trip id
+    fin_map = {f.trip_id: f for f in TripFinancial.objects.filter(trip__in=trips_qs)}
+
+    # Build per-truck comparison data
+    truck_blocks = []
+    for truck, trips in grouped.items():
+        # columns are trips; rows are fields
+        cols = []
+        for t in trips:
+            fin = fin_map.get(t.id)
+            cols.append({
+                'id': t.id,
+                'truck_trip_number': t.truck_trip_number,
+                'route': f"{t.start_location or '—'} → {t.end_location or '—'}",
+                'start': t.start_time,
+                'end': t.end_time,
+                'distance': t.calculated_distance() or t.distance_traveled,
+                'cargo': t.cargo_type,
+                'load': t.cargo_load,
+                'tariff': t.tariff_rate,
+                'revenue': getattr(fin, 'total_revenue', None),
+                'expense': getattr(fin, 'total_expense', None),
+                'income': getattr(fin, 'income_before_tax', None),
+                'driver': (t.driver.staff_profile.user.get_full_name() or t.driver.staff_profile.user.username) if t.driver else None,
+            })
+        truck_blocks.append({ 'truck': truck, 'columns': cols })
+
+    return render(request, 'transportation/trip_completed_matrix.html', {
+        'user_role': user_role,
+        'form': form,
+        'truck_blocks': truck_blocks,
+    })
+
+
+@login_required
+def driver_performance(request):
+    """Driver performance indicator: trips completed, time per trip, drive vs idle time, expenses, income.
+
+    Timeframe filter is optional; defaults to last 1 month.
+    """
+    allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
+    if not allowed:
+        return redirect('home')
+
+    # Reuse CompletedTripsFilterForm for timeframe selection
+    from .forms import CompletedTripsFilterForm
+    form = CompletedTripsFilterForm(request.POST or None)
+
+    # Determine date range
+    date_from = None
+    date_to = None
+    now = timezone.now()
+    from dateutil.relativedelta import relativedelta
+    if request.method == 'POST' and form.is_valid():
+        tf = form.cleaned_data['timeframe']
+        if tf == 'custom':
+            date_from = form.cleaned_data['start_date']
+            date_to = form.cleaned_data['end_date']
+        elif tf == '1_month':
+            date_from = now - relativedelta(months=1)
+        elif tf == '3_months':
+            date_from = now - relativedelta(months=3)
+        elif tf == '1_year':
+            date_from = now - relativedelta(years=1)
+        elif tf == '2_years':
+            date_from = now - relativedelta(years=2)
+    else:
+        date_from = now - relativedelta(months=1)
+
+    trips_qs = Trip.objects.filter(status=Trip.STATUS_COMPLETED).select_related('truck', 'driver__staff_profile__user')
+    if date_from:
+        trips_qs = trips_qs.filter(end_time__gte=date_from)
+    if date_to:
+        # inclusive end of day for a date object
+        try:
+            dt_end = datetime.combine(date_to, datetime.max.time())
+            if timezone.is_naive(dt_end):
+                dt_end = timezone.make_aware(dt_end)
+        except Exception:
+            dt_end = None
+        if dt_end:
+            trips_qs = trips_qs.filter(end_time__lte=dt_end)
+
+    # Organize trips per driver
+    by_driver = defaultdict(list)
+    for t in trips_qs:
+        if t.driver_id:
+            by_driver[t.driver].append(t)
+
+    # Helper to accumulate driving vs idle time from GPS snapshots
+    def drive_idle_for_trip(trip: Trip):
+        if not (trip.start_time and trip.end_time):
+            return 0, 0
+        qs = GPSRecord.objects.filter(
+            truck=trip.truck,
+            dt_tracker__gte=trip.start_time,
+            dt_tracker__lte=trip.end_time,
+        ).order_by('dt_tracker').only('dt_tracker', 'speed')
+        if not qs.exists():
+            # Fallback: all time as driving duration equals trip duration (no GPS granularity)
+            delta = (trip.end_time - trip.start_time).total_seconds()
+            return delta, 0
+        drive = 0.0
+        idle = 0.0
+        prev = None
+        prev_speed = None
+        for rec in qs:
+            if prev is None:
+                prev = rec.dt_tracker
+                prev_speed = float(rec.speed or 0)
+                continue
+            dt = max(0.0, (rec.dt_tracker - prev).total_seconds())
+            # Consider driving when speed > 0
+            if (prev_speed or 0) > 0:
+                drive += dt
+            else:
+                idle += dt
+            prev = rec.dt_tracker
+            prev_speed = float(rec.speed or 0)
+        # Account for tail gap up to trip end
+        if prev and trip.end_time and trip.end_time > prev:
+            tail = (trip.end_time - prev).total_seconds()
+            if (prev_speed or 0) > 0:
+                drive += tail
+            else:
+                idle += tail
+        return drive, idle
+
+    # Prefetch financials
+    fin_map = {f.trip_id: f for f in TripFinancial.objects.filter(trip__in=trips_qs)}
+
+    driver_rows = []
+    for driver, trips in by_driver.items():
+        completed = len(trips)
+        total_drive = 0.0
+        total_idle = 0.0
+        total_duration = 0.0
+        total_revenue = Decimal('0')
+        total_expense = Decimal('0')
+        total_income = Decimal('0')
+        for t in trips:
+            if t.start_time and t.end_time:
+                total_duration += max(0.0, (t.end_time - t.start_time).total_seconds())
+            d, i = drive_idle_for_trip(t)
+            total_drive += d
+            total_idle += i
+            fin = fin_map.get(t.id)
+            if fin:
+                total_revenue += fin.total_revenue or Decimal('0')
+                total_expense += fin.total_expense or Decimal('0')
+                total_income += fin.income_before_tax or Decimal('0')
+        # convert seconds to hours for readability
+        def _hours(v):
+            try:
+                return round(float(v) / 3600.0, 2)
+            except Exception:
+                return 0.0
+        driver_rows.append({
+            'driver': driver,
+            'completed': completed,
+            'drive_hours': _hours(total_drive),
+            'idle_hours': _hours(total_idle),
+            'duration_hours': _hours(total_duration),
+            'revenue': total_revenue,
+            'expense': total_expense,
+            'income': total_income,
+        })
+
+    # Sort by completed trips desc
+    driver_rows.sort(key=lambda r: (-r['completed'], r['driver'].staff_profile.user.username))
+
+    return render(request, 'transportation/driver_performance.html', {
+        'user_role': user_role,
+        'form': form,
+        'rows': driver_rows,
+    })
+
+
+@login_required
+def admin_actions_hub(request):
+    """Simple admin/manager hub listing key administrative actions.
+
+    - ADMIN: can create users (staff) and everything else
+    - MANAGER: can register trucks, register drivers, create cargo
+    """
+    allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
+    if not allowed:
+        return redirect('home')
+    return render(request, 'transportation/admin_hub.html', {
+        'user_role': user_role,
+    })
+
+
 @login_required
 def people_hub(request):
     """Temporary hub that points to drivers list (people)."""
@@ -1429,7 +1770,7 @@ def truck_create(request):
             truck = form.save(commit=False)
             truck.save()
             form.save_m2m()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = TruckForm()
     return render(request, "transportation/truck_form.html", {
@@ -1451,7 +1792,7 @@ def truck_update(request, pk):
             truck = form.save(commit=False)
             truck.save()
             form.save_m2m()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = TruckForm(instance=truck)
     return render(request, "transportation/truck_form.html", {
@@ -1469,7 +1810,7 @@ def truck_delete(request, pk):
     truck = get_object_or_404(Truck, pk=pk)
     if request.method == "POST":
         truck.delete()
-        return redirect('home')
+        return _redirect_back(request)
     return render(request, "transportation/truck_confirm_delete.html", {
         "truck": truck,
         "user_role": user_role
@@ -1519,7 +1860,7 @@ def cargo_create(request):
         form = CargoForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = CargoForm()
     return render(request, "transportation/cargo_form.html", {
@@ -1540,7 +1881,7 @@ def cargo_update(request, pk):
         form = CargoForm(request.POST, instance=cargo)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = CargoForm(instance=cargo)
     return render(request, "transportation/cargo_form.html", {
@@ -1559,7 +1900,7 @@ def cargo_delete(request, pk):
     cargo = get_object_or_404(Cargo, pk=pk)
     if request.method == "POST":
         cargo.delete()
-        return redirect('home')
+        return _redirect_back(request)
     return render(request, "transportation/cargo_confirm_delete.html", {
         "cargo": cargo,
         "user_role": user_role
@@ -1710,7 +2051,7 @@ def service_create(request, truck_id):
             service = form.save(commit=False)
             service.truck = truck
             service.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = ServiceRecordForm()
     return render(request, 'transportation/service_form.html', {
@@ -1733,7 +2074,7 @@ def service_update(request, pk):
         form = ServiceRecordForm(request.POST, request.FILES, instance=service)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = ServiceRecordForm(instance=service)
     return render(request, 'transportation/service_form.html', {
@@ -1754,7 +2095,7 @@ def service_delete(request, pk):
     truck = service.truck
     if request.method == 'POST':
         service.delete()
-        return redirect('home')
+        return _redirect_back(request)
     return render(request, 'transportation/service_confirm_delete.html', {
         "service": service,
         "truck": truck,
@@ -1810,7 +2151,7 @@ def replaced_item_create(request, truck_id):
             replaced = form.save(commit=False)
             replaced.truck = truck
             replaced.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = ReplacedItemForm()
     return render(request, 'transportation/replaced_item_form.html', {
@@ -1833,7 +2174,7 @@ def replaced_item_update(request, pk):
         form = ReplacedItemForm(request.POST, request.FILES, instance=item)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return _redirect_back(request)
     else:
         form = ReplacedItemForm(instance=item)
     return render(request, 'transportation/replaced_item_form.html', {
@@ -1854,7 +2195,7 @@ def replaced_item_delete(request, pk):
     truck = item.truck
     if request.method == 'POST':
         item.delete()
-        return redirect('home')
+        return _redirect_back(request)
     return render(request, 'transportation/replaced_item_confirm_delete.html', {
         "item": item,
         "truck": truck,
@@ -2335,7 +2676,7 @@ class TripCreateView(LoginRequiredMixin, CreateView):
                 OperationalExpenseDetail.objects.create(
                     financial=financial,
                     amount=leftover,
-                    note=f"Carry-over from Trip #{last_trip.pk}",
+                    note=f"Carry-over from Trip #{last_trip.truck_trip_number or last_trip.pk}",
                 )
                 # Update financial aggregates after adding the carry-over detail
                 financial.update_financials()
@@ -2644,7 +2985,7 @@ def trip_complete(request, trip_id):
     </style>
     """
 
-    subject = f"Trip Completed: Trip #{trip.pk}"
+    subject = f"Trip Completed: Trip #{trip.truck_trip_number or trip.pk}"
     html_body = f"""
     <html>
       <head>
@@ -2658,7 +2999,7 @@ def trip_complete(request, trip_id):
         </div>
         <div class="content">
           <p>Dear Admin/Manager,</p>
-          <p>We are pleased to inform you that <strong>Trip #{trip.pk}</strong> has been successfully completed.</p>
+          <p>We are pleased to inform you that <strong>Trip #{trip.truck_trip_number or trip.pk}</strong> has been successfully completed.</p>
           <div class="detail">
             <p><strong>Truck:</strong> {trip.truck.plate_number}</p>
             <p><strong>Driver:</strong> {trip.driver.staff_profile.user.username if trip.driver else 'N/A'}</p>

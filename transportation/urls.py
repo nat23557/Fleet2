@@ -49,6 +49,15 @@ urlpatterns = [
     # Driver home (map/GPS-free)
     path('driver/', tviews.driver_home, name='driver_home'),
 
+    # Simple landing hub and focused pages
+    path('hub/', views.home_hub, name='home_hub'),
+    path('map/', views.fleet_map_page, name='fleet_map_page'),
+    path('trips/active/', views.active_trips_overview, name='active_trips_overview'),
+    path('trips/completed/matrix/', views.completed_trips_matrix, name='completed_trips_matrix'),
+    path('drivers/performance/', views.driver_performance, name='driver_performance'),
+    # Avoid Django admin catch-all; expose actions at a neutral path
+    path('actions/', views.admin_actions_hub, name='admin_actions_hub'),
+
 
 
 

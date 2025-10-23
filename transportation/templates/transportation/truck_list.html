@@ -18,6 +18,7 @@
         <th>Type</th>
         <th>Status</th>
         <th>Mileage</th>
+        <th>Trips</th>
         <th>Driver</th>
         <th>Actions</th>
         <th>Type</th>
@@ -33,6 +34,7 @@
         <td>{{ truck.truck_type }}</td>
         <td>{{ truck.get_status_display }}</td>
         <td>{{ truck.mileage_km }} km</td>
+        <td>{{ truck.total_trips|default:0 }}</td>
         <td>
           {% if truck.driver %}
             {{ truck.driver.staff_profile.user.username }}

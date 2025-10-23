@@ -154,3 +154,22 @@ html[data-theme="dark"] .nav-links a::after { background: linear-gradient(90deg,
 html[data-theme="dark"] .btn-ghost { --btn-bg: rgba(255,255,255,.06); --btn-border: rgba(255,255,255,.08); }
 html[data-theme="dark"] .qa-btn { background: linear-gradient(180deg, #121a1a, #0f1414); border-color: rgba(255,255,255,.06); }
 
+/* Responsive utilities for mobile-first design */
+.desktop-only { display: block; }
+.mobile-only { display: none; }
+
+@media (max-width: 720px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+
+  /* Tighten paddings for list items on mobile */
+  .list-item { padding: .6rem .8rem; }
+
+  /* Avoid horizontal scroll from tables on small screens */
+  .table-container { overflow-x: hidden; }
+  .erp-table { display: block; width: 100%; }
+  .erp-table thead { display: none; }
+  .erp-table tbody, .erp-table tr, .erp-table td { display: block; width: 100%; }
+  .erp-table tr { border: 1px solid var(--border); border-radius: 8px; margin-bottom: .6rem; padding: .4rem .6rem; }
+  .erp-table td { padding: .2rem 0; }
+}

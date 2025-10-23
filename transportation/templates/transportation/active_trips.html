@@ -1,0 +1,30 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="section" data-reveal>
+    <div class="section-header">
+      <div class="section-title">Active Trips</div>
+      <span class="panel-count">{{ active_trips_count|default:0 }} ongoing</span>
+    </div>
+    <div class="list" style="max-height:none;">
+      {% for trip in trips %}
+      <a class="list-item" href="{% url 'trip_detail' trip.pk %}">
+        <div class="item-meta">
+          <div class="meta-title">{{ trip.truck.plate_number }} • {{ trip.start_location }} → {{ trip.end_location }}</div>
+          <div class="meta-sub">
+            {% if trip.driver %}Driver: {{ trip.driver.staff_profile.user.get_full_name|default:trip.driver.staff_profile.user.username }} • {% endif %}
+            Started: {{ trip.start_time|date:'M d, H:i' }}
+          </div>
+        </div>
+        <span class="badge amber">Live</span>
+      </a>
+      {% empty %}
+      <div class="meta-sub">No active trips at the moment.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -157,13 +157,19 @@
     <div class="section-header"><div class="section-title">Pending Invoices</div></div>
     <div class="list">
       {% for invoice in pending_invoices %}
-      <a class="list-item" href="{% url 'trip_detail' invoice.trip.pk %}" data-reveal>
+      <div class="list-item" data-reveal>
         <div class="item-meta">
-          <div class="meta-title">Trip #{{ invoice.trip.pk }} — {{ invoice.amount_due }} ETB</div>
+          <div class="meta-title">Trip #{{ invoice.trip.truck_trip_number|default:invoice.trip.pk }} — {{ invoice.amount_due }} ETB</div>
           <div class="meta-sub">Issued: {{ invoice.issue_date|default:"N/A" }}</div>
         </div>
-        <span class="badge red">Unpaid</span>
-      </a>
+        <div style="display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;">
+          {% if invoice.attached_image %}
+          <a class="cta-button btn-sm" href="{{ invoice.attached_image.url }}" target="_blank" rel="noopener">View Image</a>
+          {% endif %}
+          <a class="cta-button btn-sm" href="{% url 'invoice_update' invoice.pk %}">Add Image</a>
+          <a class="btn btn-sm" href="{% url 'mark_invoice_paid' invoice.id %}">Mark Paid</a>
+        </div>
+      </div>
       {% empty %}
       <div class="meta-sub">No pending invoices.</div>
       {% endfor %}

@@ -22,11 +22,14 @@ Prerequisites
   - `python manage.py collectstatic --noinput`
 
 2) Database (local MariaDB/MySQL)
-- Create DB and user (example):
+- Create DB and user (aligned with repo defaults):
   - `sudo mysql -u root`
   - `CREATE DATABASE fleet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
-  - `CREATE USER 'fleet_user'@'127.0.0.1' IDENTIFIED BY 'strong_password_here';`
-  - `GRANT ALL PRIVILEGES ON fleet.* TO 'fleet_user'@'127.0.0.1'; FLUSH PRIVILEGES;`
+  - `CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Admin_thermo';`
+  - `CREATE USER IF NOT EXISTS 'admin'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'Admin_thermo';`
+  - `GRANT ALL PRIVILEGES ON fleet.* TO 'admin'@'localhost';`
+  - `GRANT ALL PRIVILEGES ON fleet.* TO 'admin'@'127.0.0.1';`
+  - `FLUSH PRIVILEGES;`
 - Configure environment (next section) to point Django to this DB.
 
 3) Systemd Service (Gunicorn)
@@ -44,8 +47,8 @@ Prerequisites
   Environment=DJANGO_ALLOWED_HOSTS=your.domain.com,127.0.0.1,localhost
   Environment=CSRF_TRUSTED_ORIGINS=https://your.domain.com
   Environment=DB_NAME=fleet
-  Environment=DB_USER=fleet_user
-  Environment=DB_PASSWORD=strong_password_here
+  Environment=DB_USER=admin
+  Environment=DB_PASSWORD=Admin_thermo
   Environment=DB_HOST=127.0.0.1
   Environment=DB_PORT=3306
   ExecStart=/opt/thermofam/venv/bin/gunicorn -b 127.0.0.1:8000 transport_mgmt.wsgi:application

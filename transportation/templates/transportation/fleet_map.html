@@ -1,0 +1,19 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <section class="section" data-reveal>
+    <div class="section-header"><div class="section-title">Fleet Live Map</div></div>
+    <div class="chart-box" style="height: clamp(420px, 60vh, 720px);">
+      <div id="fleet-map" data-mode="all" style="height:100%; width:100%; border-radius:10px; overflow:hidden; border:1px solid var(--border);"></div>
+    </div>
+  </section>
+</div>
+
+<!-- Leaflet + app scripts -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script src="{% static 'js/fleet_map.js' %}"></script>
+{% endblock %}
+

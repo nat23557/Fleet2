@@ -27,7 +27,7 @@
 
   <!-- Header / Title Section -->
   <div class="trip-header" id="tripHeaderSection">
-    <h2 class="trip-title" id="tripTitle">Trip #{{ trip.pk }}</h2>
+    <h2 class="trip-title" id="tripTitle">Trip #{{ trip.truck_trip_number|default:trip.pk }}</h2>
   </div>
 
   <!-- KPI Cards for Bird's Eye View -->

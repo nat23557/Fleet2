@@ -8,7 +8,7 @@
     for an expense detail update 'object' will be an OperationalExpenseDetail.
   {% endcomment %}
   {% if object.financial.trip %}
-    <h2 class="form-title">Update Dispatch Money for Trip #{{ object.financial.trip.pk }}</h2>
+    <h2 class="form-title">Update Dispatch Money for Trip #{{ object.financial.trip.truck_trip_number|default:object.financial.trip.pk }}</h2>
   {% else %}
     <h2 class="form-title">Update Dispatch Money</h2>
   {% endif %}

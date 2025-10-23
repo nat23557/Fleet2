@@ -17,7 +17,8 @@ Menu Order:
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator, MinValueValidator
-from django.db.models import Sum
+from django.db.models import Sum, Max
+from django.core.exceptions import ValidationError
 from decimal import Decimal
 
 
@@ -351,6 +352,8 @@ class Trip(models.Model):
     distance_traveled = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     trip_purpose = models.CharField(max_length=200, null=True, blank=True)
     route = models.JSONField(default=list, blank=True)
+    # New: per-truck sequence number for trips
+    truck_trip_number = models.PositiveIntegerField(null=True, blank=True, help_text="Per-truck trip sequence number")
 
     def calculated_distance(self):
         if self.initial_kilometer is not None and self.final_kilometer is not None:
@@ -366,6 +369,10 @@ class Trip(models.Model):
         """ Override save method to enforce invoice check before completing a trip """
         if self.status == self.STATUS_COMPLETED and not hasattr(self, 'invoice'):
             raise ValidationError("Trip cannot be completed without an invoice.")
+        # Assign per-truck trip number for new trips if missing
+        if self.truck_id and not self.pk and not self.truck_trip_number:
+            current_max = Trip.objects.filter(truck_id=self.truck_id).aggregate(m=Max('truck_trip_number'))['m'] or 0
+            self.truck_trip_number = current_max + 1
 
         super().save(*args, **kwargs)
         if self.status == self.STATUS_COMPLETED and self.final_kilometer is not None:
@@ -378,6 +385,11 @@ class Trip(models.Model):
 
     def __str__(self):
         return f"Trip #{self.pk} | {self.truck.plate_number} - {self.get_status_display()}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['truck', 'truck_trip_number'], name='uniq_truck_trip_number_per_truck')
+        ]
 
 
 # 9. TripFinancial Model

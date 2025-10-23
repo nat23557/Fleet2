@@ -1,0 +1,106 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="form-container">
+    <h2>Driver Performance</h2>
+    <form method="POST" style="display:flex; gap:1rem; align-items:end; flex-wrap:wrap;">
+      {% csrf_token %}
+      <div>{{ form.timeframe.label_tag }} {{ form.timeframe }}</div>
+      <div>{{ form.start_date.label_tag }} {{ form.start_date }}</div>
+      <div>{{ form.end_date.label_tag }} {{ form.end_date }}</div>
+      <button type="submit" class="cta-button">Apply</button>
+    </form>
+  </div>
+
+  <div class="table-container desktop-only">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Driver</th>
+          <th>Trips</th>
+          <th>Total Duration (h)</th>
+          <th>Driving (h)</th>
+          <th>Idle (h)</th>
+          <th>Revenue</th>
+          <th>Expense</th>
+          <th>Income</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.driver.staff_profile.user.get_full_name|default:r.driver.staff_profile.user.username }}</td>
+          <td>{{ r.completed }}</td>
+          <td>{{ r.duration_hours|floatformat:2|default:0 }}</td>
+          <td>{{ r.drive_hours|floatformat:2|default:0 }}</td>
+          <td>{{ r.idle_hours|floatformat:2|default:0 }}</td>
+          <td>{{ r.revenue|default:0 }}</td>
+          <td>{{ r.expense|default:0 }}</td>
+          <td>{{ r.income|default:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">No data for selected timeframe.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile cards with mini charts -->
+  <div class="mobile-only" style="display:none;">
+    <div class="list" style="max-height:none;">
+      {% for r in rows %}
+      <div class="list-item" style="align-items:flex-start;">
+        <div class="item-meta" style="gap:.25rem;">
+          <div class="meta-title">{{ r.driver.staff_profile.user.get_full_name|default:r.driver.staff_profile.user.username }}</div>
+          <div class="meta-sub">Trips: {{ r.completed }} • Duration: {{ r.duration_hours|floatformat:2 }} h</div>
+          <div class="meta-sub">Revenue: {{ r.revenue|default:0 }} • Income: {{ r.income|default:0 }}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:.4rem;">
+          <canvas class="dp-chart" width="72" height="72"
+            data-drive="{{ r.drive_hours|floatformat:2|default:0 }}"
+            data-idle="{{ r.idle_hours|floatformat:2|default:0 }}"
+            aria-label="Drive vs Idle chart"></canvas>
+          <div style="font-size:.75rem; color:var(--muted);">Drive vs Idle</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="meta-sub">No data for selected timeframe.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Chart.js for mini charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (function(){
+      function initMiniCharts(){
+        var els = document.querySelectorAll('canvas.dp-chart');
+        els.forEach(function(cv){
+          var drive = parseFloat(cv.getAttribute('data-drive')||'0');
+          var idle = parseFloat(cv.getAttribute('data-idle')||'0');
+          var total = Math.max(0.01, drive + idle);
+          new Chart(cv.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+              labels: ['Drive','Idle'],
+              datasets: [{
+                data: [drive, idle],
+                backgroundColor: ['#22c55e', '#f59e0b'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              responsive: false,
+              cutout: '60%',
+              plugins: {legend: {display:false}, tooltip: {enabled: false}},
+            }
+          });
+        });
+      }
+      document.addEventListener('DOMContentLoaded', initMiniCharts);
+    })();
+  </script>
+</div>
+{% endblock %}

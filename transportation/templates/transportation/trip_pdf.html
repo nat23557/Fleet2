@@ -43,7 +43,7 @@
 
       <!-- Header / Title Section (content card) -->
       <div class="section-card">
-        <div class="section-header">Trip #{{ trip.pk }}</div>
+        <div class="section-header">Trip #{{ trip.truck_trip_number|default:trip.pk }}</div>
         <div class="section-body">
           <div class="detail-grid" id="tripDetailGrid">
             <div class="detail-label">Truck:</div>
