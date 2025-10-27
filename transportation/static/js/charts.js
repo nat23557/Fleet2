@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
             fill: false
           },
           {
-            label: 'Income',
+            label: 'Profit',
             data: overallData.income_before_tax,
             borderColor: 'rgba(54, 162, 235, 1)',
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function() {
             fill: false
           },
           {
-            label: 'Monthly Income',
+            label: 'Monthly Profit',
             data: truck.monthly_income,
             borderColor: 'rgba(54, 162, 235, 1)',
             backgroundColor: 'rgba(54, 162, 235, 0.2)',

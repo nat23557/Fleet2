@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
     new Chart(canvas.getContext("2d"), {
       type: "bar",
       data: {
-        labels: ["Revenue", "Expense", "Income"],
+        labels: ["Revenue", "Expense", "Profit"],
         datasets: [{
           label: "Overall Financials",
           data: [
@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function() {
     new Chart(canvas.getContext("2d"), {
       type: "bar",
       data: {
-        labels: ["Revenue", "Expense", "Income"],
+        labels: ["Revenue", "Expense", "Profit"],
         datasets: [{
           label: truck.truck_plate,
           data: [

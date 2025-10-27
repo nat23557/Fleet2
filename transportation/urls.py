@@ -157,6 +157,8 @@ urlpatterns = [
     # reports/urls.py
 
     path('reports/', report_index, name='report_index'),
+    # Zero-to-one: manager-friendly weekly narrative report
+    path('reports/weekly-story/', views.weekly_story_mode, name='weekly_story_mode'),
 
     path('reports/monthly/', MonthlyReportView.as_view(), name='monthly-report'),
     path('reports/annual/', AnnualReportView.as_view(), name='annual-report'),

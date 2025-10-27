@@ -20,12 +20,12 @@
         <tr>
           <th>Driver</th>
           <th>Trips</th>
-          <th>Total Duration (h)</th>
+          <th>Total Duration (days)</th>
           <th>Driving (h)</th>
           <th>Idle (h)</th>
           <th>Revenue</th>
           <th>Expense</th>
-          <th>Income</th>
+          <th>Profit</th>
         </tr>
       </thead>
       <tbody>
@@ -33,7 +33,7 @@
         <tr>
           <td>{{ r.driver.staff_profile.user.get_full_name|default:r.driver.staff_profile.user.username }}</td>
           <td>{{ r.completed }}</td>
-          <td>{{ r.duration_hours|floatformat:2|default:0 }}</td>
+          <td>{{ r.duration_days|floatformat:2|default:0 }}</td>
           <td>{{ r.drive_hours|floatformat:2|default:0 }}</td>
           <td>{{ r.idle_hours|floatformat:2|default:0 }}</td>
           <td>{{ r.revenue|default:0 }}</td>
@@ -54,8 +54,8 @@
       <div class="list-item" style="align-items:flex-start;">
         <div class="item-meta" style="gap:.25rem;">
           <div class="meta-title">{{ r.driver.staff_profile.user.get_full_name|default:r.driver.staff_profile.user.username }}</div>
-          <div class="meta-sub">Trips: {{ r.completed }} • Duration: {{ r.duration_hours|floatformat:2 }} h</div>
-          <div class="meta-sub">Revenue: {{ r.revenue|default:0 }} • Income: {{ r.income|default:0 }}</div>
+          <div class="meta-sub">Trips: {{ r.completed }} • Duration: {{ r.duration_days|floatformat:2 }} days</div>
+          <div class="meta-sub">Revenue: {{ r.revenue|default:0 }} • Profit: {{ r.income|default:0 }}</div>
         </div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:.4rem;">
           <canvas class="dp-chart" width="72" height="72"

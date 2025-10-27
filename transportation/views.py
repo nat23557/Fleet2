@@ -56,6 +56,399 @@ except Exception:
     PdfReader = None
     PdfWriter = None
 
+# -----------------------------
+# Reverse geocoding helper
+# -----------------------------
+import requests
+from functools import lru_cache
+
+@lru_cache(maxsize=512)
+def reverse_geocode_location(lat, lng):
+    """Resolve a human-readable place name from coordinates.
+
+    Uses OpenStreetMap Nominatim service. Returns a short readable
+    name if available; otherwise returns None.
+    """
+    try:
+        if lat is None or lng is None:
+            return None
+        url = "https://nominatim.openstreetmap.org/reverse"
+        headers = {"User-Agent": "Fleet2/1.0 (+https://example.com)"}
+        params = {"format": "jsonv2", "lat": float(lat), "lon": float(lng)}
+        resp = requests.get(url, headers=headers, params=params, timeout=6)
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        # Prefer a compact name from address components
+        addr = data.get("address", {})
+        for key in ("city", "town", "village", "hamlet", "municipality"):
+            if addr.get(key):
+                # Include country short if present
+                country = addr.get("country_code", "").upper()
+                return f"{addr[key]}{', ' + country if country else ''}"
+        # Fallback to display_name
+        dn = data.get("display_name")
+        if isinstance(dn, str) and dn:
+            # Shorten long display names
+            parts = dn.split(",")
+            return ", ".join([p.strip() for p in parts[:3]])
+        return None
+    except Exception:
+        return None
+
+
+# --------------------------------
+# Zero-to-One: Weekly Story Mode
+# --------------------------------
+@login_required
+def weekly_story_mode(request):
+    """Generate a plain-English weekly brief for managers.
+
+    Default window is the most recent completed week (Mon–Sun).
+    Override using GET params:
+      - start=YYYY-MM-DD
+      - end=YYYY-MM-DD
+      - week=current|prev (default prev)
+    """
+    allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
+    if not allowed:
+        return redirect('home')
+
+    tz = timezone.get_current_timezone()
+
+    # Determine week window
+    start_param = request.GET.get('start')
+    end_param = request.GET.get('end')
+    mode = (request.GET.get('week') or 'prev').lower()
+
+    def _aware_day(d, end=False):
+        if isinstance(d, datetime):
+            dt = d
+        else:
+            # date object
+            dt = datetime(d.year, d.month, d.day, 23, 59, 59) if end else datetime(d.year, d.month, d.day, 0, 0, 0)
+        return timezone.make_aware(dt, tz) if timezone.is_naive(dt) else dt
+
+    week_label = None
+
+    if start_param and end_param:
+        try:
+            sd = datetime.strptime(start_param, '%Y-%m-%d').date()
+            ed = datetime.strptime(end_param, '%Y-%m-%d').date()
+            week_start = _aware_day(sd, end=False)
+            week_end = _aware_day(ed, end=True)
+            week_label = f"{sd.strftime('%b %d')}–{ed.strftime('%b %d, %Y')}"
+        except Exception:
+            week_start = None
+            week_end = None
+    if not (start_param and end_param):
+        today = timezone.localdate()
+        # Python weekday: Mon=0..Sun=6
+        dow = today.weekday()
+        if mode == 'current':
+            monday = today - timedelta(days=dow)
+            sunday = monday + timedelta(days=6)
+        else:
+            # previous complete week
+            monday = today - timedelta(days=dow + 7)
+            sunday = monday + timedelta(days=6)
+        week_start = _aware_day(monday, end=False)
+        week_end = _aware_day(sunday, end=True)
+        week_label = f"{monday.strftime('%b %d')}–{sunday.strftime('%b %d, %Y')}"
+
+    # Query completed trips for the window
+    trips_qs = (Trip.objects
+                .filter(status=Trip.STATUS_COMPLETED,
+                        end_time__gte=week_start,
+                        end_time__lte=week_end)
+                .select_related('truck', 'driver__staff_profile__user')
+                .order_by('end_time'))
+
+    # If nothing to report, render a gentle empty brief
+    if not trips_qs.exists():
+        return render(request, 'transportation/weekly_story.html', {
+            'user_role': user_role,
+            'week_label': week_label,
+            'story_paragraphs': [
+                "No completed trips in the selected week. Operations were quiet — no actions required."
+            ],
+            'highlights': [],
+            'stats': {},
+        })
+
+    # Helpers
+    def d0(x):
+        return x or Decimal('0')
+
+    # Aggregate financials
+    fin_qs = TripFinancial.objects.filter(trip__in=trips_qs).select_related('trip__truck', 'trip__driver__staff_profile__user')
+    fin_totals = fin_qs.aggregate(revenue=Sum('total_revenue'), expense=Sum('total_expense'), income=Sum('income_before_tax'))
+    total_revenue = d0(fin_totals.get('revenue'))
+    total_expense = d0(fin_totals.get('expense'))
+    total_income = d0(fin_totals.get('income'))
+    margin_pct = (total_income / total_revenue * Decimal('100')) if total_revenue else Decimal('0')
+
+    # Distance and basic counts
+    trip_count = trips_qs.count()
+    trucks_used = len({t.truck_id for t in trips_qs if t.truck_id})
+    drivers_used = len({t.driver_id for t in trips_qs if t.driver_id})
+    # Sum distance with fallback to calculated_distance
+    total_km = Decimal('0')
+    for t in trips_qs:
+        try:
+            v = t.calculated_distance() if callable(getattr(t, 'calculated_distance', None)) else t.distance_traveled
+            total_km += Decimal(str(v or 0))
+        except Exception:
+            pass
+
+    # Top driver and truck by income
+    driver_stats = {}
+    truck_stats = {}
+    route_stats = {}
+    expense_by_cat = {}
+
+    # For outliers: expense per km per trip
+    exp_per_km_list = []
+
+    for fin in fin_qs.prefetch_related('expenses'):
+        t = fin.trip
+        drv = t.driver
+        trk = t.truck
+        rkey = (t.start_location or '—', t.end_location or '—')
+
+        # Driver
+        if drv:
+            dkey = drv.pk
+            obj = driver_stats.setdefault(dkey, {
+                'driver': drv,
+                'revenue': Decimal('0'),
+                'expense': Decimal('0'),
+                'income': Decimal('0'),
+                'trips': 0,
+            })
+            obj['revenue'] += d0(fin.total_revenue)
+            obj['expense'] += d0(fin.total_expense)
+            obj['income'] += d0(fin.income_before_tax)
+            obj['trips'] += 1
+
+        # Truck
+        if trk:
+            tkey = trk.pk
+            tobj = truck_stats.setdefault(tkey, {
+                'truck': trk,
+                'revenue': Decimal('0'),
+                'expense': Decimal('0'),
+                'income': Decimal('0'),
+                'trips': 0,
+            })
+            tobj['revenue'] += d0(fin.total_revenue)
+            tobj['expense'] += d0(fin.total_expense)
+            tobj['income'] += d0(fin.income_before_tax)
+            tobj['trips'] += 1
+
+        # Route group
+        robj = route_stats.setdefault(rkey, {
+            'start': rkey[0], 'end': rkey[1],
+            'revenue': Decimal('0'), 'expense': Decimal('0'), 'income': Decimal('0'), 'trips': 0
+        })
+        robj['revenue'] += d0(fin.total_revenue)
+        robj['expense'] += d0(fin.total_expense)
+        robj['income'] += d0(fin.income_before_tax)
+        robj['trips'] += 1
+
+        # Expense categories
+        for e in fin.expenses.all():
+            expense_by_cat[e.category] = expense_by_cat.get(e.category, Decimal('0')) + d0(e.amount)
+
+        # Expense per km (outlier detector)
+        try:
+            v = t.calculated_distance() if callable(getattr(t, 'calculated_distance', None)) else t.distance_traveled
+            km = float(v or 0)
+            if km > 0:
+                exp_per_km_list.append({
+                    'trip': t,
+                    'value': float(d0(fin.total_expense)) / km,
+                })
+        except Exception:
+            pass
+
+    top_driver = max(driver_stats.values(), key=lambda x: x['income']) if driver_stats else None
+    top_truck = max(truck_stats.values(), key=lambda x: x['income']) if truck_stats else None
+    # Best and worst routes by margin
+    for r in route_stats.values():
+        r['margin'] = (r['income'] / r['revenue'] * Decimal('100')) if r['revenue'] else Decimal('0')
+    best_route = max(route_stats.values(), key=lambda x: (x['margin'], x['income'])) if route_stats else None
+    worst_route = min(route_stats.values(), key=lambda x: (x['margin'], x['income'])) if route_stats else None
+
+    # Negative-margin trips
+    negative_trips = [fin.trip for fin in fin_qs if d0(fin.income_before_tax) < 0]
+
+    # Expense leader category
+    top_exp_cat = None
+    if expense_by_cat:
+        k, v = max(expense_by_cat.items(), key=lambda kv: kv[1])
+        share = (v / total_expense * Decimal('100')) if total_expense else Decimal('0')
+        top_exp_cat = {'category': k, 'amount': v, 'share_pct': share}
+
+    # AR status: invoices for this period
+    unpaid = Invoice.objects.filter(trip__in=trips_qs, is_paid=False)
+    overdue = unpaid.filter(due_date__lt=timezone.localdate())
+
+    # Outliers: top 3 expense-per-km
+    exp_per_km_list.sort(key=lambda x: x['value'], reverse=True)
+    outliers = exp_per_km_list[:3]
+
+    # Suggestions: routes below 20% margin with >=2 trips
+    suggestions = []
+    target = Decimal('20')
+    for r in sorted(route_stats.values(), key=lambda x: (x['margin'])):
+        if r['trips'] >= 2 and r['margin'] < target and r['revenue'] > 0:
+            # Additional revenue needed to reach target margin
+            # new_margin = 1 - expense/(revenue+Δ) >= 0.20  => Δ = expense/0.8 - revenue
+            needed = (r['expense'] / Decimal('0.80')) - r['revenue']
+            if needed > 0:
+                pct = (needed / r['revenue'] * Decimal('100')) if r['revenue'] else Decimal('0')
+                suggestions.append({
+                    'route': f"{r['start']} → {r['end']}",
+                    'increase_pct': float(pct.quantize(Decimal('1.00'))),
+                    'trips': r['trips']
+                })
+        if len(suggestions) >= 3:
+            break
+
+    # Build narrative
+    def fmt_money(x):
+        try:
+            return f"{float(x):,.2f}"
+        except Exception:
+            return str(x)
+
+    p1 = (
+        f"Between {week_label}, we completed {trip_count} trip{'s' if trip_count != 1 else ''} "
+        f"across {trucks_used} truck{'s' if trucks_used != 1 else ''} and {drivers_used} driver{'s' if drivers_used != 1 else ''}. "
+        f"Total distance: {float(total_km):,.0f} km. "
+        f"Revenue ETB {fmt_money(total_revenue)}, expenses ETB {fmt_money(total_expense)}, "
+        f"profit ETB {fmt_money(total_income)} with a {float(margin_pct):.1f}% margin."
+    )
+
+    p2 = None
+    if top_driver and top_truck:
+        dname = top_driver['driver'].staff_profile.user.get_full_name() or top_driver['driver'].staff_profile.user.username
+        p2 = (
+            f"Top performers: Driver {dname} led with ETB {fmt_money(top_driver['income'])} across {top_driver['trips']} trips; "
+            f"truck {top_truck['truck'].plate_number} generated ETB {fmt_money(top_truck['income'])}."
+        )
+
+    p3 = None
+    if best_route and worst_route:
+        p3 = (
+            f"Best lane: {best_route['start']} → {best_route['end']} at {float(best_route['margin']):.1f}% margin. "
+            f"Watchout: {worst_route['start']} → {worst_route['end']} ran at {float(worst_route['margin']):.1f}% margin."
+        )
+
+    p4 = None
+    if negative_trips:
+        p4 = f"{len(negative_trips)} trip(s) recorded negative profit; review tariffs and driver expenses on these jobs."
+
+    p5 = None
+    if top_exp_cat:
+        p5 = (
+            f"Expense mix: {top_exp_cat['category']} led costs at ETB {fmt_money(top_exp_cat['amount'])} "
+            f"({float(top_exp_cat['share_pct']):.1f}% of spend)."
+        )
+
+    p6 = None
+    if unpaid.exists():
+        p6 = (
+            f"Accounts receivable: {unpaid.count()} invoice(s) pending for the week; {overdue.count()} already overdue."
+        )
+
+    # Highlights bullets
+    highlights = []
+    for o in outliers:
+        t = o['trip']
+        highlights.append(
+            f"High expense/km: Trip #{t.truck_trip_number or t.pk} on {t.truck.plate_number} at ETB {o['value']:.2f}/km"
+        )
+    for s in suggestions:
+        highlights.append(
+            f"Pricing: Raise {s['route']} tariffs by ~{s['increase_pct']:.0f}% (based on {s['trips']} trips) to target 20% margin"
+        )
+
+    story_paragraphs = [p for p in [p1, p2, p3, p4, p5, p6] if p]
+
+    # Provide typed paragraphs for client-side filtering (Executive / Ops / Finance)
+    story_typed = []
+    if p1:
+        story_typed.append({'text': p1, 'topic': 'summary'})
+    if p2:
+        story_typed.append({'text': p2, 'topic': 'performance'})
+    if p3:
+        story_typed.append({'text': p3, 'topic': 'routes'})
+    if p4:
+        story_typed.append({'text': p4, 'topic': 'risk'})
+    if p5:
+        story_typed.append({'text': p5, 'topic': 'finance'})
+    if p6:
+        story_typed.append({'text': p6, 'topic': 'ar'})
+
+    # Previous week deltas for zero-to-one context
+    prev_monday = (week_start - timedelta(days=7)).date()
+    prev_sunday = (week_end - timedelta(days=7)).date()
+    prev_start = timezone.make_aware(datetime(prev_monday.year, prev_monday.month, prev_monday.day, 0, 0, 0), tz)
+    prev_end = timezone.make_aware(datetime(prev_sunday.year, prev_sunday.month, prev_sunday.day, 23, 59, 59), tz)
+    prev_trips = Trip.objects.filter(status=Trip.STATUS_COMPLETED, end_time__gte=prev_start, end_time__lte=prev_end)
+    prev_fin = TripFinancial.objects.filter(trip__in=prev_trips).aggregate(r=Sum('total_revenue'), e=Sum('total_expense'), i=Sum('income_before_tax'))
+    prev_revenue = d0(prev_fin.get('r'))
+    prev_income = d0(prev_fin.get('i'))
+    prev_margin = (prev_income / prev_revenue * Decimal('100')) if prev_revenue else Decimal('0')
+    prev_trip_count = prev_trips.count()
+
+    def _pct(curr, prev):
+        try:
+            if prev and float(prev) != 0.0:
+                return float((Decimal(curr) - Decimal(prev)) / Decimal(prev) * Decimal('100'))
+            return 0.0
+        except Exception:
+            return 0.0
+
+    deltas = {
+        'revenue_pct': round(_pct(total_revenue, prev_revenue), 1),
+        'income_pct': round(_pct(total_income, prev_income), 1),
+        'margin_pct': round(_pct(margin_pct, prev_margin), 1),
+        'trips_abs': int(trip_count - prev_trip_count),
+    }
+
+    # Share URL for this week
+    try:
+        share_url = request.build_absolute_uri(
+            reverse('weekly_story_mode') + f"?start={week_start.date()}&end={week_end.date()}"
+        )
+    except Exception:
+        share_url = None
+
+    context = {
+        'user_role': user_role,
+        'week_label': week_label,
+        'story_paragraphs': story_paragraphs,
+        'story_typed': story_typed,
+        'highlights': highlights,
+        'stats': {
+            'trips': trip_count,
+            'trucks': trucks_used,
+            'drivers': drivers_used,
+            'km': float(total_km),
+            'revenue': float(total_revenue),
+            'expense': float(total_expense),
+            'income': float(total_income),
+            'margin': float(margin_pct),
+        },
+        'deltas': deltas,
+        'share_url': share_url,
+    }
+
+    return render(request, 'transportation/weekly_story.html', context)
+
 # ====================================================
 # MENU: transportation/views.py
 # ----------------------------------------------------
@@ -1406,6 +1799,23 @@ def driver_home(request):
         if active_trip:
             financial, _ = TripFinancial.objects.get_or_create(trip=active_trip)
             invoice = Invoice.objects.filter(trip=active_trip).first()
+            # Live metrics
+            try:
+                latest = GPSRecord.objects.filter(truck__plate_number=active_trip.truck.plate_number).order_by('-dt_tracker').only('odometer').first()
+                if latest is not None and active_trip.initial_kilometer is not None:
+                    active_distance_km = max(0.0, float(latest.odometer) - float(active_trip.initial_kilometer))
+                else:
+                    cd = active_trip.calculated_distance() if callable(getattr(active_trip, 'calculated_distance', None)) else active_trip.calculated_distance
+                    active_distance_km = float(cd or 0)
+            except Exception:
+                cd = active_trip.calculated_distance() if callable(getattr(active_trip, 'calculated_distance', None)) else active_trip.calculated_distance
+                active_distance_km = float(cd or 0)
+            active_duration_days = None
+            if active_trip.start_time:
+                active_duration_days = round((timezone.now() - active_trip.start_time).total_seconds() / 86400.0, 2)
+        else:
+            active_distance_km = None
+            active_duration_days = None
 
     ctx = {
         'user_role': 'DRIVER',
@@ -1415,6 +1825,8 @@ def driver_home(request):
         'financial': financial,
         'invoice': invoice,
         'has_active_trip': bool(active_trip),
+        'active_distance_km': active_distance_km if active_trip else None,
+        'active_duration_days': active_duration_days if active_trip else None,
     }
     return render(request, 'transportation/driver_home.html', ctx)
 
@@ -1503,9 +1915,31 @@ def active_trips_overview(request):
              .select_related('truck', 'driver__staff_profile__user')
              .order_by('-start_time', '-id'))
 
+    # Build cards with live distance and duration in days
+    cards = []
+    now = timezone.now()
+    for t in trips:
+        # live distance
+        dist = None
+        try:
+            latest = GPSRecord.objects.filter(truck__plate_number=t.truck.plate_number).order_by('-dt_tracker').only('odometer').first()
+            if latest is not None and t.initial_kilometer is not None:
+                dist = max(0.0, float(latest.odometer) - float(t.initial_kilometer))
+        except Exception:
+            dist = None
+        if dist is None:
+            cd = t.calculated_distance() if callable(getattr(t, 'calculated_distance', None)) else t.calculated_distance
+            dist = float(cd or 0)
+        # duration in days from start to now
+        dur_days = None
+        if t.start_time:
+            dur_days = round((now - t.start_time).total_seconds() / 86400.0, 2)
+        cards.append({'trip': t, 'distance_km': dist, 'duration_days': dur_days})
+
     return render(request, 'transportation/active_trips.html', {
         'user_role': user_role,
         'trips': trips,
+        'trip_cards': cards,
         'active_trips_count': trips.count(),
     })
 
@@ -1551,10 +1985,22 @@ def completed_trips_matrix(request):
 
     trips_qs = trips_qs.order_by('-end_time', '-id')
 
+    # Determine how many latest trips per truck to include
+    per_truck = 6
+    if request.method in ("POST", "GET") and form.is_valid():
+        per_truck = form.cleaned_data.get('per_truck') or 6
+        try:
+            per_truck = int(per_truck)
+        except Exception:
+            per_truck = 6
+
     # Group trips by truck
     grouped = defaultdict(list)
     for t in trips_qs:
-        grouped[t.truck].append(t)
+        # Accumulate trips per truck, keep only the latest N
+        lst = grouped[t.truck]
+        if len(lst) < per_truck:
+            lst.append(t)
 
     # Prefetch financials per trip id
     fin_map = {f.trip_id: f for f in TripFinancial.objects.filter(trip__in=trips_qs)}
@@ -1566,10 +2012,24 @@ def completed_trips_matrix(request):
         cols = []
         for t in trips:
             fin = fin_map.get(t.id)
+            # Resolve friendly route names with fallback if stored name is unknown
+            start_name = t.start_location
+            end_name = t.end_location
+            try:
+                if not start_name or start_name.strip().lower() == 'unknown':
+                    if isinstance(t.route, list) and t.route:
+                        p0 = t.route[0]
+                        start_name = reverse_geocode_location(p0.get('lat'), p0.get('lng')) or start_name
+                if not end_name or end_name.strip().lower() == 'unknown':
+                    if isinstance(t.route, list) and t.route:
+                        p1 = t.route[-1]
+                        end_name = reverse_geocode_location(p1.get('lat'), p1.get('lng')) or end_name
+            except Exception:
+                pass
             cols.append({
                 'id': t.id,
                 'truck_trip_number': t.truck_trip_number,
-                'route': f"{t.start_location or '—'} → {t.end_location or '—'}",
+                'route': f"{(start_name or '—')} → {(end_name or '—')}",
                 'start': t.start_time,
                 'end': t.end_time,
                 'distance': t.calculated_distance() or t.distance_traveled,
@@ -1579,6 +2039,7 @@ def completed_trips_matrix(request):
                 'revenue': getattr(fin, 'total_revenue', None),
                 'expense': getattr(fin, 'total_expense', None),
                 'income': getattr(fin, 'income_before_tax', None),
+                'payable_receivable': getattr(fin, 'payable_receivable_amount', None),
                 'driver': (t.driver.staff_profile.user.get_full_name() or t.driver.staff_profile.user.username) if t.driver else None,
             })
         truck_blocks.append({ 'truck': truck, 'columns': cols })
@@ -1713,12 +2174,17 @@ def driver_performance(request):
                 return round(float(v) / 3600.0, 2)
             except Exception:
                 return 0.0
+        def _days(v):
+            try:
+                return round(float(v) / 86400.0, 2)
+            except Exception:
+                return 0.0
         driver_rows.append({
             'driver': driver,
             'completed': completed,
             'drive_hours': _hours(total_drive),
             'idle_hours': _hours(total_idle),
-            'duration_hours': _hours(total_duration),
+            'duration_days': _days(total_duration),
             'revenue': total_revenue,
             'expense': total_expense,
             'income': total_income,
@@ -2403,20 +2869,42 @@ class TripDetailView(LoginRequiredMixin, DetailView):
         context['user_role'] = get_user_role(self.request)
         trip = self.get_object()
         financial, created = TripFinancial.objects.get_or_create(trip=trip)
+        # Keep financials up to date so KPIs reflect latest inputs while trip is active
+        try:
+            financial.update_financials()
+        except Exception:
+            # Do not break the view if aggregation fails; fall back to stored numbers
+            pass
         context['financial'] = financial
         context['expenses'] = financial.expenses.all()
         # Extract the related invoice from the Invoice table using the trip foreign key
         context['invoice'] = Invoice.objects.filter(trip_id=trip.id).first()
         # Summary KPIs
-        distance = trip.calculated_distance() if callable(getattr(trip, 'calculated_distance', None)) else trip.calculated_distance
-        distance = distance or 0
-        duration_hours = None
-        if trip.start_time and trip.end_time:
-            delta = trip.end_time - trip.start_time
-            duration_hours = round(delta.total_seconds() / 3600.0, 2)
+        # Distance: for active trips, compute live using latest odometer
+        distance = None
+        try:
+            if trip.status == Trip.STATUS_IN_PROGRESS and trip.truck:
+                latest_gps = GPSRecord.objects.filter(
+                    truck__plate_number=trip.truck.plate_number
+                ).order_by('-dt_tracker').only('odometer').first()
+                if latest_gps is not None and trip.initial_kilometer is not None:
+                    distance = max(0.0, float(latest_gps.odometer) - float(trip.initial_kilometer))
+        except Exception:
+            distance = None
+        if distance is None:
+            # Completed trips or fallback
+            cd = trip.calculated_distance() if callable(getattr(trip, 'calculated_distance', None)) else trip.calculated_distance
+            distance = float(cd or 0)
+
+        # Duration in days. For in-progress, use now; for completed, use start->end.
+        duration_days = None
+        if trip.start_time:
+            end_ts = trip.end_time or timezone.now()
+            delta = end_ts - trip.start_time
+            duration_days = round(delta.total_seconds() / 86400.0, 2)
         context.update({
             'kpi_distance': float(distance or 0),
-            'kpi_duration_hours': duration_hours,
+            'kpi_duration_days': duration_days,
             'kpi_revenue': float(financial.total_revenue or 0),
             'kpi_expense': float(financial.total_expense or 0),
             'kpi_income': float(financial.income_before_tax or 0),
@@ -2633,11 +3121,16 @@ class TripCreateView(LoginRequiredMixin, CreateView):
         trip.start_time = current_time
         if latest_gps:
             trip.initial_kilometer = int(latest_gps.odometer)
-            trip.start_location = latest_gps.loc if latest_gps.loc else "Unknown"
+            # Use tracker-provided location, else reverse geocode
+            if latest_gps.loc:
+                start_loc_name = latest_gps.loc
+            else:
+                start_loc_name = reverse_geocode_location(latest_gps.lat, latest_gps.lng) or "Unknown"
+            trip.start_location = start_loc_name
             trip.route = [{
                 "lat": float(latest_gps.lat),
                 "lng": float(latest_gps.lng),
-                "loc": latest_gps.loc or "",
+                "loc": start_loc_name or "",
                 # Use tracker time to preserve chronological ordering with subsequent points
                 "timestamp": (latest_gps.dt_tracker.isoformat() if latest_gps.dt_tracker else current_time.isoformat()),
             }]
@@ -2871,7 +3364,8 @@ def trip_complete(request, trip_id):
     if latest_gps:
         trip.final_kilometer = int(latest_gps.odometer)
         trip.end_time = timezone.now()
-        trip.end_location = latest_gps.loc if latest_gps.loc else "Unknown"
+        end_loc_name = latest_gps.loc or reverse_geocode_location(latest_gps.lat, latest_gps.lng) or "Unknown"
+        trip.end_location = end_loc_name
     else:
         trip.final_kilometer = trip.initial_kilometer
         trip.end_time = timezone.now()
@@ -2891,7 +3385,65 @@ def trip_complete(request, trip_id):
         # Do not block trip completion due to invoice due date failure
         pass
 
-    if trip.truck:
+    # Auto-start a new trip for the same driver and truck
+    new_trip = None
+    try:
+        # Avoid duplicate active trip creation
+        if trip.driver and trip.truck and not Trip.objects.filter(driver=trip.driver, status=Trip.STATUS_IN_PROGRESS).exists():
+            start_gps = GPSRecord.objects.filter(truck__plate_number=trip.truck.plate_number).order_by('-dt_tracker').first()
+            new_trip = Trip(
+                truck=trip.truck,
+                driver=trip.driver,
+                start_time=timezone.now(),
+                status=Trip.STATUS_IN_PROGRESS,
+                is_in_duty=True,
+            )
+            if start_gps:
+                try:
+                    new_trip.initial_kilometer = int(start_gps.odometer)
+                except Exception:
+                    new_trip.initial_kilometer = trip.final_kilometer or trip.initial_kilometer
+                start_loc = start_gps.loc or reverse_geocode_location(start_gps.lat, start_gps.lng) or "Unknown"
+                new_trip.start_location = start_loc
+                new_trip.route = [{
+                    "lat": float(start_gps.lat),
+                    "lng": float(start_gps.lng),
+                    "loc": start_loc or "",
+                    "timestamp": (start_gps.dt_tracker.isoformat() if start_gps.dt_tracker else timezone.now().isoformat()),
+                }]
+            else:
+                new_trip.initial_kilometer = trip.final_kilometer or trip.initial_kilometer or 0
+                new_trip.start_location = "Unknown"
+                new_trip.route = []
+            new_trip.save()
+
+            # Ensure truck marked in use again
+            try:
+                trip.truck.status = 'IN_USE'
+                trip.truck.is_in_duty = True
+                trip.truck.save(update_fields=['status', 'is_in_duty'])
+            except Exception:
+                pass
+
+            # Create financial record and carry over payable/receivable from completed trip
+            try:
+                new_financial, _ = TripFinancial.objects.get_or_create(trip=new_trip)
+                if hasattr(trip, 'financial') and trip.financial:
+                    leftover = trip.financial.payable_receivable_amount or Decimal('0.00')
+                    if leftover != 0:
+                        OperationalExpenseDetail.objects.create(
+                            financial=new_financial,
+                            amount=leftover,
+                            note=f"Carry-over from Trip #{trip.truck_trip_number or trip.pk}",
+                        )
+                        new_financial.update_financials()
+            except Exception:
+                pass
+    except Exception:
+        new_trip = None
+
+    # If auto-start didn’t happen, set truck as available; otherwise it’s already set to IN_USE
+    if trip.truck and not new_trip:
         trip.truck.status = 'AVAILABLE'
         trip.truck.is_in_duty = False
         trip.truck.save(update_fields=['status', 'is_in_duty'])
@@ -3011,7 +3563,7 @@ def trip_complete(request, trip_id):
           <div class="detail">
             <p><strong>Total Revenue:</strong> {trip.financial.total_revenue} ETB</p>
             <p><strong>Total Expense:</strong> {trip.financial.total_expense} ETB</p>
-            <p><strong>Income Before Tax:</strong> {trip.financial.income_before_tax} ETB</p>
+            <p><strong>Profit Before Tax:</strong> {trip.financial.income_before_tax} ETB</p>
             <p><strong>Net Profit Margin:</strong> {trip.financial.net_profit_margin if trip.financial.net_profit_margin else 'N/A'}%</p>
             <p><strong>Payable/Receivable:</strong> {trip.financial.payable_receivable_amount} ETB</p>
           </div>

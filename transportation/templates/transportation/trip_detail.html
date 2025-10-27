@@ -39,23 +39,38 @@
       <div class="kpi-icon">📏</div>
     </div>
     <div class="kpi-card accent-gray" data-reveal>
-      <div class="kpi-title">Duration</div>
-      <div class="kpi-value">{% if kpi_duration_hours %}{{ kpi_duration_hours }} h{% else %}-{% endif %}</div>
+      <div class="kpi-title">Duration (days)</div>
+      <div class="kpi-value">{% if kpi_duration_days %}{{ kpi_duration_days }}{% else %}-{% endif %}</div>
       <div class="kpi-icon">⏱️</div>
     </div>
-    <div class="kpi-card accent-amber" data-reveal>
-      <div class="kpi-title">Status</div>
-      <div class="kpi-value">{{ trip.get_status_display }}</div>
-      <div class="kpi-icon">🚦</div>
+    <div class="kpi-card accent-green" data-reveal>
+      <div class="kpi-title">Revenue</div>
+      <div class="kpi-value" data-countup data-decimals="2">{{ kpi_revenue|floatformat:2 }}</div>
+      <div class="kpi-icon">💰</div>
+    </div>
+    <div class="kpi-card accent-red" data-reveal>
+      <div class="kpi-title">Expense</div>
+      <div class="kpi-value" data-countup data-decimals="2">{{ kpi_expense|floatformat:2 }}</div>
+      <div class="kpi-icon">💸</div>
+    </div>
+    <div class="kpi-card accent-blue" data-reveal>
+      <div class="kpi-title">Profit</div>
+      <div class="kpi-value" data-countup data-decimals="2">{{ kpi_income|floatformat:2 }}</div>
+      <div class="kpi-icon">📈</div>
+    </div>
+    <div class="kpi-card accent-teal" data-reveal>
+      <div class="kpi-title">Payable/Receivable</div>
+      <div class="kpi-value" data-countup data-decimals="2">{{ kpi_payable|floatformat:2 }}</div>
+      <div class="kpi-icon">💼</div>
     </div>
   </div>
   {% else %}
   <div class="kpi-grid" style="margin-bottom:1rem;">
     <div class="kpi-card accent-blue" data-reveal><div class="kpi-title">Distance</div><div class="kpi-value" data-countup data-decimals="2">{{ kpi_distance|floatformat:2 }}</div><div class="kpi-icon">📏</div></div>
-    <div class="kpi-card accent-gray" data-reveal><div class="kpi-title">Duration</div><div class="kpi-value">{% if kpi_duration_hours %}{{ kpi_duration_hours }} h{% else %}-{% endif %}</div><div class="kpi-icon">⏱️</div></div>
+    <div class="kpi-card accent-gray" data-reveal><div class="kpi-title">Duration (days)</div><div class="kpi-value">{% if kpi_duration_days %}{{ kpi_duration_days }}{% else %}-{% endif %}</div><div class="kpi-icon">⏱️</div></div>
     <div class="kpi-card accent-green" data-reveal><div class="kpi-title">Revenue</div><div class="kpi-value" data-countup data-decimals="2">{{ kpi_revenue|floatformat:2 }}</div><div class="kpi-icon">💰</div></div>
     <div class="kpi-card accent-red" data-reveal><div class="kpi-title">Expense</div><div class="kpi-value" data-countup data-decimals="2">{{ kpi_expense|floatformat:2 }}</div><div class="kpi-icon">💸</div></div>
-    <div class="kpi-card accent-blue" data-reveal><div class="kpi-title">Income</div><div class="kpi-value" data-countup data-decimals="2">{{ kpi_income|floatformat:2 }}</div><div class="kpi-icon">📈</div></div>
+    <div class="kpi-card accent-blue" data-reveal><div class="kpi-title">Profit</div><div class="kpi-value" data-countup data-decimals="2">{{ kpi_income|floatformat:2 }}</div><div class="kpi-icon">📈</div></div>
     <div class="kpi-card accent-teal" data-reveal><div class="kpi-title">Payable/Receivable</div><div class="kpi-value" data-countup data-decimals="2">{{ kpi_payable|floatformat:2 }}</div><div class="kpi-icon">💼</div></div>
   </div>
   {% endif %}
@@ -198,7 +213,7 @@
         <span class="detail-value">{{ financial.total_expense|default:"0.00" }} ETB</span>
       </div>
       <div class="detail-item">
-        <span class="detail-label">Income Before Tax:</span>
+        <span class="detail-label">Profit Before Tax:</span>
         <span class="detail-value">{{ financial.income_before_tax|default:"0.00" }} ETB</span>
       </div>
       <div class="detail-item">

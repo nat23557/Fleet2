@@ -78,6 +78,7 @@
         <div class="item-meta">
           <div class="meta-title">{{ active_trip.truck.plate_number }} • {{ active_trip.start_location|default:'—' }} → {{ active_trip.end_location|default:'—' }}</div>
           <div class="meta-sub">Started: {{ active_trip.start_time|date:'M d, H:i' }}</div>
+          <div class="meta-sub">Dist: {{ active_distance_km|floatformat:2|default:'0.00' }} km • Dur: {% if active_duration_days %}{{ active_duration_days }} days{% else %}-{% endif %}</div>
           {% if active_trip.cargo_type or active_trip.cargo_load %}
           <div class="meta-sub">Cargo: {{ active_trip.cargo_type|default:'—' }} • Load {{ active_trip.cargo_load|default:'—' }}</div>
           {% endif %}

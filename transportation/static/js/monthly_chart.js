@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
     new Chart(canvas.getContext("2d"), {
       type: "bar",
       data: {
-        labels: ["Revenue", "Expense", "Income"],
+        labels: ["Revenue", "Expense", "Profit"],
         datasets: [{
           label: "Overall Financials",
           data: [
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function() {
             borderWidth: 1
           },
           {
-            label: "Monthly Income",
+            label: "Monthly Profit",
             data: monthlyIncome,
             backgroundColor: "rgba(54, 162, 235, 0.7)",
             borderColor: "rgba(54, 162, 235, 1)",

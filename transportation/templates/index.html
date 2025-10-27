@@ -128,10 +128,10 @@
           </div>
           </a>
 
-          <a class="kpi-link" href="{% url 'monthly-report' %}" aria-label="Income this month">
+          <a class="kpi-link" href="{% url 'monthly-report' %}" aria-label="Profit this month">
           <div class="kpi-card accent-emerald" data-reveal>
             <div>
-              <div class="kpi-title">Income ({{ start_of_month|date:'M Y' }})</div>
+              <div class="kpi-title">Profit ({{ start_of_month|date:'M Y' }})</div>
               <div class="kpi-value" data-countup data-decimals="2" data-kpi="income_month">{{ income_month|default:0|floatformat:2 }}</div>
               <div class="delta-pill {% if income_change_pct >= 0 %}delta-up{% else %}delta-down{% endif %}" data-kpi="income_change_pct">{% if income_change_pct >= 0 %}+{% endif %}{{ income_change_pct|default:0|floatformat:1 }}%</div>
             </div>
@@ -186,6 +186,7 @@
             {% endif %}
             <a class="qa-btn" href="{% url 'trip_completed_filter' %}"><span class="qa-ico">✅</span><div>Completed Trips<div class="qa-hint">View all completed</div></div></a>
             <a class="qa-btn" href="{% url 'report_index' %}"><span class="qa-ico">📊</span><div>Open Reports<div class="qa-hint">Monthly & annual</div></div></a>
+            <a class="qa-btn" href="{% url 'weekly_story_mode' %}"><span class="qa-ico">📝</span><div>Story Mode<div class="qa-hint">Weekly brief</div></div></a>
           </div>
         </section>
 
@@ -295,7 +296,7 @@
               <span class="finance-value">ETB {{ finance_metrics.total_expense|default:0|floatformat:2 }}</span>
             </div>
             <div class="finance-item">
-              <span class="finance-label">Net Income (Total)</span>
+              <span class="finance-label">Net Profit (Total)</span>
               <span class="finance-value">ETB {{ finance_metrics.net_income|default:0|floatformat:2 }}</span>
             </div>
           </div>
@@ -455,10 +456,10 @@
           </div>
           </a>
 
-          <a class="kpi-link" href="{% url 'monthly-report' %}" aria-label="Income this month">
+          <a class="kpi-link" href="{% url 'monthly-report' %}" aria-label="Profit this month">
           <div class="kpi-card accent-blue">
             <div>
-              <div class="kpi-title">Income ({{ start_of_month|date:'M Y' }})</div>
+              <div class="kpi-title">Profit ({{ start_of_month|date:'M Y' }})</div>
               <div class="kpi-value" data-countup data-decimals="2" data-kpi="income_month">{{ income_month|default:0|floatformat:2 }}</div>
               <div class="delta-pill {% if income_change_pct >= 0 %}delta-up{% else %}delta-down{% endif %}" data-kpi="income_change_pct">{% if income_change_pct >= 0 %}+{% endif %}{{ income_change_pct|floatformat:1 }}%</div>
             </div>

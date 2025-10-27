@@ -1,0 +1,173 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" id="story-root">
+  <!-- Hero header with gradient and week pill -->
+  <div class="section" data-reveal>
+    <div class="section-header" style="background:linear-gradient(135deg,#0a8c52,#017335); padding:14px 16px; border-radius:12px; color:#fff; border:1px solid rgba(255,255,255,0.08);">
+      <div class="section-title" style="color:#fff;">Story Mode • Weekly Brief</div>
+      <div class="panel-count" style="background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.15);">{{ week_label }}</div>
+    </div>
+
+    <!-- KPI chips with deltas -->
+    {% if stats %}
+    <div class="kpi-grid" style="margin-top:.75rem;">
+      <div class="kpi-card accent-green" data-reveal>
+        <div>
+          <div class="kpi-title">Revenue (ETB)</div>
+          <div class="kpi-value">{{ stats.revenue|floatformat:2 }}</div>
+          <div class="delta-pill {% if deltas.revenue_pct >= 0 %}delta-up{% else %}delta-down{% endif %}">{{ deltas.revenue_pct|floatformat:1 }}%</div>
+        </div>
+        <div class="kpi-icon">💰</div>
+      </div>
+      <div class="kpi-card accent-blue" data-reveal>
+        <div>
+          <div class="kpi-title">Profit (ETB)</div>
+          <div class="kpi-value">{{ stats.income|floatformat:2 }}</div>
+          <div class="delta-pill {% if deltas.income_pct >= 0 %}delta-up{% else %}delta-down{% endif %}">{{ deltas.income_pct|floatformat:1 }}%</div>
+        </div>
+        <div class="kpi-icon">📈</div>
+      </div>
+      <div class="kpi-card accent-teal" data-reveal>
+        <div>
+          <div class="kpi-title">Margin</div>
+          <div class="kpi-value">{{ stats.margin|floatformat:1 }}%</div>
+          <div class="delta-pill {% if deltas.margin_pct >= 0 %}delta-up{% else %}delta-down{% endif %}">{{ deltas.margin_pct|floatformat:1 }}%</div>
+        </div>
+        <div class="kpi-icon">🧮</div>
+      </div>
+      <div class="kpi-card" data-reveal>
+        <div>
+          <div class="kpi-title">Trips</div>
+          <div class="kpi-value">{{ stats.trips }}</div>
+          <div class="delta-pill {% if deltas.trips_abs >= 0 %}delta-up{% else %}delta-down{% endif %}">{% if deltas.trips_abs > 0 %}+{% endif %}{{ deltas.trips_abs }}</div>
+        </div>
+        <div class="kpi-icon">🧭</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Tone selector -->
+  <div class="section" data-reveal>
+    <div class="section-header">
+      <div class="section-title">Narrative</div>
+      <div style="display:flex; gap:.4rem;">
+        <button class="btn btn-ghost" data-tone="all">All</button>
+        <button class="btn btn-ghost" data-tone="summary">Executive</button>
+        <button class="btn btn-ghost" data-tone="performance">Ops</button>
+        <button class="btn btn-ghost" data-tone="finance">Finance</button>
+        <button class="btn btn-ghost" data-tone="routes">Routes</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding:1rem; background:var(--panel); border:1px solid var(--border);">
+      <div id="story-text" style="line-height:1.7;">
+        {% if story_typed %}
+          {% for item in story_typed %}
+            <p class="story-line" data-topic="{{ item.topic }}">{{ item.text }}</p>
+          {% endfor %}
+        {% else %}
+          {% for p in story_paragraphs %}
+            <p class="story-line" data-topic="summary">{{ p }}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+      <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.75rem;">
+        <button class="cta-button" id="copyStory">Copy Brief</button>
+        {% if share_url %}<button class="btn btn-ghost" id="copyLink" data-url="{{ share_url }}">Copy Link</button>{% endif %}
+        <a class="btn btn-ghost" href="#" onclick="window.print(); return false;">Print</a>
+        <button class="btn btn-ghost" id="downloadTxt">Download .txt</button>
+      </div>
+    </div>
+  </div>
+
+  {% if highlights %}
+  <div class="section" data-reveal>
+    <div class="section-header"><div class="section-title">Highlights</div></div>
+    <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+      {% for h in highlights %}
+      <span class="badge" style="border:1px solid var(--border); background:var(--panel);">{{ h }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Secondary KPIs -->
+  {% if stats %}
+  <div class="kpi-grid" style="margin-top:.5rem;">
+    <div class="kpi-card" data-reveal><div><div class="kpi-title">Distance (km)</div><div class="kpi-value">{{ stats.km|floatformat:0 }}</div></div></div>
+    <div class="kpi-card" data-reveal><div><div class="kpi-title">Trucks</div><div class="kpi-value">{{ stats.trucks }}</div></div></div>
+    <div class="kpi-card" data-reveal><div><div class="kpi-title">Drivers</div><div class="kpi-value">{{ stats.drivers }}</div></div></div>
+    <div class="kpi-card accent-amber" data-reveal><div><div class="kpi-title">Expense (ETB)</div><div class="kpi-value">{{ stats.expense|floatformat:2 }}</div></div></div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  (function() {
+    // Copy brief text
+    const btn = document.getElementById('copyStory');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        try {
+          const text = Array.from(document.querySelectorAll('#story-text p')).map(p => p.textContent).join('\n\n');
+          navigator.clipboard.writeText(text).then(function(){
+            btn.textContent = 'Copied!';
+            setTimeout(function(){ btn.textContent = 'Copy Brief'; }, 1500);
+          });
+        } catch (e) {}
+      });
+    }
+
+    // Copy share link
+    const linkBtn = document.getElementById('copyLink');
+    if (linkBtn) {
+      linkBtn.addEventListener('click', function(){
+        const url = this.getAttribute('data-url');
+        if (!url) return;
+        navigator.clipboard.writeText(url);
+        this.textContent = 'Link Copied!';
+        setTimeout(() => this.textContent = 'Copy Link', 1500);
+      });
+    }
+
+    // Download as text
+    const dlBtn = document.getElementById('downloadTxt');
+    if (dlBtn) {
+      dlBtn.addEventListener('click', function(){
+        const text = Array.from(document.querySelectorAll('#story-text p')).map(p => p.textContent).join('\n\n');
+        const blob = new Blob([text], {type: 'text/plain'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'weekly-brief.txt';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
+    }
+
+    // Tone filter
+    document.querySelectorAll('[data-tone]').forEach(btn => {
+      btn.addEventListener('click', function(){
+        const tone = this.getAttribute('data-tone');
+        document.querySelectorAll('#story-text p').forEach(p => {
+          const topic = p.getAttribute('data-topic') || 'summary';
+          p.style.display = (tone === 'all' || topic === tone) ? '' : 'none';
+        });
+      });
+    });
+
+    // Emphasize numbers and ETB amounts
+    const emphasize = (el) => {
+      const html = el.innerHTML
+        .replace(/(ETB\s?[\d,]+(?:\.\d{1,2})?)/g, '<strong style="color:var(--accent-green);">$1</strong>')
+        .replace(/(\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b)/g, '<span style="color:var(--text-strong);">$1</span>')
+        .replace(/(\b\d+(?:\.\d+)?%\b)/g, '<span class="delta-pill" style="margin-left:.25rem;">$1</span>');
+      el.innerHTML = html;
+    };
+    document.querySelectorAll('#story-text p').forEach(emphasize);
+  })();
+</script>
+{% endblock %}

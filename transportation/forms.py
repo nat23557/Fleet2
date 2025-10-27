@@ -437,6 +437,22 @@ class CompletedTripsFilterForm(forms.Form):
         required=True, 
         label="Timeframe"
     )
+    # New: how many latest trips per truck to show in the matrix
+    TRIP_COUNT_CHOICES = [
+        (3, '3 trips'),
+        (5, '5 trips'),
+        (6, '6 trips'),
+        (10, '10 trips'),
+        (15, '15 trips'),
+        (20, '20 trips'),
+    ]
+    per_truck = forms.ChoiceField(
+        choices=TRIP_COUNT_CHOICES,
+        required=False,
+        label="Trips per truck",
+        initial=6,
+        help_text="How many latest trips to include for each truck"
+    )
     start_date = forms.DateField(
         required=False, 
         widget=forms.DateInput(attrs={'type': 'date'}),
@@ -460,4 +476,11 @@ class CompletedTripsFilterForm(forms.Form):
                 raise forms.ValidationError("Please provide both start and end dates for a custom range.")
             if start_date > end_date:
                 raise forms.ValidationError("Start date cannot be after the end date.")
+        # normalize per_truck to int if provided
+        per = cleaned_data.get('per_truck')
+        if per:
+            try:
+                cleaned_data['per_truck'] = int(per)
+            except (TypeError, ValueError):
+                cleaned_data['per_truck'] = 6
         return cleaned_data

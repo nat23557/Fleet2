@@ -31,7 +31,7 @@
       <div class="kpi-icon">💸</div>
     </div>
     <div class="kpi-card accent-blue">
-      <div class="kpi-title">YTD Income</div>
+      <div class="kpi-title">YTD Profit</div>
       <div class="kpi-value">{{ ytd_income|floatformat:2 }}</div>
       <div class="kpi-icon">📈</div>
     </div>
@@ -46,7 +46,7 @@
       <div class="kpi-icon">💵</div>
     </div>
     <div class="kpi-card accent-blue">
-      <div class="kpi-title">{{ month_str }} Income</div>
+      <div class="kpi-title">{{ month_str }} Profit</div>
       <div class="kpi-value">{{ m_income|floatformat:2 }}</div>
       <div class="kpi-icon">📊</div>
     </div>
@@ -64,7 +64,7 @@
     </div>
 
     <div class="section" style="grid-column:1 / -1;">
-      <div class="section-header"><div class="section-title">Top Trucks (Income)</div></div>
+      <div class="section-header"><div class="section-title">Top Trucks (Profit)</div></div>
       <div class="list" id="topTrucks"></div>
     </div>
   </div>
@@ -88,7 +88,7 @@
         datasets: [
           {label:'Revenue', data: seriesRevenue, borderColor:'#22c55e', backgroundColor:'transparent', tension:.3},
           {label:'Expense', data: seriesExpense, borderColor:'#ef4444', backgroundColor:'transparent', tension:.3},
-          {label:'Income', data: seriesIncome, borderColor:'#3b82f6', backgroundColor:'transparent', tension:.3}
+          {label:'Profit', data: seriesIncome, borderColor:'#3b82f6', backgroundColor:'transparent', tension:.3}
         ]
       },
       options:{
@@ -123,7 +123,7 @@
       const a = document.createElement('a');
       a.className='list-item';
       a.href = '#';
-      a.innerHTML = `<div class="item-meta"><div class="meta-title">${t.truck_plate}</div><div class="meta-sub">Rev: ${t.revenue.toLocaleString()} • Inc: ${t.income.toLocaleString()}</div></div><span class="badge blue">Top</span>`;
+      a.innerHTML = `<div class="item-meta"><div class="meta-title">${t.truck_plate}</div><div class="meta-sub">Rev: ${t.revenue.toLocaleString()} • Prof: ${t.income.toLocaleString()}</div></div><span class="badge blue">Top</span>`;
       wrap.appendChild(a);
     });
   }

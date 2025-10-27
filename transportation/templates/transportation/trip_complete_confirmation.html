@@ -12,9 +12,9 @@
   {% endif %}
 
   <div class="table-container">
-    <h2>Confirm Trip Completion</h2>
+    <h2>Confirm Completion: Trip #{{ trip.truck_trip_number|default:trip.pk }}</h2>
     <p>
-      Are you sure you want to mark trip <strong>#{{ trip.pk }}</strong> as
+      Are you sure you want to mark trip <strong>#{{ trip.truck_trip_number|default:trip.pk }}</strong> as
       <strong>completed</strong>? This action cannot be reversed.
     </p>
 

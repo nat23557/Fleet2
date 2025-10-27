@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
       chartPairDiv.style.gap = '20px';                // Adds spacing between charts
   
       // ---------------
-      // A) First chart: Revenue, Expense, Income
+      // A) First chart: Revenue, Expense, Profit
       // ---------------
       var firstChartContainer = document.createElement('div');
       firstChartContainer.className = 'chart-container';
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
       // Title for the first chart
       var firstChartTitle = document.createElement('h5');
-      firstChartTitle.textContent = 'Monthly Financials (Revenue, Expense, Income)';
+      firstChartTitle.textContent = 'Monthly Financials (Revenue, Expense, Profit)';
       firstChartContainer.appendChild(firstChartTitle);
   
       // Canvas for the first chart with increased size
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
               fill: false
             },
             {
-              label: 'Income',
+              label: 'Profit',
               data: truck.monthly_income,
               borderColor: 'rgba(54, 162, 235, 1)',
               backgroundColor: 'rgba(54, 162, 235, 0.2)',

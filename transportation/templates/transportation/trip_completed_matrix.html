@@ -10,6 +10,7 @@
       <div>{{ form.timeframe.label_tag }} {{ form.timeframe }}</div>
       <div>{{ form.start_date.label_tag }} {{ form.start_date }}</div>
       <div>{{ form.end_date.label_tag }} {{ form.end_date }}</div>
+      <div>{{ form.per_truck.label_tag }} {{ form.per_truck }}</div>
       <button type="submit" class="cta-button">Apply</button>
     </form>
   </div>
@@ -40,7 +41,8 @@
           <tr><td>Tariff</td>{% for c in block.columns %}<td>{{ c.tariff|default:'—' }}</td>{% endfor %}</tr>
           <tr><td>Revenue</td>{% for c in block.columns %}<td>{{ c.revenue|default:'—' }}</td>{% endfor %}</tr>
           <tr><td>Expense</td>{% for c in block.columns %}<td>{{ c.expense|default:'—' }}</td>{% endfor %}</tr>
-          <tr><td>Income</td>{% for c in block.columns %}<td>{{ c.income|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Profit</td>{% for c in block.columns %}<td>{{ c.income|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Payable/Receivable</td>{% for c in block.columns %}<td>{{ c.payable_receivable|default:'—' }}</td>{% endfor %}</tr>
         </tbody>
       </table>
     </div>
@@ -56,7 +58,7 @@
             <div class="meta-sub">Start: {{ c.start|date:'Y-m-d H:i' }} • End: {{ c.end|date:'Y-m-d H:i' }}</div>
             <div class="meta-sub">Dist: {{ c.distance|default:'—' }} km • Load: {{ c.load|default:'—' }}</div>
             <div class="meta-sub">Tariff: {{ c.tariff|default:'—' }}</div>
-            <div class="meta-sub">Revenue: {{ c.revenue|default:'—' }} • Expense: {{ c.expense|default:'—' }} • Income: {{ c.income|default:'—' }}</div>
+            <div class="meta-sub">Revenue: {{ c.revenue|default:'—' }} • Expense: {{ c.expense|default:'—' }} • Profit: {{ c.income|default:'—' }} • P/R: {{ c.payable_receivable|default:'—' }}</div>
           </div>
           <a class="qa-btn" href="{% url 'trip_detail' c.id %}" style="padding:.35rem .6rem; font-weight:700;">Open</a>
         </div>
