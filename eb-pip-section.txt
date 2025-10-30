@@ -1,0 +1,2431 @@
+2025/10/30 16:33:17.720166 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:33:17.722996 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:33:31.421265 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Downloading amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Downloading asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Downloading asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Downloading attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Downloading backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Downloading beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Downloading billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Downloading bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Downloading Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Downloading celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Downloading certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Downloading cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Downloading charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Downloading click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Downloading click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Downloading click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Downloading click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Downloading crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Downloading cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Downloading cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Downloading decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Downloading Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Downloading django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Downloading docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Downloading executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Downloading fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Downloading fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Downloading gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Downloading idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Downloading ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Downloading isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Downloading jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Downloading jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Downloading jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Downloading jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Downloading jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Downloading jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Downloading jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Downloading jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Downloading kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Downloading MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Downloading matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Downloading mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Downloading mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Downloading nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Downloading nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Downloading nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Downloading packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Downloading pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Downloading parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Downloading pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Downloading pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Downloading pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Downloading pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Downloading platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Downloading prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Downloading psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:33:31.421310 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-p5bkopcw/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:33:31.421325 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-p5bkopcw/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:33:39.552799 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:33:39.552809 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:33:50.057352 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:33:50.060037 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-s1gcelg9/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:33:50.060062 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-s1gcelg9/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:33:59.110719 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:33:59.110732 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:34:12.711150 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:34:12.711194 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-a98cpglr/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:34:12.711210 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-a98cpglr/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:34:25.560515 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:34:25.560533 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:34:34.636975 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:34:34.637020 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-dgeiostc/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:34:34.637035 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-dgeiostc/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:34:56.369581 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:34:56.369600 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:35:09.583975 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:35:09.584050 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-jlcv_qjb/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:35:09.584395 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-jlcv_qjb/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:35:46.328510 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:35:46.328521 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:35:54.100220 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:35:54.100263 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-046ef7hl/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:35:54.100276 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-046ef7hl/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:37:05.371441 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:37:05.371458 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:37:15.310954 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:37:15.310993 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-evp485jg/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:37:15.311013 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-evp485jg/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:39:28.118741 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:39:28.118753 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:39:35.858222 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:39:35.858711 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-mvj1538p/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:39:35.858731 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-mvj1538p/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:43:56.167581 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:43:56.167596 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:44:06.255176 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:44:06.255229 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-_a30j90y/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:44:06.255246 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-_a30j90y/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 16:52:43.009942 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 16:52:43.009953 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 16:52:51.406434 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 16:52:51.406478 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-l0oncla0/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 16:52:51.406501 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-l0oncla0/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+2025/10/30 17:10:00.474481 [INFO] Installing dependencies with requirements.txt by using Pip
+2025/10/30 17:10:00.474582 [INFO] Running command: /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt
+2025/10/30 17:10:13.640155 [INFO] Collecting amqp==5.3.1 (from -r requirements.txt (line 1))
+  Using cached amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+Collecting asgiref==3.8.1 (from -r requirements.txt (line 2))
+  Using cached asgiref-3.8.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting asttokens==3.0.0 (from -r requirements.txt (line 3))
+  Using cached asttokens-3.0.0-py3-none-any.whl.metadata (4.7 kB)
+Collecting attrs==25.1.0 (from -r requirements.txt (line 4))
+  Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting backcall==0.2.0 (from -r requirements.txt (line 5))
+  Using cached backcall-0.2.0-py2.py3-none-any.whl.metadata (2.0 kB)
+Collecting beautifulsoup4==4.13.3 (from -r requirements.txt (line 6))
+  Using cached beautifulsoup4-4.13.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting billiard==4.2.1 (from -r requirements.txt (line 7))
+  Using cached billiard-4.2.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting bleach==6.2.0 (from -r requirements.txt (line 8))
+  Using cached bleach-6.2.0-py3-none-any.whl.metadata (30 kB)
+Collecting Brotli==1.1.0 (from -r requirements.txt (line 9))
+  Using cached Brotli-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.5 kB)
+Collecting celery==5.4.0 (from -r requirements.txt (line 10))
+  Using cached celery-5.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting certifi==2025.1.31 (from -r requirements.txt (line 11))
+  Using cached certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi==1.17.1 (from -r requirements.txt (line 12))
+  Using cached cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting charset-normalizer==3.4.1 (from -r requirements.txt (line 13))
+  Using cached charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+Collecting click==8.1.8 (from -r requirements.txt (line 14))
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting click-didyoumean==0.3.1 (from -r requirements.txt (line 15))
+  Using cached click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting click-plugins==1.1.1 (from -r requirements.txt (line 16))
+  Using cached click_plugins-1.1.1-py2.py3-none-any.whl.metadata (6.4 kB)
+Collecting click-repl==0.3.0 (from -r requirements.txt (line 17))
+  Using cached click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+Collecting crispy-bootstrap5==2024.10 (from -r requirements.txt (line 18))
+  Using cached crispy_bootstrap5-2024.10-py3-none-any.whl.metadata (4.0 kB)
+Collecting cryptography==44.0.2 (from -r requirements.txt (line 19))
+  Using cached cryptography-44.0.2-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cssselect2==0.8.0 (from -r requirements.txt (line 20))
+  Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting decorator==5.1.1 (from -r requirements.txt (line 21))
+  Using cached decorator-5.1.1-py3-none-any.whl.metadata (4.0 kB)
+Collecting defusedxml==0.7.1 (from -r requirements.txt (line 22))
+  Using cached defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+Collecting Django==4.2.19 (from -r requirements.txt (line 23))
+  Using cached Django-4.2.19-py3-none-any.whl.metadata (4.1 kB)
+Collecting django-crispy-forms==2.3 (from -r requirements.txt (line 24))
+  Using cached django_crispy_forms-2.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting docopt==0.6.2 (from -r requirements.txt (line 25))
+  Using cached docopt-0.6.2.tar.gz (25 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting executing==2.2.0 (from -r requirements.txt (line 26))
+  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting fastjsonschema==2.21.1 (from -r requirements.txt (line 27))
+  Using cached fastjsonschema-2.21.1-py3-none-any.whl.metadata (2.2 kB)
+Collecting fonttools==4.56.0 (from -r requirements.txt (line 28))
+  Using cached fonttools-4.56.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (101 kB)
+Collecting gunicorn==20.1.0 (from -r requirements.txt (line 29))
+  Using cached gunicorn-20.1.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting idna==3.10 (from -r requirements.txt (line 30))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting ipython==8.12.3 (from -r requirements.txt (line 31))
+  Using cached ipython-8.12.3-py3-none-any.whl.metadata (5.7 kB)
+Collecting isodate==0.7.2 (from -r requirements.txt (line 32))
+  Using cached isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting jedi==0.19.2 (from -r requirements.txt (line 33))
+  Using cached jedi-0.19.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting Jinja2==3.1.5 (from -r requirements.txt (line 34))
+  Using cached jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting jmespath==1.0.1 (from -r requirements.txt (line 35))
+  Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting jsonschema==4.23.0 (from -r requirements.txt (line 36))
+  Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting jsonschema-specifications==2024.10.1 (from -r requirements.txt (line 37))
+  Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting jupyter_client==8.6.3 (from -r requirements.txt (line 38))
+  Using cached jupyter_client-8.6.3-py3-none-any.whl.metadata (8.3 kB)
+Collecting jupyter_core==5.7.2 (from -r requirements.txt (line 39))
+  Using cached jupyter_core-5.7.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting jupyterlab_pygments==0.3.0 (from -r requirements.txt (line 40))
+  Using cached jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting kombu==5.5.0 (from -r requirements.txt (line 41))
+  Using cached kombu-5.5.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting MarkupSafe==3.0.2 (from -r requirements.txt (line 42))
+  Using cached MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting matplotlib-inline==0.1.7 (from -r requirements.txt (line 43))
+  Using cached matplotlib_inline-0.1.7-py3-none-any.whl.metadata (3.9 kB)
+Collecting mistune==3.1.1 (from -r requirements.txt (line 44))
+  Using cached mistune-3.1.1-py3-none-any.whl.metadata (1.7 kB)
+Collecting mysqlclient==2.2.7 (from -r requirements.txt (line 45))
+  Using cached mysqlclient-2.2.7.tar.gz (91 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting nbclient==0.10.2 (from -r requirements.txt (line 46))
+  Using cached nbclient-0.10.2-py3-none-any.whl.metadata (8.3 kB)
+Collecting nbconvert==7.16.6 (from -r requirements.txt (line 47))
+  Using cached nbconvert-7.16.6-py3-none-any.whl.metadata (8.5 kB)
+Collecting nbformat==5.10.4 (from -r requirements.txt (line 48))
+  Using cached nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+Collecting packaging==24.2 (from -r requirements.txt (line 49))
+  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandocfilters==1.5.1 (from -r requirements.txt (line 50))
+  Using cached pandocfilters-1.5.1-py2.py3-none-any.whl.metadata (9.0 kB)
+Collecting parso==0.8.4 (from -r requirements.txt (line 51))
+  Using cached parso-0.8.4-py2.py3-none-any.whl.metadata (7.7 kB)
+Collecting pexpect==4.9.0 (from -r requirements.txt (line 52))
+  Using cached pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB)
+Collecting pickleshare==0.7.5 (from -r requirements.txt (line 53))
+  Using cached pickleshare-0.7.5-py2.py3-none-any.whl.metadata (1.5 kB)
+Collecting pillow==11.1.0 (from -r requirements.txt (line 54))
+  Using cached pillow-11.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting pipreqs==0.5.0 (from -r requirements.txt (line 55))
+  Using cached pipreqs-0.5.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting platformdirs==4.3.6 (from -r requirements.txt (line 56))
+  Using cached platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+Collecting prompt_toolkit==3.0.50 (from -r requirements.txt (line 57))
+  Using cached prompt_toolkit-3.0.50-py3-none-any.whl.metadata (6.6 kB)
+Collecting psycopg2-binary==2.9.6 (from -r requirements.txt (line 58))
+  Using cached psycopg2-binary-2.9.6.tar.gz (384 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
+
+2025/10/30 17:10:13.640192 [INFO]   error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-bvfmmxp2/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
+      If you prefer to avoid building psycopg2 from source, please install the PyPI
+      'psycopg2-binary' package instead.
+      
+      For further information please check the 'doc/src/install.rst' file (also at
+      <https://www.psycopg.org/docs/install.html>).
+      
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: /var/app/venv/staging-LQM1lest/bin/python3.12 -m pip install --upgrade pip
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+
+2025/10/30 17:10:13.640208 [ERROR] An error occurred during execution of command [self-startup] - [InstallDependency]. Stop running the command. Error: fail to install dependencies with requirements.txt file with error Command /var/app/venv/staging-LQM1lest/bin/pip install -r requirements.txt failed with error exit status 1. Stderr:  error: subprocess-exited-with-error
+  
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [34 lines of output]
+      /tmp/pip-build-env-bvfmmxp2/overlay/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running egg_info
+      writing psycopg2_binary.egg-info/PKG-INFO
+      writing dependency_links to psycopg2_binary.egg-info/dependency_links.txt
+      writing top-level names to psycopg2_binary.egg-info/top_level.txt
+      
+      Error: pg_config executable not found.
+      
+      pg_config is required to build psycopg2 from source.  Please add the directory
+      containing pg_config to the $PATH or specify the full executable path with the
+      option:
+      
+          python setup.py build_ext --pg-config /path/to/pg_config build ...
+      
+      or with the pg_config option in 'setup.cfg'.
+      
