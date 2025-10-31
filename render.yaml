@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fleet2
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput"
+    startCommand: "gunicorn transport_mgmt.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: transport_mgmt.settings
+      - key: PYTHON_VERSION
+        value: 3.12
+    autoDeploy: true
+

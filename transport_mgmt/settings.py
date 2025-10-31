@@ -3,18 +3,18 @@ from pathlib import Path
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Read secret from env in production; fall back to the existing
-# development key so local setup continues to work.
+# Read secret from env; prefer DJANGO_SECRET_KEY for Render
 SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-(0ic)q_*o-j8!=utd@1vx7ui#-h+88xifh)vo+elwcb^e^ac76'
+    'DJANGO_SECRET_KEY',
+    os.environ.get(
+        'SECRET_KEY',
+        'django-insecure-(0ic)q_*o-j8!=utd@1vx7ui#-h+88xifh)vo+elwcb^e^ac76'
+    )
 )
-# Also honor DJANGO_SECRET_KEY if provided (e.g., Render)
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', SECRET_KEY)
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost')
+_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS', '*')
 ALLOWED_HOSTS = [h.strip() for h in _hosts_env.split(',') if h.strip()]
 # Allow any ngrok-free.app subdomain for previews (use leading dot per Django docs)
 if '.ngrok-free.app' not in ALLOWED_HOSTS:
