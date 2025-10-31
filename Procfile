@@ -1,1 +1,1 @@
-web: gunicorn transport_mgmt.wsgi
+web: gunicorn transport_mgmt.wsgi:application

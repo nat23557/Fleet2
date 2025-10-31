@@ -15,6 +15,7 @@ logs/
 
 # envs & IDE
 .venv/ venv/ ENV/ env/
+.env
 .vscode/ .idea/
 .DS_Store Thumbs.db
 # .gitignore

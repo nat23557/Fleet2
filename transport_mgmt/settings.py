@@ -9,6 +9,8 @@ SECRET_KEY = os.environ.get(
     'SECRET_KEY',
     'django-insecure-(0ic)q_*o-j8!=utd@1vx7ui#-h+88xifh)vo+elwcb^e^ac76'
 )
+# Also honor DJANGO_SECRET_KEY if provided (e.g., Render)
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', SECRET_KEY)
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
@@ -40,6 +42,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Ensure WhiteNoise is present (avoid duplicates)
+if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
 ROOT_URLCONF = 'transport_mgmt.urls'
 
 TEMPLATES = [
@@ -62,19 +68,53 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'transport_mgmt.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'fleet'),
-        'USER': os.environ.get('DB_USER', 'admin'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'Admin_thermo'),
-        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+# Database configuration
+# Default: MySQL via env vars. For smoke tests on EB without a DB,
+# set USE_SQLITE=1 to boot with a local SQLite database.
+if os.environ.get('USE_SQLITE', '0') in ('1', 'true', 'True', 'YES', 'yes'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('DB_NAME', 'fleet'),
+            'USER': os.environ.get('DB_USER', 'admin'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'Admin_thermo'),
+            'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+            'PORT': os.environ.get('DB_PORT', '3306'),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    }
+
+# If explicit Postgres env vars are provided (e.g., Render), prefer them
+if any(k in os.environ for k in ['POSTGRES_DB', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_HOST', 'POSTGRES_PORT']):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DB', 'render'),
+            'USER': os.environ.get('POSTGRES_USER', 'render'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        }
+    }
+
+# Optional: allow DATABASE_URL override (e.g., Render Postgres)
+try:
+    import dj_database_url  # type: ignore
+    _db_url = os.environ.get('DATABASE_URL')
+    if _db_url:
+        _ssl_req = os.environ.get('DB_SSL_REQUIRE', '1').lower() in ('1', 'true', 'yes')
+        DATABASES['default'] = dj_database_url.parse(_db_url, conn_max_age=600, ssl_require=_ssl_req)
+except Exception:
+    pass
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
