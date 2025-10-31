@@ -14,13 +14,14 @@ fi
 # Ensure basic toolchain and pkg-config are present
 sudo ${PKG} install -y gcc gcc-c++ python3-devel pkgconf-pkg-config || true
 
-# Try several package names that provide MariaDB/MySQL client headers on AL2/AL2023.
+# Try several package names that provide MariaDB/MySQL client runtime + headers on AL2/AL2023.
 install_one() {
   local name="$1"
   echo "[prebuild] Trying to install: ${name}"
   sudo ${PKG} install -y "${name}" && return 0 || return 1
 }
 
+install_one mariadb-connector-c || true  # runtime libs
 if ! install_one mariadb-devel; then
   install_one mariadb-connector-c-devel ||
   install_one mariadb105-devel ||
