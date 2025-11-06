@@ -2040,6 +2040,8 @@ def completed_trips_matrix(request):
                 'expense': getattr(fin, 'total_expense', None),
                 'income': getattr(fin, 'income_before_tax', None),
                 'payable_receivable': getattr(fin, 'payable_receivable_amount', None),
+                'dispatch': getattr(fin, 'operational_expense', None),
+                'margin': getattr(fin, 'net_profit_margin', None),
                 'driver': (t.driver.staff_profile.user.get_full_name() or t.driver.staff_profile.user.username) if t.driver else None,
             })
         truck_blocks.append({ 'truck': truck, 'columns': cols })

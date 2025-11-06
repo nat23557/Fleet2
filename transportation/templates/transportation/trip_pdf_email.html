@@ -189,7 +189,7 @@
             <div></div>
 
             <div class="detail-label">Net Profit Margin:</div>
-            <div class="detail-value">{% if financial.net_profit_margin %}{{ financial.net_profit_margin }}%{% else %}0.00%{% endif %}</div>
+            <div class="detail-value">{% if financial.net_profit_margin %}{{ financial.net_profit_margin|floatformat:1 }}%{% else %}0.0%{% endif %}</div>
             <div></div>
           </div>
         </div>

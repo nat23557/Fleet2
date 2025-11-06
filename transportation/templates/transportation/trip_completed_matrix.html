@@ -49,6 +49,8 @@
           <tr><td>Expense</td>{% for c in block.columns %}<td>{{ c.expense|default:'—' }}</td>{% endfor %}</tr>
           <tr><td>Profit</td>{% for c in block.columns %}<td>{{ c.income|default:'—' }}</td>{% endfor %}</tr>
           <tr><td>Payable/Receivable</td>{% for c in block.columns %}<td>{{ c.payable_receivable|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Dispatch Money</td>{% for c in block.columns %}<td>{{ c.dispatch|default:'—' }}</td>{% endfor %}</tr>
+          <tr><td>Net Margin (%)</td>{% for c in block.columns %}<td>{% if c.margin != None %}{{ c.margin|floatformat:1 }}%{% else %}—{% endif %}</td>{% endfor %}</tr>
         </tbody>
       </table>
     </div>
@@ -65,6 +67,7 @@
             <div class="meta-sub">Dist: {{ c.distance|default:'—' }} km • Load: {{ c.load|default:'—' }}</div>
             <div class="meta-sub">Tariff: {{ c.tariff|default:'—' }}</div>
             <div class="meta-sub">Revenue: {{ c.revenue|default:'—' }} • Expense: {{ c.expense|default:'—' }} • Profit: {{ c.income|default:'—' }} • P/R: {{ c.payable_receivable|default:'—' }}</div>
+            <div class="meta-sub">Dispatch: {{ c.dispatch|default:'—' }} • Margin: {% if c.margin != None %}{{ c.margin|floatformat:1 }}%{% else %}—{% endif %}</div>
           </div>
           <a class="qa-btn" href="{% url 'trip_detail' c.id %}" style="padding:.35rem .6rem; font-weight:700;">Open</a>
         </div>

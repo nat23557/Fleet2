@@ -19,7 +19,7 @@ from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.db.models import Sum, Max
 from django.core.exceptions import ValidationError
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 
 # 1. Staff Model
@@ -412,8 +412,8 @@ class TripFinancial(models.Model):
                                               help_text="Calculated as (total_revenue - total_expense)")
     payable_receivable_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True,
                                                     help_text="Calculated as (operational_expense - total_expense). A positive value indicates money receivable from the driver; a negative value means extra money should be paid to the driver.")
-    net_profit_margin = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True,
-                                            help_text="Net profit margin as a percentage, calculated as (income_before_tax / total_revenue) * 100.")
+    net_profit_margin = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True,
+                                            help_text="Net profit margin as a percentage (one decimal), calculated as (income_before_tax / total_revenue) * 100.")
 
     def update_financials(self):
         """Recalculate financial figures based on trip data, driver expenses, and aggregated operational expense entries."""
@@ -441,7 +441,8 @@ class TripFinancial(models.Model):
         self.payable_receivable_amount = self.operational_expense - total_expense
 
         if total_revenue != Decimal('0.00'):
-            self.net_profit_margin = (self.income_before_tax / total_revenue) * Decimal('100.00')
+            pct = (self.income_before_tax / total_revenue) * Decimal('100.0')
+            self.net_profit_margin = pct.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
         else:
             self.net_profit_margin = None
 

@@ -224,9 +224,9 @@
         <span class="detail-label">Net Profit Margin:</span>
         <span class="detail-value">
           {% if financial.net_profit_margin %}
-            {{ financial.net_profit_margin }}%
+            {{ financial.net_profit_margin|floatformat:1 }}%
           {% else %}
-            0.00%
+            0.0%
           {% endif %}
         </span>
       </div>
