@@ -20,7 +20,7 @@
     <div class="section-header">
       <div class="section-title">Truck: {{ block.truck.plate_number }} • {{ block.columns|length }} trips</div>
     </div>
-    <div class="table-container desktop-only">
+    <div class="table-container desktop-only" style="overflow-x:auto; max-width:100%;">
       <table class="erp-table">
         <thead>
           <tr>
@@ -31,7 +31,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Route</td>{% for c in block.columns %}<td>{{ c.route }}</td>{% endfor %}</tr>
+          <tr>
+            <td>Route</td>
+            {% for c in block.columns %}
+            <td title="{{ c.route }}">{{ c.route|truncatechars:50 }}</td>
+            {% endfor %}
+          </tr>
           <tr><td>Driver</td>{% for c in block.columns %}<td>{{ c.driver|default:'—' }}</td>{% endfor %}</tr>
           <tr><td>Start</td>{% for c in block.columns %}<td>{{ c.start|date:'Y-m-d H:i' }}</td>{% endfor %}</tr>
           <tr><td>End</td>{% for c in block.columns %}<td>{{ c.end|date:'Y-m-d H:i' }}</td>{% endfor %}</tr>
@@ -53,7 +58,7 @@
         {% for c in block.columns %}
         <div class="list-item" style="align-items:flex-start;">
           <div class="item-meta">
-            <div class="meta-title">Trip #{{ c.truck_trip_number|default:c.id }} • {{ c.route }}</div>
+            <div class="meta-title">Trip #{{ c.truck_trip_number|default:c.id }} • {{ c.route|truncatechars:60 }}</div>
             <div class="meta-sub">Driver: {{ c.driver|default:'—' }}</div>
             <div class="meta-sub">Start: {{ c.start|date:'Y-m-d H:i' }} • End: {{ c.end|date:'Y-m-d H:i' }}</div>
             <div class="meta-sub">Dist: {{ c.distance|default:'—' }} km • Load: {{ c.load|default:'—' }}</div>
