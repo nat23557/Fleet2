@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load route_filters %}
 
 {% block content %}
 <div class="dashboard">
@@ -34,7 +35,7 @@
           <tr>
             <td>Route</td>
             {% for c in block.columns %}
-            <td title="{{ c.route }}">{{ c.route|truncatechars:50 }}</td>
+            <td title="{{ c.route }}">{{ c.route|route_initials }}</td>
             {% endfor %}
           </tr>
           <tr><td>Driver</td>{% for c in block.columns %}<td>{{ c.driver|default:'—' }}</td>{% endfor %}</tr>
@@ -58,7 +59,7 @@
         {% for c in block.columns %}
         <div class="list-item" style="align-items:flex-start;">
           <div class="item-meta">
-            <div class="meta-title">Trip #{{ c.truck_trip_number|default:c.id }} • {{ c.route|truncatechars:60 }}</div>
+            <div class="meta-title">Trip #{{ c.truck_trip_number|default:c.id }} • {{ c.route|route_initials }}</div>
             <div class="meta-sub">Driver: {{ c.driver|default:'—' }}</div>
             <div class="meta-sub">Start: {{ c.start|date:'Y-m-d H:i' }} • End: {{ c.end|date:'Y-m-d H:i' }}</div>
             <div class="meta-sub">Dist: {{ c.distance|default:'—' }} km • Load: {{ c.load|default:'—' }}</div>
