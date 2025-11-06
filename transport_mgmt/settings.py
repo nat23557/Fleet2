@@ -93,28 +93,9 @@ else:
         }
     }
 
-# If explicit Postgres env vars are provided (e.g., Render), prefer them
-if any(k in os.environ for k in ['POSTGRES_DB', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_HOST', 'POSTGRES_PORT']):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('POSTGRES_DB', 'render'),
-            'USER': os.environ.get('POSTGRES_USER', 'render'),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
-            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-        }
-    }
-
-# Optional: allow DATABASE_URL override (e.g., Render Postgres)
-try:
-    import dj_database_url  # type: ignore
-    _db_url = os.environ.get('DATABASE_URL')
-    if _db_url:
-        _ssl_req = os.environ.get('DB_SSL_REQUIRE', '1').lower() in ('1', 'true', 'yes')
-        DATABASES['default'] = dj_database_url.parse(_db_url, conn_max_age=600, ssl_require=_ssl_req)
-except Exception:
-    pass
+# Explicitly stick to MySQL (or SQLite if USE_SQLITE=1).
+# Any POSTGRES_* or DATABASE_URL env vars are intentionally ignored
+# to avoid accidental Postgres configuration.
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -171,6 +152,13 @@ if 'https://*.ngrok-free.app' not in CSRF_TRUSTED_ORIGINS:
 
 # Trust proxy HTTPS header so Django sees requests as secure behind ngrok
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# GPS API configuration
+# Default to the provided Mellatech endpoint; can be overridden via env var.
+GPS_API_URL = os.environ.get(
+    'GPS_API_URL',
+    'https://gps.mellatech.com/mct/api/api.php?api=user&ver=1.0&key=705BDE554443930C7297FEB59B4C3465&cmd=USER_GET_OBJECTS'
+)
 
 LOGGING = {
     'version': 1,

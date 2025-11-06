@@ -48,7 +48,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # Import only the operational expense form (no inline formset needed)
 from .forms import OperationalExpenseDetailForm
 from .models import TripFinancial, OperationalExpenseDetail, Trip
-from .tasks import update_gps_records   # Import your Celery task
+from .tasks import update_gps_records_sync   # Synchronous GPS updater
 try:
     # Optional dependency; used to embed attachments into generated PDFs
     from PyPDF2 import PdfReader, PdfWriter
@@ -751,7 +751,7 @@ def index(request):
         return redirect('driver_home')
 
     # Only update GPS data for non-driver dashboards
-    update_gps_records()
+    update_gps_records_sync()
 
     if user_role not in ['ADMIN', 'MANAGER', 'DRIVER']:
         messages.error(request, "You do not have the required permissions.")
@@ -1152,7 +1152,7 @@ def driver_delete(request, pk):
 @login_required
 def truck_list(request):
     # Update GPS records before processing truck data
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
     if not allowed:
         return redirect('home')
@@ -1166,7 +1166,7 @@ def truck_list(request):
 @login_required
 def truck_detail(request, pk):
     # Update GPS records before processing truck detail
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
     if not allowed:
         return redirect('home')
@@ -1893,7 +1893,7 @@ def fleet_map_page(request):
         return redirect('home')
 
     # Optionally refresh GPS data for the map
-    update_gps_records()
+    update_gps_records_sync()
 
     return render(request, 'transportation/fleet_map.html', {
         'user_role': user_role,
@@ -2226,7 +2226,7 @@ def people_hub(request):
 @login_required
 def truck_create(request):
     # Update GPS records before processing truck creation
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
     if not allowed:
         return redirect('home')
@@ -2247,7 +2247,7 @@ def truck_create(request):
 @login_required
 def truck_update(request, pk):
     # Update GPS records before processing truck update
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
     if not allowed:
         return redirect('home')
@@ -2269,7 +2269,7 @@ def truck_update(request, pk):
 @login_required
 def truck_delete(request, pk):
     # Update GPS records before processing truck deletion
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
     if not allowed:
         return redirect('home')
@@ -2694,7 +2694,7 @@ class TripListView(LoginRequiredMixin, ListView):
 @login_required
 def trip_list(request):
     # Pull latest GPS data (optional, if desired)
-    update_gps_records()
+    update_gps_records_sync()
 
     # Check if user is allowed
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER', 'DRIVER'])
@@ -2847,7 +2847,7 @@ class TripDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "trip"
 
     def dispatch(self, request, *args, **kwargs):
-        update_gps_records()
+        update_gps_records_sync()
         allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER', 'DRIVER'])
         if not allowed:
             return redirect('home')
@@ -2954,7 +2954,7 @@ class TripPdfView(LoginRequiredMixin, DetailView):
     context_object_name = "trip"
 
     def dispatch(self, request, *args, **kwargs):
-        update_gps_records()
+        update_gps_records_sync()
         # Restrict PDF generation to ADMIN/MANAGER only
         allowed, _ = check_user_role(request, ['ADMIN', 'MANAGER'])
         if not allowed:
@@ -3042,7 +3042,7 @@ class TripPdfView(LoginRequiredMixin, DetailView):
 
 @login_required
 def trip_detail(request, pk):
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER', 'DRIVER'])
     if not allowed:
         return redirect('home')
@@ -3079,7 +3079,7 @@ class TripCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('home')
 
     def dispatch(self, request, *args, **kwargs):
-        update_gps_records()
+        update_gps_records_sync()
         allowed, user_role = check_user_role(request, ['DRIVER'])
         if not allowed:
             messages.error(request, "Only drivers can create trips this way.")
@@ -3194,7 +3194,7 @@ class TripUpdateView(LoginRequiredMixin, UpdateView):
     # We'll override get_success_url().
 
     def dispatch(self, request, *args, **kwargs):
-        update_gps_records()
+        update_gps_records_sync()
         # Permit admins, managers, and drivers
         allowed, _role = check_user_role(request, ['ADMIN', 'MANAGER', 'DRIVER'])
         if not allowed:
@@ -3263,7 +3263,7 @@ def trip_update(request, pk):
     """
     (Optional) Old function-based update. Could remain for ADMIN/MANAGER usage.
     """
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
     if not allowed:
         return redirect('home')
@@ -3285,7 +3285,7 @@ def trip_update(request, pk):
 
 @login_required
 def trip_delete(request, pk):
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER'])
     if not allowed:
         return redirect('home')
@@ -3305,7 +3305,7 @@ def trip_delete(request, pk):
 # --------------------------------------------------------------------
 @login_required
 def trip_complete_confirmation(request, trip_id):
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER', 'DRIVER'])
     if not allowed:
         return redirect('home')
@@ -3341,7 +3341,7 @@ from .models import Trip, GPSRecord, Staff
 
 @login_required
 def trip_complete(request, trip_id):
-    update_gps_records()
+    update_gps_records_sync()
     allowed, user_role = check_user_role(request, ['ADMIN', 'MANAGER', 'DRIVER'])
     if not allowed:
         return redirect('home')

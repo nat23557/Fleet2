@@ -5,6 +5,7 @@ from decimal import Decimal
 import logging
 
 from django.utils import timezone
+from django.conf import settings
 from math import radians, cos, sin, asin, sqrt
 
 from celery import shared_task
@@ -16,7 +17,8 @@ def fetch_user_objects():
     """
     Makes an API call to the external GPS endpoint and returns the JSON data.
     """
-    url = "https://gps.mellatech.com/mct/api/api.php?api=user&ver=1.0&key=705BDE554443930C7297FEB59B4C3465&cmd=USER_GET_OBJECTS"
+    url = getattr(settings, 'GPS_API_URL',
+                 'https://gps.mellatech.com/mct/api/api.php?api=user&ver=1.0&key=705BDE554443930C7297FEB59B4C3465&cmd=USER_GET_OBJECTS')
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()  # Raises an HTTPError if the response was unsuccessful.
@@ -180,17 +182,24 @@ def process_gps_data(data):
 
     return created_count
 
-@shared_task
-def update_gps_records():
+def update_gps_records_sync():
+    """Synchronous updater used by views and CLI.
+
+    Fetches from the configured GPS API URL and processes records inline
+    so callers immediately see updated locations without requiring a
+    running Celery worker.
     """
-    Periodic Celery task to fetch and process GPS data.
-    """
-    logger.info("Starting GPS update...")
+    logger.info("Starting GPS update (sync)...")
     data = fetch_user_objects()
     if not data:
-        logger.info("update_gps_records_task: No data fetched from the GPS API.")
+        logger.info("update_gps_records_sync: No data fetched from the GPS API.")
         return 0
-
     created_count = process_gps_data(data)
-    logger.info(f"update_gps_records_task: Created {created_count} GPS records.")
+    logger.info(f"update_gps_records_sync: Created {created_count} GPS records.")
     return created_count
+
+
+@shared_task
+def update_gps_records():
+    """Celery task wrapper around the synchronous updater."""
+    return update_gps_records_sync()
