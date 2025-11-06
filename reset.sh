@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
- s# Reset MySQL database, rebuild migrations, and create a Django superuser.
+# Reset MySQL database, rebuild migrations, and create a Django superuser.
 # Configuration via env vars (sensible defaults for this repo):
 #   DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 #   DB_ADMIN_USER, DB_ADMIN_PASSWORD  (optional: privileged user to drop/create DB)
@@ -11,9 +11,10 @@ set -euo pipefail
 #   DB_ADMIN_USER=root DB_ADMIN_PASSWORD=secret \
 #   DB_NAME=fleet DB_USER=admin DB_PASSWORD=Admin_thermo \
 #   DJANGO_SUPERUSER_USERNAME=Admin DJANGO_SUPERUSER_EMAIL=admin@example.com DJANGO_SUPERUSER_PASSWORD='StrongP@ss' \
-#   bash scripts/reset_mysql.sh
+#   ./reset.sh
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
+# Resolve project root as the directory containing this script
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
 echo "🔎 Working directory: $PWD"
@@ -28,9 +29,13 @@ echo "⚡ Activating virtualenv…"
 source venv/bin/activate
 
 # --- 1) Install dependencies -------------------------------------------------
-echo "📦 Installing requirements…"
-pip install --upgrade pip >/dev/null
-pip install -r requirements.txt >/dev/null
+if [ "${SKIP_PIP:-false}" != "true" ]; then
+  echo "📦 Installing requirements… (set SKIP_PIP=true to skip)"
+  python -m pip install --upgrade pip >/dev/null
+  pip install -r requirements.txt >/dev/null
+else
+  echo "📦 Skipping requirements install (SKIP_PIP=true)"
+fi
 
 # --- 2) Check mysql client ---------------------------------------------------
 if ! command -v mysql >/dev/null 2>&1; then

@@ -1,13 +1,31 @@
 services:
   - type: web
     name: fleet2
-    runtime: python
-    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput"
+    env: python
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    preDeployCommand: "python manage.py migrate"
     startCommand: "gunicorn transport_mgmt.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: transport_mgmt.settings
       - key: PYTHON_VERSION
         value: 3.12
+      # MySQL configuration (set these in Render dashboard)
+      - key: DB_NAME
+        value: fleet
+      - key: DB_USER
+        value: admin
+      - key: DB_PASSWORD
+        value: Admin_thermo
+      - key: DB_HOST
+        value: 127.0.0.1
+      - key: DB_PORT
+        value: 3306
+    disk:
+      name: media
+      mountPath: /opt/render/project/src/media
+      sizeGB: 1
     autoDeploy: true
 
+# Removed managed Postgres DB. This service now expects a MySQL/MariaDB
+# instance reachable via the DB_* environment variables above.
