@@ -354,6 +354,8 @@ class Trip(models.Model):
     route = models.JSONField(default=list, blank=True)
     # New: per-truck sequence number for trips
     truck_trip_number = models.PositiveIntegerField(null=True, blank=True, help_text="Per-truck trip sequence number")
+    # Notification flag: ensures completion emails are sent exactly once
+    completion_notified = models.BooleanField(default=False, help_text="Whether completion email was sent to management.")
 
     def calculated_distance(self):
         if self.initial_kilometer is not None and self.final_kilometer is not None:
@@ -373,6 +375,13 @@ class Trip(models.Model):
         if self.truck_id and not self.pk and not self.truck_trip_number:
             current_max = Trip.objects.filter(truck_id=self.truck_id).aggregate(m=Max('truck_trip_number'))['m'] or 0
             self.truck_trip_number = current_max + 1
+        # Detect transition to COMPLETED
+        prev_status = None
+        if self.pk:
+            try:
+                prev_status = Trip.objects.filter(pk=self.pk).values_list('status', flat=True).first()
+            except Exception:
+                prev_status = None
 
         super().save(*args, **kwargs)
         if self.status == self.STATUS_COMPLETED and self.final_kilometer is not None:
@@ -382,6 +391,18 @@ class Trip(models.Model):
             if self.final_kilometer > truck.mileage_km:
                 truck.mileage_km = self.final_kilometer
                 truck.save(update_fields=['mileage_km'])
+
+        # Ensure completion email is sent once when the status transitions to COMPLETED
+        try:
+            transitioned = (self.status == self.STATUS_COMPLETED) and (prev_status != self.STATUS_COMPLETED)
+            if transitioned and not self.completion_notified:
+                from transportation.notifications import send_trip_completion_email  # lazy import to avoid cycles
+                send_trip_completion_email(self)
+                self.completion_notified = True
+                super(Trip, self).save(update_fields=['completion_notified'])
+        except Exception as _e:
+            # Do not block persistence if email fails; admins can re-send manually
+            pass
 
     def __str__(self):
         return f"Trip #{self.pk} | {self.truck.plate_number} - {self.get_status_display()}"

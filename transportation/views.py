@@ -3451,6 +3451,8 @@ def trip_complete(request, trip_id):
         trip.truck.save(update_fields=['status', 'is_in_duty'])
 
     messages.success(request, "Trip has been successfully completed.")
+    # Email notification is enforced at the model level on status transition
+    return redirect('home')
 
     context = {
         'trip': trip,
