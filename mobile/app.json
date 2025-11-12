@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Fleet",
+    "slug": "fleet-mobile",
+    "scheme": "fleet",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.fleet.app",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "replace-me"
+      }
+    }
+  }
+}

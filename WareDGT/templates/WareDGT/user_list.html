@@ -1,0 +1,62 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Users</h1>
+<p><a href="{% url 'user_create' %}" class="erp-btn">Add User</a></p>
+<form method="get" class="erp-form erp-form--inline">
+  <label>Role:
+    <select name="role">
+      <option value="">All</option>
+      {% for code,name in userprofile_role_choices %}
+      <option value="{{ code }}" {% if request.GET.role == code %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Active:
+    <select name="active">
+      <option value="">All</option>
+      <option value="true" {% if request.GET.active == 'true' %}selected{% endif %}>Active</option>
+      <option value="false" {% if request.GET.active == 'false' %}selected{% endif %}>Inactive</option>
+    </select>
+  </label>
+  <button type="submit" class="erp-btn">Filter</button>
+</form>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Full Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Last Login</th>
+      <th>Status</th>
+      <th>Warehouses</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in object_list %}
+    <tr>
+      <td>{{ u.username }}</td>
+      <td>{{ u.get_full_name }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.profile.get_role_display }}</td>
+      <td>{{ u.last_login|default:'-' }}</td>
+      <td>{{ u.is_active|yesno:'Active,Inactive' }}</td>
+      <td>
+        {% if u.profile.role == 'ECX_AGENT' %}
+          {{ u.profile.warehouses.all|join:', ' }}
+        {% else %}-{% endif %}
+      </td>
+      <td>
+        <a href="{% url 'user_edit' u.pk %}">Edit</a> |
+        <a href="{% url 'user_toggle' u.pk %}">{% if u.is_active %}Deactivate{% else %}Activate{% endif %}</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8">No users found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

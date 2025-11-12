@@ -1,0 +1,52 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:1000px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:1rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">{{ bank_name }}</h1>
+      <p class="dashboard-subtext">Accounts{% if selected_currency %} • {{ selected_currency }}{% endif %}</p>
+    </div>
+    <div class="dashboard-hero-meta" style="display:flex;gap:.5rem;align-items:center;">
+      <a class="qa-btn" href="{% url 'cash_management:banks' %}{% if selected_currency %}?currency={{ selected_currency }}{% endif %}">⬅ Back</a>
+    </div>
+  </div>
+
+  <section class="section" style="margin-top:.25rem;">
+    <div class="section-header">
+      <div class="section-title">Summary</div>
+      <div class="segmented">
+        <a class="seg-item {% if not selected_currency %}active{% endif %}" href="{% url 'cash_management:bank_detail' bank_name %}">All</a>
+        <a class="seg-item {% if selected_currency == 'ETB' %}active{% endif %}" href="{% url 'cash_management:bank_detail' bank_name %}?currency=ETB">ETB</a>
+        <a class="seg-item {% if selected_currency == 'USD' %}active{% endif %}" href="{% url 'cash_management:bank_detail' bank_name %}?currency=USD">USD</a>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card accent-green">
+        <div class="kpi-title">Total{% if selected_currency %} • {{ selected_currency }}{% endif %}</div>
+        <div class="kpi-value">{{ total|floatformat:2 }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">Accounts</div>
+    </div>
+    <div class="list">
+      {% for a in accounts %}
+        <a class="list-item" href="{% url 'cash_management:account_ledger' a.id %}">
+          <div class="item-meta">
+            <div class="meta-title">{{ a.name }}</div>
+            <div class="meta-sub">{{ a.currency }}</div>
+          </div>
+          <div class="kpi-value" style="font-variant-numeric:tabular-nums;">{{ a.balance|default:0|floatformat:2 }}</div>
+        </a>
+      {% empty %}
+        <div class="empty">No accounts found.</div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Stock Movements{% endblock %}
+
+{% block content %}
+<h1>Stock Movements</h1>
+<table class="table-auto w-full border-collapse">
+  <thead>
+    <tr>
+      <th>Ticket No</th>
+      <th>Type</th>
+      <th>Warehouse</th>
+      <th>Net Weight</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for mv in object_list %}
+    <tr>
+      <td>{{ mv.ticket_no }}</td>
+      <td>{{ mv.get_movement_type_display }}</td>
+      <td>{{ mv.warehouse.name }}</td>
+      <td>{{ mv.net_weight }}</td>
+      <td>{{ mv.ticket_date }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No movements found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="mt-4"><a href="{% url 'stockmovement_create' %}">Record Movement</a></p>
+{% endblock %}

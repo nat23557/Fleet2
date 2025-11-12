@@ -1,0 +1,56 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Add Seed Type{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Add Seed Type</h1>
+
+<form method="post" class="erp-form">
+  {% csrf_token %}
+
+  <fieldset class="stockout-step">
+    <legend>Category & Specifics</legend>
+    <div class="form-grid">
+      <p class="form-field">{{ form.category.label_tag }} {{ form.category }}</p>
+      <p class="form-field" id="coffeeTypeField">{{ form.coffee_type.label_tag }} {{ form.coffee_type }}</p>
+    </div>
+    <small class="form-text text-muted">Examples: Beans → Green Mung Bean; Other → Niger Seed</small>
+  </fieldset>
+
+  <fieldset class="stockout-step">
+    <legend>Identity</legend>
+    <div class="form-grid">
+      <p class="form-field">{{ form.symbol.label_tag }} {{ form.symbol }}<small class="form-text text-muted">Use uppercase symbol (e.g., GRMB for Green Mung Bean, NIGER for Niger Seed).</small></p>
+      <p class="form-field">{{ form.name.label_tag }} {{ form.name }}</p>
+      <p class="form-field">{{ form.delivery_location.label_tag }} {{ form.delivery_location }}</p>
+      <p class="form-field">{{ form.grade.label_tag }} {{ form.grade }}</p>
+    </div>
+  </fieldset>
+
+  <fieldset class="stockout-step">
+    <legend>Origin & Handling</legend>
+    <div class="form-grid">
+      <p class="form-field full-width">{{ form.origin.label_tag }} {{ form.origin }}</p>
+      <p class="form-field full-width">{{ form.handling_procedure.label_tag }} {{ form.handling_procedure }}</p>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <button type="submit" class="erp-btn primary">Save</button>
+  </div>
+</form>
+
+<script>
+  (function(){
+    var cat = document.getElementById('id_category');
+    var coffee = document.getElementById('id_coffee_type');
+    var coffeeP = document.getElementById('coffeeTypeField');
+    function update(){
+      if (!cat || !coffee || !coffeeP) return;
+      var v = cat.value || '';
+      coffeeP.style.display = (v === 'COFFEE') ? '' : 'none';
+      if (v !== 'COFFEE') coffee.value = '';
+    }
+    if (cat) { cat.addEventListener('change', update); update(); }
+  })();
+</script>
+{% endblock %}

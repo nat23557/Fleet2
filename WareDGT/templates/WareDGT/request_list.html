@@ -1,0 +1,114 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Requests{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Requests</h1>
+
+<h2>ECX Load Requests</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Submitted</th>
+      <th>Submitter</th>
+      <th>Warehouse</th>
+      <th>Trades</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req in ecx_requests %}
+    <tr>
+      <td>{{ req.created_at }}</td>
+      <td>{{ req.created_by.get_full_name|default:req.created_by.username }}</td>
+      <td>{{ req.warehouse.name }}</td>
+      <td>{{ req.trades.count }}</td>
+      <td><a class="erp-btn" href="{% url 'ecxload_request_review' req.id %}?t={{ req.approval_token }}">Review</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No requests.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Bin Card Requests</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Submitted</th>
+      <th>Submitter</th>
+      <th>Warehouse</th>
+      <th>Direction</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req in bincard_requests %}
+    <tr>
+      <td>{{ req.created_at }}</td>
+      <td>{{ req.created_by.get_full_name|default:req.created_by.username }}</td>
+      <td>{{ req.warehouse }}</td>
+      <td>{{ req.direction }}</td>
+      <td><a class="erp-btn" href="{% url 'bincard_request_review' req.pk %}?t={{ req.approval_token }}">Review</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No requests.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Stock Out Requests</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Submitted</th>
+      <th>Submitter</th>
+      <th>Warehouse</th>
+      <th>Quantity</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req in stockout_requests %}
+    <tr>
+      <td>{{ req.created_at }}</td>
+      <td>{{ req.created_by.get_full_name|default:req.created_by.username }}</td>
+      <td>{{ req.warehouse }}</td>
+      <td>{{ req.payload.quantity }}</td>
+      <td><a class="erp-btn" href="{% url 'stockout_request_review' req.pk %}?t={{ req.approval_token }}">Review</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No requests.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if stockout_requests_sm %}
+<h2>Borrow Stock Out Requests (System Manager)</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Submitted</th>
+      <th>Submitter</th>
+      <th>Warehouse</th>
+      <th>Quantity</th>
+      <th>Borrower</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req in stockout_requests_sm %}
+    <tr>
+      <td>{{ req.created_at }}</td>
+      <td>{{ req.created_by.get_full_name|default:req.created_by.username }}</td>
+      <td>{{ req.warehouse }}</td>
+      <td>{{ req.payload.quantity }}</td>
+      <td>{{ req.borrower }}</td>
+      <td><a class="erp-btn" href="{% url 'stockout_request_review_sm' req.pk %}?t={{ req.approval_token }}">Review</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">No borrow requests.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

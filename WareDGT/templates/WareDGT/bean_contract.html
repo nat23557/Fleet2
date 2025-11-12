@@ -1,0 +1,113 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Bean Contract{% endblock %}
+
+{% block content %}
+<h1 class="page-title">ECX White Pea Beans Contract</h1>
+
+<h2>2. Grading Parameters</h2>
+<h3>2.1 General Requirements</h3>
+<ul>
+  <li>Good natural color</li>
+  <li>Free of objectionable odor</li>
+  <li>Free from live insects, toxic seeds, glass and metal fragments</li>
+  <li>Moisture content ≤ 13% by weight</li>
+</ul>
+
+<h3>2.2 Definitions</h3>
+<ul>
+  <li><strong>Moisture Content</strong>: Determined on wet-weight basis using an approved moisture meter</li>
+  <li><strong>Foreign Matter</strong>: All matter other than white pea beans (including pods) that remains on or passes through a 3.57 × 19.05 mm sieve</li>
+  <li><strong>Defects</strong>: Damaged beans and splits</li>
+  <li><strong>Damage</strong>: Beans damaged by disease, insects, weather, or other causes</li>
+  <li><strong>Insect-bored Beans</strong>: Beans bored by insects (dead insect may be present)</li>
+  <li><strong>Splits</strong>: Sound beans or detached seed-coats which are three-fourths or less of a whole bean</li>
+  <li><strong>Good Natural Color</strong>: Pure appearance unaffected by natural or man-made factors</li>
+  <li><strong>Objectionable Odor</strong>: Unpleasant smells from weathering, contamination, mould, disease, or insects</li>
+  <li><strong>Contrasting Class</strong>: Beans differing in color, size, or shape from the predominant class</li>
+</ul>
+
+<h3>2.3 Classification</h3>
+<table class="erp-table">
+  <thead>
+    <tr><th>No.</th><th>Class</th><th>Symbol</th><th>Size Requirement</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>Round White Pea Beans B</td><td>RWPB</td><td>≥ 85% retained on 8.0 mm round-hole sieve</td></tr>
+    <tr><td>2</td><td>Round White Pea Beans A</td><td>RWPA</td><td>≥ 85% passed 8.0 mm and retained on 4.0 mm round-hole sieve</td></tr>
+    <tr><td>3</td><td>Round White Pea Beans C</td><td>RWPC</td><td>≥ 85% passed 8.0 mm and 4.0 mm round-hole sieve</td></tr>
+    <tr><td>4</td><td>Flat White Pea Beans B</td><td>FWPB</td><td>≥ 85% retained on 8.0 mm round-hole sieve</td></tr>
+    <tr><td>5</td><td>Flat White Pea Beans A</td><td>FWPA</td><td>≥ 85% passed 8.0 mm and retained on 4.0 mm round-hole sieve</td></tr>
+    <tr><td>6</td><td>Flat White Pea Beans C</td><td>FWPC</td><td>≥ 85% passed 8.0 mm and 4.0 mm round-hole sieve</td></tr>
+  </tbody>
+</table>
+
+<h3>2.4 Grading Parameters</h3>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Parameter</th><th>Grade 1</th><th>Grade 2</th><th>Grade 3</th><th>Grade 4</th><th>Grade 5</th><th>LG</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Foreign Matter (%)</td><td>0.5</td><td>1.5</td><td>3.0</td><td>4.5</td><td>6.0</td><td>9.0</td></tr>
+    <tr><td>Defects (%)</td><td>1.5</td><td>3.0</td><td>5.0</td><td>7.0</td><td>9.0</td><td>12.0</td></tr>
+    <tr><td>Of which Insect-bored (%)</td><td>0.1</td><td>0.5</td><td>1.0</td><td>1.5</td><td>2.0</td><td>3.0</td></tr>
+    <tr><td>Contrasting Class (%)</td><td>1.0</td><td>3.0</td><td>6.0</td><td>9.0</td><td>12.0</td><td>18.0</td></tr>
+  </tbody>
+</table>
+<p>The lowest-scoring parameter determines the final grade.</p>
+
+<h2>3. Standard Trading Terms</h2>
+<ul>
+  <li><strong>Standard Lot Size:</strong> 50 quintals net weight (tolerance ± 4%)</li>
+  <li><strong>Maximum Order Size:</strong> 20 contracts (in 50-quintal increments) = 1,000 quintals per transaction</li>
+  <li><strong>Tick Size:</strong> 1 Birr minimum price movement</li>
+  <li><strong>Daily Position Limit:</strong>
+    <ul>
+      <li>Member + all clients: 1,000 lots/day</li>
+      <li>Single member or client: 200 lots/day</li>
+    </ul>
+  </li>
+  <li><strong>Daily Price Filter:</strong> ± 5% of previous day’s close</li>
+  <li><strong>Warehouse Receipt:</strong>
+    <ul>
+      <li>Trades only on ECX-issued receipts after grading, weighing, deposit in ECX-certified warehouse</li>
+      <li>Tradable for 60 days from deposit; expires upon trade execution</li>
+      <li>Penalty: 3.5%/day on tradable value after expiry</li>
+    </ul>
+  </li>
+  <li><strong>Contract Quote Basis:</strong> “Ex-Warehouse” (exclusive of taxes, fees, charges)</li>
+  <li><strong>Quotation Factor:</strong> Birr per quintal</li>
+  <li><strong>Trading Session:</strong> ሰኞ–አርብ (የህዝብ በዓል ቀናትን በስተቀር)</li>
+</ul>
+
+<h2>4. Standard Settlement Terms</h2>
+<ul>
+  <li><strong>Pay-in of Funds:</strong> Buyer’s account debited T+1 working day</li>
+  <li><strong>Pay-out of Funds:</strong> Seller’s account credited T+1 working day</li>
+  <li><strong>Weight Tolerance Adjustment:</strong> Difference between actual and contract weight adjusted at settlement</li>
+  <li><strong>Exchange Transaction Fee:</strong> 0.4% of transaction value (buyer &amp; seller)</li>
+  <li><strong>Handling &amp; Certification Fee:</strong>
+    <ul>
+      <li>Buyer: Birr 2.6 per bag/quintal</li>
+      <li>Seller: Birr 2.7 per bag/quintal</li>
+    </ul>
+  </li>
+  <li><strong>Warehouse Storage Charge:</strong>
+    <ul>
+      <li>Birr 0.16 per bag/quintal/day for first 30 days</li>
+      <li>Birr 0.32 per bag/quintal/day thereafter</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>5. Standard Delivery Terms</h2>
+<ul>
+  <li><strong>Delivery Centres:</strong> Addis Ababa, Adama, Shashemene (separate contract per location)</li>
+  <li><strong>Delivery Notice:</strong> Issued T+1 after trade (notification to buyer’s Member)</li>
+  <li><strong>Pick-Up Notice (PUN):</strong> Must be registered after Delivery Notice but before Trade + 5 calendar days (T+5)</li>
+  <li><strong>Delivery Period:</strong> Trade + 5 calendar days (T+5) to pick up without extra charges</li>
+  <li><strong>Failure to Pick Up:</strong> Penalty of 1% per day of transaction value beyond T+5</li>
+  <li><strong>Extension of Delivery Period:</strong> Allowed by Exchange under force majeure</li>
+</ul>
+{% endblock %}

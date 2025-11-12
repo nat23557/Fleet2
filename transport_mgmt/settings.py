@@ -22,7 +22,14 @@ if '.ngrok-free.app' not in ALLOWED_HOSTS:
 
 INSTALLED_APPS = [
     'crispy_forms',
+    'crispy_bootstrap5',
     'transportation',
+    'cash_management',
+    # Third-party
+    'rest_framework',
+    # Local apps
+    'WareDGT.apps.WaredgtConfig',
+    # Django contrib
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,7 +58,9 @@ ROOT_URLCONF = 'transport_mgmt.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'WareDGT', 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,6 +137,7 @@ MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'transportation', 'static'),
+    os.path.join(BASE_DIR, 'WareDGT', 'static'),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -180,3 +190,14 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'no.reply.thermofam@gmail.co
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('1', 'true', 'yes')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
+# Django REST Framework (minimal defaults; tighten later as needed)
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+}

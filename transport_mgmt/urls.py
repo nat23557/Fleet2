@@ -34,6 +34,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Make 'transportation.urls' handle the root URL:
     path('', include('transportation.urls')), 
+    # Finance (cash management)
+    path('cash/', include('cash_management.urls')),
+    # WareDGT (Warehouse) UI and API mounted under a prefix to avoid clashes
+    path('warehouse/', include('WareDGT.urls')),
+    path('warehouse/api/', include('WareDGT.api_urls')),
+    # Also expose WareDGT API at root /api/ to satisfy existing JS that calls absolute /api/...
+    path('api/', include('WareDGT.api_urls')),
     path("healthz/", healthz),
 ]
 

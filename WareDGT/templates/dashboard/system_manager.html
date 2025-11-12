@@ -1,0 +1,119 @@
+{% extends 'WareDGT/layout.html' %}
+{% load static %}
+{% block title %}System Manager Dashboard{% endblock %}
+
+{% block extra_css %}
+{# Bootstrap Icons only for action buttons (no Bootstrap CSS to preserve theme) #}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="{% static 'waredgt/css/sm-dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid smd-container text-light py-4">
+
+  <!-- HERO / CONTROL-TOWER BAR -->
+  <div class="smd-hero mb-3">
+    <div class="smd-hero-left">
+      <h1 class="smd-title">System Manager</h1>
+      <div class="smd-sub">Control-tower view across warehouses & processes</div>
+      <div class="smd-meta">
+        <span id="smd-updated" class="smd-updated" aria-live="polite">Last update: —</span>
+        <span id="smd-risk-chip" class="smd-chip smd-chip--neutral">Risk: —</span>
+      </div>
+    </div>
+    <div class="smd-hero-right">
+      <button id="smd-refresh" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+      <button id="smd-export" class="btn btn-primary btn-sm">
+        <i class="bi bi-download"></i> Export snapshot
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI GRID -->
+  <div id="kpi-row" class="smd-kpi-grid"></div>
+
+  <!-- TOP RISKS + ACTIVITY / ANOMALIES -->
+  <div class="row g-3 mt-1">
+    <div class="col-xl-4">
+      <div class="card smd-card h-100">
+        <div class="card-header">Top Risks</div>
+        <ul id="risk-list" class="list-group list-group-flush" aria-live="polite">
+          <li class="list-group-item text-muted">Loading…</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card smd-card h-100">
+        <div class="card-header">Activity &amp; Security</div>
+        <ul id="activity-list" class="list-group list-group-flush" aria-live="polite">
+          <li class="list-group-item text-muted">Loading…</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card smd-card h-100">
+        <div class="card-header">Anomaly Feed</div>
+        <ul id="anomaly-list" class="list-group list-group-flush" aria-live="polite">
+          <li class="list-group-item text-muted">Loading…</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZERO-TO-ONE: CROSS-WAREHOUSE BENCHMARKS -->
+  <div class="card smd-card mt-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Cross-Warehouse Benchmarks</span>
+      <div class="smd-legend">
+        <span class="smd-dot smd-ok"></span> OK
+        <span class="smd-dot smd-warn"></span> Watch
+        <span class="smd-dot smd-bad"></span> Risk
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-dark table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Warehouse</th>
+            <th>Capacity Used</th>
+            <th>Stock (qtl)</th>
+            <th>Open POs</th>
+            <th>On-time Inbound</th>
+            <th>QC Fail (7d)</th>
+          </tr>
+        </thead>
+        <tbody id="bench-tbody">
+          <tr><td colspan="6" class="text-muted">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ZERO-TO-ONE: AI RISK SCORE EXPLAINER -->
+  <div class="card smd-card mt-3">
+    <div class="card-header">System Risk Score</div>
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3">
+        <div id="risk-gauge" class="smd-gauge" aria-label="Overall risk gauge"></div>
+        <div>
+          <div id="risk-score" class="display-6">—</div>
+          <div id="risk-reasons" class="text-muted small">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMIZATION CONSOLE -->
+  <div class="card smd-card mt-3">
+    <div class="card-header">Customization Console</div>
+    <div id="config-console" class="table-responsive p-3 text-muted">Loading…</div>
+  </div>
+
+</div>
+
+{% block extra_js %}
+<script src="{% static 'waredgt/js/sm-dashboard.js' %}"></script>
+{% endblock %}
+{% endblock %}

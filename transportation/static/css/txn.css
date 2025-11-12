@@ -1,0 +1,71 @@
+/* One‑of‑a‑kind transaction form visuals */
+
+.txn-grid { display: grid; grid-template-columns: 1.35fr .9fr; gap: 14px; align-items: start; }
+@media (max-width: 880px){ .txn-grid { grid-template-columns: 1fr; } }
+
+.txn-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-1); padding: 14px; }
+
+/* Harmonize inputs inside the transaction card */
+.txn-card input[type="text"],
+.txn-card input[type="date"],
+.txn-card input[type="number"],
+.txn-card select,
+.txn-card textarea {
+  appearance: none;
+  background: rgba(0,0,0,.04);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .5rem .7rem;
+  width: 100%;
+}
+.txn-card textarea { min-height: 44px; }
+.txn-card input:focus, .txn-card select:focus, .txn-card textarea:focus {
+  outline: 2px solid rgba(16,185,129,.35);
+  border-color: rgba(16,185,129,.55);
+}
+
+/* Ensure select dropdown options are legible in dark mode */
+.txn-card select option, .txn-card select optgroup { background: var(--surface); color: var(--text); }
+html[data-theme="dark"] .txn-card select, 
+html[data-theme="dark"] .txn-card select option, 
+html[data-theme="dark"] .txn-card select optgroup { background: #111827; color: #e5e7eb; }
+html[data-theme="dark"] .txn-card select option:checked { background: rgba(34,197,94,.25); color: #e5ffe9; }
+
+/* Input placeholder contrast */
+.txn-card input::placeholder, .txn-card textarea::placeholder { color: var(--subtext); opacity: .9; }
+
+/* Segmented toggle like a terminal switch */
+.seg-toggle { display: inline-grid; grid-auto-flow: column; gap: 2px; background: rgba(0,0,0,.06); padding: 3px; border-radius: 10px; border: 1px solid var(--border); }
+.seg-toggle .opt { appearance: none; border: none; padding: .35rem .7rem; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text); }
+.seg-toggle .opt.active { background: linear-gradient(135deg, var(--brand-600), var(--brand-700)); color: #fff; box-shadow: 0 2px 6px rgba(2,6,23,.18); }
+
+/* Amount focus */
+.amount-wrap { display: grid; grid-template-columns: 1fr auto; gap: .5rem; align-items: center; }
+.amount-input { font-size: 1.25rem; padding: .6rem .8rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); width: 100%; }
+.amount-input:focus { outline: 2px solid rgba(16,185,129,.35); border-color: rgba(16,185,129,.55); }
+.amount-chips { display: inline-flex; gap: .35rem; }
+.amount-chips .chip-btn { background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 999px; padding: .35rem .6rem; }
+
+/* Balance card with meter */
+.balance-card { display: grid; gap: .4rem; }
+.balance-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.balance-kpis .kpi { background: rgba(0,0,0,.04); border: 1px solid var(--border); border-radius: 10px; padding: .5rem .6rem; text-align: center; }
+.balance-kpis .kpi .v { font-weight: 700; font-variant-numeric: tabular-nums; }
+.delta-chip { display: inline-flex; align-items: center; gap: .35rem; border-radius: 999px; padding: .2rem .6rem; font-weight: 700; }
+.delta-plus { background: rgba(16,185,129,.12); color: #166534; border: 1px solid rgba(16,185,129,.35); }
+.delta-minus { background: rgba(239,68,68,.12); color: #b91c1c; border: 1px solid rgba(239,68,68,.35); }
+.meter { height: 9px; border: 1px solid var(--border); background: rgba(0,0,0,.06); border-radius: 999px; overflow: hidden; position: relative; }
+.meter .fill { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--brand-400), var(--brand-600)); width: 0%; }
+.meter .mark { position: absolute; top: -2px; width: 2px; height: 13px; background: rgba(239,68,68,.9); left: 0%; }
+.meter-legend { display:flex; justify-content: space-between; font-size: .85rem; color: var(--subtext); }
+
+/* Dropzone */
+.dropzone { display: grid; grid-template-columns: 64px 1fr auto; gap: .75rem; align-items: center; padding: .6rem; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,.03); cursor: pointer; }
+.dropzone:hover { background: rgba(0,0,0,.06); }
+.dropzone-thumb { width: 64px; height: 64px; border-radius: 8px; background: #0b1220; display: grid; place-items: center; overflow: hidden; }
+.dropzone-thumb img { max-width: 100%; height: 100%; object-fit: contain; }
+.dropzone .hint { color: var(--subtext); font-size: .9rem; }
+
+/* Helper tips */
+.tips { font-size: .9rem; color: var(--subtext); }

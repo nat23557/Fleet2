@@ -1,4 +1,4 @@
-{% extends 'index.html' %}
+﻿{% extends 'index.html' %}
 {% load static %}
 
 {% block content %}
@@ -67,9 +67,14 @@
       {% endif %}
       <a class="qa-btn" href="{% url 'truck-list' %}"><span class="qa-ico">🚚</span><div>Fleet<div class="qa-hint">All trucks</div></div></a>
       <a class="qa-btn" href="{% url 'trip_list' %}"><span class="qa-ico">🧭</span><div>Trips<div class="qa-hint">Manage trips</div></div></a>
+      <a class="qa-btn" href="{% url 'dashboard' %}"><span class="qa-ico">📦</span><div>Warehouse<div class="qa-hint">Inventory & ECX</div></div></a>
+      <a class="qa-btn" href="{% url 'cash_management:banks' %}"><span class="qa-ico">💵</span><div>Cash<div class="qa-hint">Management</div></div></a>
       <a class="qa-btn" href="{% url 'report_index' %}"><span class="qa-ico">📊</span><div>Reports<div class="qa-hint">Financials</div></div></a>
       <a class="qa-btn" href="{% url 'weekly_story_mode' %}"><span class="qa-ico">📝</span><div>Story Mode<div class="qa-hint">Weekly brief</div></div></a>
     </div>
   </section>
 </div>
 {% endblock %}
+
+
+

@@ -1,0 +1,7 @@
+Bin Card Entry – Approval Needed
+Officer: {{ req.created_by.get_full_name|default:req.created_by.username }}
+Warehouse: {{ req.warehouse }}
+Direction: {{ req.direction }}
+Details: {{ review_url }}
+Approve: {{ approve_url }}
+Decline: {{ decline_url }}

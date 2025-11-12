@@ -34,6 +34,7 @@ class Staff(models.Model):
     ROLE_CHOICES = [
         ('ADMIN', 'Administrator'),
         ('MANAGER', 'Manager'),
+        ('CLERK', 'Clerk'),
         ('DRIVER', 'Driver'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='OTHER')

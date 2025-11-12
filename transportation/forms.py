@@ -3,6 +3,7 @@ from .models import Staff, Driver, Truck, Cargo, Trip
 from django import forms
 from django.contrib.auth.models import User
 from .models import Staff
+from django.contrib.auth.models import Group
 from django.db.models import Q
 
 from django import forms
@@ -72,6 +73,7 @@ class StaffForm(forms.ModelForm):
             if commit:
                 user.save()
                 staff.save()
+                _sync_groups_for_role(user, staff.role)
         else:
             # Create new user and link to staff
             user = User.objects.create_user(
@@ -82,7 +84,25 @@ class StaffForm(forms.ModelForm):
             staff.user = user
             if commit:
                 staff.save()
+                _sync_groups_for_role(user, staff.role)
         return staff
+
+
+def _sync_groups_for_role(user: User, role: str) -> None:
+    """Ensure Django auth Group membership matches Staff.role for finance permissions.
+
+    - If role == 'CLERK': add user to 'Clerk' group (create if missing)
+    - If role == 'ADMIN'/'MANAGER' remove from 'Clerk' (they may have broader rights anyway)
+    """
+    try:
+        clerk_group, _ = Group.objects.get_or_create(name='Clerk')
+        if (role or '').upper() == 'CLERK':
+            user.groups.add(clerk_group)
+        else:
+            user.groups.remove(clerk_group)
+    except Exception:
+        # Non-fatal; group will be ensured by cash_management signals on migrate
+        pass
 
 from django import forms
 from django.contrib.auth.models import User

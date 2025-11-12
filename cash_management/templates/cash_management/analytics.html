@@ -1,0 +1,40 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:1000px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:1rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">Cash Analytics</h1>
+      <p class="dashboard-subtext">Monthly inflow vs outflow</p>
+    </div>
+    <div class="dashboard-hero-meta">
+      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}">⬅ Back</a>
+    </div>
+  </div>
+
+  <section class="section">
+    <canvas id="cashChart" height="120"></canvas>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const months = {{ months|safe }};
+  const inflow = {{ inflow|safe }};
+  const outflow = {{ outflow|safe }};
+  const ctx = document.getElementById('cashChart');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Inflow', data: inflow, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,.1)' },
+        { label: 'Outflow', data: outflow, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,.1)' }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+</script>
+{% endblock %}
+

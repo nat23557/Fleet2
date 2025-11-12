@@ -1,0 +1,122 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Sesame Contract{% endblock %}
+
+{% block content %}
+<h1 class="page-title">ECX Sesame Contract (Oct 2010 v2)</h1>
+
+<h2>2. Sesame Grading Parameters</h2>
+<h3>2.1 General Requirements</h3>
+<ul>
+  <li>Sesame Seeds shall have a good natural color, free of objectionable odor, free from live insects, free from visible mould and have a maximum moisture content of 10% by weight.</li>
+</ul>
+
+<h3>2.2 Definitions</h3>
+<ul>
+  <li><strong>Moisture Content</strong>: determined on a wet-weight basis using an approved moisture meter.</li>
+  <li><strong>Foreign matter</strong>: anything other than sesame seeds that passes a 1.0 mm sieve (or any mineral/plant/animal matter that does not).</li>
+  <li><strong>Good Natural Color</strong>: the pure, unaffected natural appearance of the grain.</li>
+  <li><strong>Objectionable Odor</strong>: an unpleasant smell from weathering, chemical contamination, mould, disease or insect damage.</li>
+  <li><strong>Contrasting Colour</strong>: seeds differing in colour from the predominant class.</li>
+</ul>
+
+<h3>2.3 Grading Tables</h3>
+<h4>Whitish Humera/Gondar &amp; Reddish Sesame Seed</h4>
+<table class="erp-table">
+  <thead>
+    <tr><th>Grade</th><th>1</th><th>2</th><th>3</th><th>4</th><th>UG</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Foreign Matter (% max)</td><td>1</td><td>3</td><td>5</td><td>7</td><td>15</td></tr>
+    <tr><td>Contrasting Colour (% max)</td><td>1</td><td>2</td><td>4</td><td>7</td><td>7</td></tr>
+  </tbody>
+</table>
+
+<h4>Whitish Wollega Sesame Seed</h4>
+<table class="erp-table">
+  <thead>
+    <tr><th>Grade</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>UG</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Foreign Matter (% max)</td><td>1</td><td>3</td><td>5</td><td>7</td><td>10</td><td>20</td></tr>
+    <tr><td>Contrasting Colour (% max)</td><td>1</td><td>2</td><td>4</td><td>7</td><td>10</td><td>10</td></tr>
+  </tbody>
+</table>
+
+<h4>Mixed Humera/Gondar &amp; Mixed Reddish Sesame Seed</h4>
+<table class="erp-table">
+  <thead>
+    <tr><th>Grade</th><th>1</th><th>2</th><th>3</th><th>4</th><th>UG</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Foreign Matter (% max)</td><td>1</td><td>3</td><td>5</td><td>7</td><td>15</td></tr>
+    <tr><td>Contrasting Colour (% max)</td><td colspan="4">—</td><td>&gt; 7</td></tr>
+  </tbody>
+</table>
+
+<h4>Mixed Wollega Sesame Seed</h4>
+<table class="erp-table">
+  <thead>
+    <tr><th>Grade</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>UG</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Foreign Matter (% max)</td><td>1</td><td>3</td><td>5</td><td>7</td><td>10</td><td>20</td></tr>
+    <tr><td>Contrasting Colour (% max)</td><td colspan="5">—</td><td>&gt; 10</td></tr>
+  </tbody>
+</table>
+<p><em>The lower of the two parameters determines the final grade. Any lot failing these requirements must be re-treated to comply.</em></p>
+
+<h2>3. Standard Trading Terms</h2>
+<ul>
+  <li><strong>Standard Lot Size:</strong> 50 quintals net weight (±4% tolerance)</li>
+  <li><strong>Maximum Order Size:</strong> 20 contracts (1,000 quintals) per transaction</li>
+  <li><strong>Tick Size:</strong> 1 Birr minimum price movement</li>
+  <li><strong>Daily Position Limit:</strong>
+    <ul>
+      <li>Member + all clients: 1,000 lots</li>
+      <li>Member or single client: 200 lots</li>
+    </ul>
+  </li>
+  <li><strong>Daily Price Filter:</strong> ±6% relative to previous close</li>
+  <li><strong>Warehouse Receipt:</strong> All trades must be backed by an ECX Warehouse Receipt (single use):
+    <ol>
+      <li>Producer → exporter</li>
+      <li>Exporter → exporter (for less-than-container re-trade)</li>
+    </ol>
+  </li>
+  <li><strong>Receipt Expiry:</strong> 60 days from deposit (expires on trade execution)</li>
+  <li><strong>Post-Expiry Penalty:</strong> 3.5% per day on the tradable value</li>
+  <li><strong>Quote Basis:</strong> “Ex-Warehouse”, exclusive of taxes/fees/charges</li>
+  <li><strong>Quotation Factor:</strong> Birr per quintal</li>
+  <li><strong>Trading Session:</strong> ሰኞ–አርብ (የህዝብ በዓል ቀናትን በስተቀር)</li>
+</ul>
+
+<h2>4. Standard Settlement Terms</h2>
+<ul>
+  <li><strong>Pay-in of Funds:</strong> Next business day (T+1)</li>
+  <li><strong>Pay-out of Funds:</strong> Next business day (T+1)</li>
+  <li><strong>Weight Tolerance Adjustment:</strong> Settled on the actual vs. contract weight difference</li>
+  <li><strong>Exchange Transaction Fee:</strong> 0.4% of transaction value (buyer &amp; seller)</li>
+  <li><strong>Handling &amp; Certification Fee:</strong>
+    <ul>
+      <li>Buyer: Birr 2.6 per bag/quintal</li>
+      <li>Seller: Birr 2.7 per bag/quintal</li>
+    </ul>
+  </li>
+  <li><strong>Warehouse Storage Charge:</strong>
+    <ul>
+      <li>First month: Birr 0.16 per bag/quintal/day</li>
+      <li>Second month: Birr 0.32 per bag/quintal/day</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>5. Standard Delivery Terms</h2>
+<ul>
+  <li><strong>Delivery Centers:</strong> Addis Ababa, Metema, Bure, Nekemte, Humera, Gondar, Asossa</li>
+  <li><strong>Delivery Notice:</strong> Next working day after trade date</li>
+  <li><strong>Pick-Up Notice (PUN):</strong> Issued after delivery notice, before T+5 calendar days</li>
+  <li><strong>Delivery Period:</strong> Trade date + 5 calendar days (T+5)</li>
+  <li><strong>Failure to Pick Up:</strong> 1% per day of trade value penalty after T+5</li>
+  <li><strong>Extension:</strong> Permitted by ECX for force majeure or approved written request</li>
+</ul>
+{% endblock %}

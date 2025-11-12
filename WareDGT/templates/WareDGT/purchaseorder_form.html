@@ -1,0 +1,11 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}New Purchase Order{% endblock %}
+
+{% block content %}
+<h1>Create Purchase Order</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Save</button>
+</form>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends 'WareDGT/layout.html' %}
+{% load ethiopian_calendar %}
+{% block title %}Borrowed Stocks{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Borrowed Stocks</h1>
+
+<div class="loan-toolbar">
+  <form method="get" id="loan-filter-form" class="loan-filter--inline">
+    <div class="filter-inline">
+      <input class="filter-input" name="borrower" value="{{ f_borrower }}" placeholder="Search borrower…" autocomplete="off">
+      <select class="filter-select" name="state">
+        <option value="outstanding" {% if f_state == 'outstanding' %}selected{% endif %}>Outstanding</option>
+        <option value="returned" {% if f_state == 'returned' %}selected{% endif %}>Returned</option>
+        <option value="all" {% if f_state == 'all' %}selected{% endif %}>All</option>
+      </select>
+      <button class="erp-btn">Apply</button>
+      <button type="button" class="erp-btn" id="toggle-advanced">Filters</button>
+      <a class="erp-btn" href="{% url 'borrowed_stocks_export' %}?borrower={{ f_borrower|urlencode }}&owner={{ f_owner|urlencode }}&warehouse={{ f_warehouse|urlencode }}&class={{ f_class|urlencode }}&state={{ f_state|urlencode }}" target="_blank">Export CSV</a>
+    </div>
+    <div class="filter-advanced" id="advanced-panel" hidden>
+      <select name="owner" class="filter-select">
+        <option value="">All owners</option>
+        {% for o in owners %}
+          <option value="{{ o.id }}" {% if f_owner == o.id|stringformat:'s' %}selected{% endif %}>{{ o.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="warehouse" class="filter-select">
+        <option value="">All warehouses</option>
+        {% for w in warehouses %}
+          <option value="{{ w.id }}" {% if f_warehouse == w.id|stringformat:'s' %}selected{% endif %}>{{ w.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="class" class="filter-select">
+        <option value="">All classes</option>
+        <option value="cleaned" {% if f_class == 'cleaned' %}selected{% endif %}>Cleaned</option>
+        <option value="reject" {% if f_class == 'reject' %}selected{% endif %}>Reject</option>
+        <option value="raw" {% if f_class == 'raw' %}selected{% endif %}>Raw</option>
+      </select>
+    </div>
+  </form>
+</div>
+
+{% if summary %}
+<div class="loan-summary" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
+  <div class="kpi-card"><div class="small text-muted">Outstanding (qtl)</div><div class="value">{{ summary.outstanding_qtl }}</div></div>
+  <div class="kpi-card"><div class="small text-muted">Open loans</div><div class="value">{{ summary.count }}</div></div>
+  {% if summary.borrowers %}
+  <div class="kpi-card"><div class="small text-muted">Borrowers</div><div class="value">{{ summary.borrowers|join:', ' }}</div></div>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="erp-card">
+  <div class="erp-card__body">
+    <h2 class="mt-0">Outstanding</h2>
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Created</th>
+          <th>Owner</th>
+          <th>Warehouse</th>
+          <th>Seed</th>
+          <th>Class</th>
+          <th>Borrower</th>
+          <th>Requested (qtl)</th>
+          <th>Outstanding (qtl)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in outstanding %}
+        <tr>
+          <td>{{ r.created_at|ethiopian_date }}</td>
+          <td>{{ r.owner }}</td>
+          <td>{{ r.warehouse }}</td>
+          <td><span class="chip">{{ r.seed_display }}</span></td>
+          <td><span class="chip chip--{{ r.stock_class }}">{{ r.stock_class }}</span></td>
+          <td><span class="chip chip--borrower">{{ r.borrower_display }}</span></td>
+          <td>{{ r.quantity_qtl }}</td>
+          <td>
+            <div class="loan-progress"><div class="loan-progress__bar" style="width: {{ r.progress_pct }}%"></div></div>
+            <small>{{ r.outstanding_qtl }} outstanding</small>
+          </td>
+          <td>
+            <button class="erp-btn" data-id="{{ r.id }}" data-max="{{ r.outstanding_qtl }}" data-class="{{ r.stock_class }}" data-meta="{{ r.borrower_display }} • {{ r.seed_display }} ({{ r.stock_class }})" onclick="openReturnModal(this)">Record Return</button>
+            <a class="erp-btn" href="{% url 'stockout_request_review_sm' r.id %}?t={{ r.approval_token }}" target="_blank">Review</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9">No outstanding borrowed stock.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2 class="mt-6">History</h2>
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Created</th>
+          <th>Owner</th>
+          <th>Warehouse</th>
+          <th>Seed</th>
+          <th>Class</th>
+          <th>Borrower</th>
+          <th>Requested (qtl)</th>
+          <th>Returned (qtl)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in history %}
+        <tr>
+          <td>{{ r.created_at|ethiopian_date }}</td>
+          <td>{{ r.owner }}</td>
+          <td>{{ r.warehouse }}</td>
+          <td><span class="chip">{{ r.seed_display }}</span></td>
+          <td><span class="chip chip--{{ r.stock_class }}">{{ r.stock_class }}</span></td>
+          <td><span class="chip chip--borrower">{{ r.borrower_display }}</span></td>
+          <td>{{ r.quantity_qtl }}</td>
+          <td>{{ r.returned_qtl }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">No historical borrows.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="return-modal" class="erp-modal" hidden>
+  <div class="erp-modal__dialog">
+    <div class="erp-modal__header">
+      <h3>Record Borrow Return</h3>
+      <button class="erp-modal__close" onclick="closeReturnModal()">×</button>
+    </div>
+    <div class="erp-modal__body">
+      <form id="return-form" class="loan-return">
+        <input type="hidden" id="ret-request-id">
+        <div class="loan-return__context">
+          <div class="loan-return__meta" id="ret-meta">—</div>
+          <div class="loan-return__out">
+            <div class="loan-progress"><div class="loan-progress__bar" id="ret-bar"></div></div>
+            <small><span id="ret-out"></span> qtl outstanding</small>
+          </div>
+        </div>
+        <div class="loan-return__class" id="ret-class-section">
+          <label class="qty-label">Class</label>
+          <div class="class-pills" id="ret-class-pills">
+            <label class="pill-radio"><input type="radio" name="ret_class" id="ret-class-cleaned" value="cleaned"><span>Cleaned</span></label>
+            <label class="pill-radio"><input type="radio" name="ret_class" id="ret-class-raw" value="raw"><span>Raw</span></label>
+          </div>
+          <div id="ret-class-fixed" class="chip chip--reject" style="display:none">Reject</div>
+          <small class="form-text text-muted" id="ret-class-hint">Return class must match the borrowed class.</small>
+        </div>
+
+        <div class="loan-return__qty">
+          <label class="qty-label">Quantity (qtl)</label>
+          <div class="qty-input">
+            <input type="number" step="0.01" id="ret-quantity" min="0" placeholder="0.00">
+            <div class="qty-actions">
+              <button type="button" class="pill" data-pct="25">25%</button>
+              <button type="button" class="pill" data-pct="50">50%</button>
+              <button type="button" class="pill" data-pct="100">Max</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="loan-return__uploads">
+          <div class="dropzone" id="dz-wb">
+            <input type="file" id="ret-wb" accept="image/*,application/pdf" hidden>
+            <div class="dz-body">
+              <div class="dz-title">Weighbridge Certificate</div>
+              <div class="dz-hint">Drop file here or click to choose</div>
+              <div class="dz-file" id="wb-file">No file</div>
+            </div>
+          </div>
+          <div class="dropzone" id="dz-doc">
+            <input type="file" id="ret-doc" accept="image/*,application/pdf" hidden>
+            <div class="dz-body">
+              <div class="dz-title">Warehouse Document</div>
+              <div class="dz-hint">Drop file here or click to choose</div>
+              <div class="dz-file" id="doc-file">No file</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-status error" id="ret-error" hidden></div>
+        <div class="form-status" id="ret-ok" hidden></div>
+      </form>
+    </div>
+    <div class="erp-modal__footer">
+      <button class="erp-btn" id="ret-save" onclick="submitReturn()">Save</button>
+      <button class="erp-btn" onclick="closeReturnModal()">Cancel</button>
+    </div>
+  </div>
+  <div class="erp-modal__backdrop" onclick="closeReturnModal()"></div>
+  </div>
+
+<script>
+function openReturnModal(btn){
+  var id = btn.getAttribute('data-id');
+  var max = parseFloat(btn.getAttribute('data-max')) || 0;
+  var meta = btn.getAttribute('data-meta') || '';
+  var cls = (btn.getAttribute('data-class') || '').toLowerCase();
+  document.getElementById('ret-request-id').value = id;
+  var qty = document.getElementById('ret-quantity');
+  qty.value = '';
+  qty.max = max;
+  document.getElementById('ret-meta').textContent = meta;
+  document.getElementById('ret-out').textContent = max.toFixed(2);
+  document.getElementById('ret-bar').style.width = '0%';
+  document.getElementById('wb-file').textContent = 'No file';
+  document.getElementById('doc-file').textContent = 'No file';
+  // Class radios
+  var rClean = document.getElementById('ret-class-cleaned');
+  var rRaw = document.getElementById('ret-class-raw');
+  var fixed = document.getElementById('ret-class-fixed');
+  var pills = document.getElementById('ret-class-pills');
+  fixed.style.display='none'; pills.style.display='';
+  rClean.disabled=false; rRaw.disabled=false; rClean.checked=false; rRaw.checked=false;
+  if (cls === 'cleaned') { rClean.checked=true; rRaw.disabled=true; }
+  else if (cls === 'raw') { rRaw.checked=true; rClean.disabled=true; }
+  else if (cls === 'reject') { pills.style.display='none'; fixed.style.display='inline-block'; }
+  document.getElementById('ret-error').hidden = true;
+  document.getElementById('ret-ok').hidden = true;
+  document.getElementById('return-modal').removeAttribute('hidden');
+}
+function closeReturnModal(){
+  document.getElementById('return-modal').setAttribute('hidden','');
+}
+function submitReturn(){
+  var id = document.getElementById('ret-request-id').value;
+  var qty = parseFloat(document.getElementById('ret-quantity').value);
+  var max = parseFloat(document.getElementById('ret-quantity').max);
+  var err = document.getElementById('ret-error');
+  var ok = document.getElementById('ret-ok');
+  if(!qty || qty<=0 || qty>max){
+    err.textContent = 'Enter a valid quantity (<= outstanding).';
+    err.hidden = false;
+    return;
+  }
+  err.hidden = true; ok.hidden = true;
+  var saveBtn = document.getElementById('ret-save');
+  var prevTxt = saveBtn.textContent; saveBtn.textContent='Saving…'; saveBtn.disabled=true;
+  var fd = new FormData();
+  fd.append('request_id', id);
+  fd.append('quantity', qty);
+  // Include class for UI validation (server uses original class)
+  var clsSel = (document.getElementById('ret-class-cleaned').checked ? 'cleaned' : (document.getElementById('ret-class-raw').checked ? 'raw' : ''));
+  if (clsSel) fd.append('stock_class', clsSel);
+  var wb = document.getElementById('ret-wb').files[0]; if (wb) fd.append('weighbridge_certificate', wb);
+  var doc = document.getElementById('ret-doc').files[0]; if (doc) fd.append('warehouse_document', doc);
+  // basic CSRF helper if not globally present
+  function _gc(n){
+    try { return document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(n+'='))?.split('=')[1]||''; } catch(e){ return ''; }
+  }
+  var csrf = (typeof getCookie==='function') ? getCookie('csrftoken') : _gc('csrftoken');
+  fetch('/api/stock/borrow/return', { method:'POST', body: fd, headers: { 'X-CSRFToken': csrf }})
+    .then(r=>r.json().then(d=>({ok:r.ok, d})))
+    .then(({ok,d})=>{
+      if(!ok){
+        err.textContent = d.error || 'Failed to save';
+        err.hidden = false; return;
+      }
+      ok=document.getElementById('ret-ok');
+      ok.textContent = 'Saved'; ok.hidden = false;
+      setTimeout(()=>{ window.location.reload(); }, 800);
+    })
+    .catch(()=>{ err.textContent='Network error'; err.hidden=false; })
+    .finally(()=>{ saveBtn.textContent=prevTxt; saveBtn.disabled=false; });
+}
+
+// Advanced filter toggle
+(function(){
+  var t = document.getElementById('toggle-advanced');
+  var p = document.getElementById('advanced-panel');
+  if (!t || !p) return;
+  t.addEventListener('click', function(){
+    if (p.hasAttribute('hidden')) p.removeAttribute('hidden');
+    else p.setAttribute('hidden','');
+  });
+})();
+
+// Quick % pills + live bar
+(function(){
+  var qty = document.getElementById('ret-quantity');
+  function onClick(){
+    var p = parseFloat(this.getAttribute('data-pct')); var max = parseFloat(qty.max||0);
+    if (!p||!max) return; var val = (p>=100)? max : (max * (p/100));
+    qty.value = (Math.floor(val*100)/100).toFixed(2);
+    document.getElementById('ret-bar').style.width = ((max - parseFloat(qty.value))/max * 100) + '%';
+  }
+  document.addEventListener('click', function(e){ if (e.target.matches('.qty-actions .pill')) onClick.call(e.target); });
+  if (qty) qty.addEventListener('input', function(){ var max=parseFloat(qty.max||0); var v=parseFloat(qty.value||0); if(max>0){ document.getElementById('ret-bar').style.width=((max - Math.max(0,Math.min(v,max)))/max*100)+'%'; }});
+})();
+
+// Drag & drop upload zones
+(function(){
+  function wire(zoneId,inputId,labelId){
+    var z=document.getElementById(zoneId), i=document.getElementById(inputId), l=document.getElementById(labelId);
+    if(!z||!i||!l) return; 
+    function setFile(f){ l.textContent = f ? (f.name + ' ('+Math.round(f.size/1024)+' KB)') : 'No file'; }
+    z.addEventListener('click', function(){ i.click(); });
+    i.addEventListener('change', function(){ setFile(this.files[0]); });
+    ;['dragenter','dragover'].forEach(ev=>z.addEventListener(ev, function(e){ e.preventDefault(); z.classList.add('is-drag'); }));
+    ;['dragleave','drop'].forEach(ev=>z.addEventListener(ev, function(e){ e.preventDefault(); z.classList.remove('is-drag'); }));
+    z.addEventListener('drop', function(e){ var f=e.dataTransfer.files[0]; if(f){ i.files = e.dataTransfer.files; setFile(f);} });
+  }
+  wire('dz-wb','ret-wb','wb-file');
+  wire('dz-doc','ret-doc','doc-file');
+})();
+</script>
+{% endblock %}

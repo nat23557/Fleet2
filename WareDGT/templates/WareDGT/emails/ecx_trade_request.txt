@@ -1,0 +1,16 @@
+Approval Required: ECX Trade Submission
+
+Submitted by: {{ submitter.get_full_name|default:submitter.username }}
+Warehouses: {{ warehouses|default:request_obj.warehouse.name }}
+Seed: {{ request_obj.symbol }} [{{ request_obj.grade }}]
+NOR: {{ request_obj.net_obligation_receipt_no }}
+Purchase Date: {{ request_obj.purchase_date }}
+
+Receipt Lines:
+{% for l in lines %}- [{{ l.warehouse_name }}] {{ l.symbol }} ({{ l.grade }}) — {{ l.warehouse_receipt_no }} — {{ l.quantity }} Qtls
+{% endfor %}
+
+Review & Approve:
+{{ review_url }}
+
+You’ll need to sign in with an Accountant account to approve.

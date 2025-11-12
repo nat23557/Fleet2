@@ -1,0 +1,735 @@
+{% extends 'WareDGT/layout.html' %}
+{% load ethiopian_calendar static %}
+{% block title %}ECX Console{% endblock %}
+
+{% block extra_css %}
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <style>
+    /* make sure the map is visible */
+    .ecx-map {
+      height: 650px;
+      width: 100%;
+    }
+    .warehouse-tooltip {
+      background: var(--bg-panel);
+      border: 1px solid var(--accent);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-weight: bold;
+      color: var(--text-light);
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">ECX Management Console</h1>
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+  {% if role|upper in 'ECX_OFFICER OPERATIONS_MANAGER ADMIN' %}
+  <p class="mb-4"><a href="{% url 'ecxload_create' %}" class="erp-btn">Record ECX Load</a></p>
+  {% endif %}
+  <div class="dashboard-grid">
+    <div class="dashboard-widget">
+      <div class="widget-header">Today’s Trades</div>
+      <div class="widget-value">{{ todays_trades }}</div>
+    </div>
+    <div class="dashboard-widget">
+      <div class="widget-header">Pending Settlements</div>
+      <div class="widget-value">{{ pending_settlements }}</div>
+    </div>
+    <div class="dashboard-widget">
+      <div class="widget-header">Upcoming Pick-Up Deadlines</div>
+      <div class="widget-value">{{ upcoming_pickups }}</div>
+    </div>
+    <div class="dashboard-widget">
+      <div class="widget-header">Overdue Pick-Ups</div>
+      <div class="widget-value negative">{{ overdue_pickups }}</div>
+    </div>
+  </div>
+
+  <h2 class="mt-8 mb-2 text-lg font-semibold">Today’s Trade Details</h2>
+  {% if todays_trade_list %}
+  <table class="erp-table">
+    <thead>
+      <tr>
+        <th>Commodity</th>
+        <th>Warehouse</th>
+        <th>Quantity (qtls)</th>
+        <th>Last Pickup Date</th>
+        <th>Days Remaining</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trade in todays_trade_list %}
+      <tr>
+        <td>{{ trade.commodity }}</td>
+        <td>{{ trade.warehouse }}</td>
+        <td>{{ trade.quantity_quintals }}</td>
+        <td>{{ trade.last_pickup_date|ethiopian_date }}</td>
+        <td>{{ trade.last_pickup_date|days_until }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No trades recorded today.</p>
+  {% endif %}
+
+  <h2 class="mt-8 mb-2 text-lg font-semibold">Upcoming Pickup Deadlines</h2>
+  {% if upcoming_trade_list %}
+  <table class="erp-table">
+    <thead>
+      <tr>
+        <th>Commodity</th>
+        <th>Warehouse</th>
+        <th>Quantity (qtls)</th>
+        <th>Deadline</th>
+        <th>Days Remaining</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trade in upcoming_trade_list %}
+      <tr>
+        <td>{{ trade.commodity }}</td>
+        <td>{{ trade.warehouse }}</td>
+        <td>{{ trade.quantity_quintals }}</td>
+        <td>{{ trade.last_pickup_date|ethiopian_date }}</td>
+        <td>{{ trade.last_pickup_date|days_until }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No upcoming deadlines.</p>
+  {% endif %}
+
+  <h2 class="mt-8 mb-2 text-lg font-semibold">Overdue Pickups</h2>
+  {% if overdue_trade_list %}
+  <table class="erp-table">
+    <thead>
+      <tr>
+        <th>Commodity</th>
+        <th>Warehouse</th>
+        <th>Quantity (qtls)</th>
+        <th>Deadline</th>
+        <th>Days Overdue</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trade in overdue_trade_list %}
+      <tr>
+        <td>{{ trade.commodity }}</td>
+        <td>{{ trade.warehouse }}</td>
+        <td>{{ trade.quantity_quintals }}</td>
+        <td>{{ trade.last_pickup_date|ethiopian_date }}</td>
+        <td>{{ trade.last_pickup_date|days_overdue }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No overdue pickups.</p>
+  {% endif %}
+
+  <div class="dashboard-widget mt-8 ecx-map-container">
+    <div id="ecx-map" class="ecx-map"></div>
+    <div class="ecx-map-controls">
+      <select id="filter-owner">
+        <option value="">All Owners</option>
+      </select>
+      <select id="filter-category">
+        <option value="">All Categories</option>
+      </select>
+      <select id="filter-symbol" disabled>
+        <option value="">All Seed Types</option>
+      </select>
+      <select id="filter-grade" disabled>
+        <option value="">All Grades</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <p><em>Interactive calendar coming soon…</em></p>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'WareDGT/js/ecx_console.js' %}"></script>
+  <!-- Leaflet core -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Current user's role to decide whether to submit for approval
+      // or record the load immediately.
+      var USER_ROLE = '{{ role|default:"" }}';
+      // Expand the map bounds so popups near the edges aren't clipped.
+      // Roughly cover Ethiopia and surrounding countries in East Africa.
+      var eastAfricaBounds = [
+        [-5, 28],  // southwest corner
+        [18, 52]   // northeast corner
+      ];
+
+      var map = L.map('ecx-map', {
+        center: [9.145, 40.489673],
+        zoom: 6,
+        maxBounds: eastAfricaBounds,
+        maxBoundsViscosity: 1.0
+      });
+
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { attribution: 'Tiles © Esri, DigitalGlobe, Earthstar Geographics' }
+      ).addTo(map);
+
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        { attribution: 'Reference © Esri' }
+      ).addTo(map);
+
+      var markers = [];
+      var seedTypes = [];
+
+      var categorySel = document.getElementById('filter-category');
+      var symbolSel = document.getElementById('filter-symbol');
+      var gradeSel = document.getElementById('filter-grade');
+      var ownerSel = document.getElementById('filter-owner');
+
+      function clearMarkers() {
+        markers.forEach(function (m) { map.removeLayer(m); });
+        markers = [];
+      }
+
+      function addMarkers(list) {
+        clearMarkers();
+        list.forEach(function (w) {
+          var marker = L.marker([w.latitude, w.longitude]).addTo(map);
+          var code = (w.code || '').substring(0, 3).toUpperCase();
+          marker.bindTooltip(code, { permanent: true, direction: 'top', className: 'warehouse-tooltip' });
+          var popupContent =
+            '<strong>' + w.name + '</strong><br>' +
+            (w.description || '') + '<br>' +
+            'Capacity: ' + w.capacity_quintals + ' Qtls';
+          if (w.stock_totals) {
+            popupContent += '<br><u>Stock:</u><ul class="stock-list">';
+            Object.keys(w.stock_totals).forEach(function (k) {
+              popupContent += '<li>' + k + ': ' + w.stock_totals[k] + ' Qtls</li>';
+            });
+            popupContent += '</ul>';
+          }
+          // Allow loading when a symbol is chosen; grade optional for multi-grade loads
+          if (w.stock_totals && symbolSel.value) {
+            var total = 0;
+            Object.keys(w.stock_totals).forEach(function (k) {
+              total += parseFloat(w.stock_totals[k]);
+            });
+            popupContent +=
+              '<button class="load-btn erp-btn" data-wid="' +
+              w.id +
+              '" data-total="' +
+              total +
+              '">Load</button>';
+          }
+          marker.bindPopup(popupContent);
+          marker.on('popupopen', function (e) {
+            var btn = e.popup.getElement().querySelector('.load-btn');
+            if (!btn) return;
+              // Helper to compute days remaining/overdue relative to today
+              function fmtDaysUntil(purchaseIso) {
+                try {
+                  var purchase = new Date(purchaseIso);
+                  var lastPickup = new Date(purchase.getTime() + 5 * 24 * 60 * 60 * 1000);
+                  var today = new Date();
+                  var msPerDay = 24 * 60 * 60 * 1000;
+                  var utcToday = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+                  var utcLast = Date.UTC(lastPickup.getFullYear(), lastPickup.getMonth(), lastPickup.getDate());
+                  var diff = Math.floor((utcLast - utcToday) / msPerDay);
+                  if (diff > 0) return diff + ' days remaining';
+                  if (diff === 0) return 'due today';
+                  return Math.abs(diff) + ' days overdue';
+                } catch (e) {
+                  return '';
+                }
+              }
+            btn.addEventListener('click', function (ev) {
+                ev.stopPropagation();
+                var max = btn.dataset.total;
+                var plombsField, hasTrailerField, trailerCountField, truckImageField;
+
+                function showQuantityForm() {
+                  var formHtml =
+                    '<form class="load-form">' +
+                    '<label>Plombs/Seals<input type="number" name="plombs_count" min="0" value="0" required></label>' +
+                    '<label><input type="checkbox" name="has_trailer"> Has Trailer</label>' +
+                    '<label>Trailer Count<input type="number" name="trailer_count" min="0" value="0"></label>' +
+                    '<label>Truck Image<input type="file" name="truck_image" accept="image/*"></label>' +
+                    '<label>Truck Plate No<input type="text" name="truck_plate_no" maxlength="20" placeholder="e.g. ABC-12345"></label>' +
+                    '<label>Trailer Plate No<input type="text" name="trailer_plate_no" maxlength="20" placeholder="optional"></label>' +
+                    '<label>Qty (Qtls)<input type="number" name="quantity" step="0.01" max="' +
+                    max +
+                    '" required></label>' +
+                    '<label>Loading Date (optional)<input type="date" name="loading_date"></label>' +
+                    '<button type="submit" class="erp-btn">Submit</button>' +
+                    '</form>';
+                  e.popup.setContent(formHtml);
+                  var form = e.popup.getElement().querySelector('form');
+                  plombsField = form.querySelector('input[name=plombs_count]');
+                  hasTrailerField = form.querySelector('input[name=has_trailer]');
+                  trailerCountField = form.querySelector('input[name=trailer_count]');
+                  truckImageField = form.querySelector('input[name=truck_image]');
+                  form.addEventListener('click', function (ev) {
+                    ev.stopPropagation();
+                  });
+                  form.addEventListener('submit', function (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    var fd = new FormData(form);
+                    fd.append('symbol', symbolSel.value);
+                    if (gradeSel.value) fd.append('grade', gradeSel.value);
+                    if (ownerSel && ownerSel.value) fd.append('owner', ownerSel.value);
+                    var ld = form.querySelector('input[name=loading_date]').value;
+                    if (ld) fd.append('loading_date', ld);
+                    previewLoad(fd);
+                  });
+                }
+
+                function showSelectionForm(trades, maxQty, preselected, prefillDate, preAllocations) {
+                  preselected = preselected || [];
+                  preAllocations = preAllocations || {};
+                  var list = trades
+                    .filter(function (t) { return t && t.id; })
+                    .map(function (t) {
+                      var checked = preselected.indexOf(t.id) !== -1 ? ' checked' : '';
+                      var alloc = (preAllocations[t.id] != null)
+                        ? parseFloat(preAllocations[t.id])
+                        : (checked ? Math.min(parseFloat(t.quantity || 0), parseFloat(maxQty || 0)) : 0);
+                      if (isNaN(alloc) || alloc < 0) alloc = 0;
+                      var maxForThis = parseFloat(t.quantity || 0) || 0;
+                      var status = fmtDaysUntil(t.purchase_date);
+                      return (
+                        '<label class="trade-line" style="display:block;margin-bottom:6px">'
+                        + '<input type="checkbox" name="trade_ids" value="' + t.id + '" data-qty="' + t.quantity + '"' + checked + '> '
+                        + t.net_obligation_receipt_no + ' / ' + t.warehouse_receipt_no
+                        + ' [G: ' + (t.grade || '-') + '] '
+                        + '(' + t.quantity + ' Qtls, ' + t.purchase_date_ethiopian + ' — ' + status + ')'
+                        + '<br><small>Use (Qtls): </small>'
+                        + '<input type="number" class="use-qty" name="alloc_' + t.id + '" step="0.01" min="0" max="' + maxForThis + '" value="' + alloc + '" style="width:120px">'
+                        + '<small> of ' + maxForThis + '</small>'
+                        + '</label>'
+                      );
+                    })
+                    .join('<br>');
+                  var formHtml =
+                    '<form class="select-form">' +
+                    list +
+                    '<p>Total selected: <span id="selected-total">0</span> / ' +
+                    maxQty +
+                    ' Qtls</p>' +
+                    '<label>Loading Date (optional)<input type="date" name="loading_date" value="' + (prefillDate || '') + '"></label>' +
+                    '<button type="submit" class="erp-btn">Preview</button>' +
+                    '</form>';
+                  e.popup.setContent(formHtml);
+                  var form = e.popup.getElement().querySelector('form');
+                  form.addEventListener('click', function (ev) {
+                    ev.stopPropagation();
+                  });
+                  var totalSpan = form.querySelector('#selected-total');
+                  var limit = parseFloat(maxQty);
+                  function updateTotal() {
+                    var total = 0;
+                    form.querySelectorAll('input.use-qty').forEach(function (inp) {
+                      var cb = inp.closest('.trade-line').querySelector('input[name=trade_ids]');
+                      var v = parseFloat(inp.value || '0');
+                      var max = parseFloat(cb.dataset.qty || '0');
+                      if (!cb.checked) v = 0;
+                      if (isNaN(v) || v < 0) v = 0;
+                      if (!isNaN(max) && v > max) v = max;
+                      inp.value = isNaN(v) ? '0' : v.toFixed(2);
+                      total += v;
+                    });
+                    totalSpan.textContent = total.toFixed(2);
+                    return total;
+                  }
+                  form.querySelectorAll('input[name=trade_ids]').forEach(function (c) {
+                    c.addEventListener('change', function () { updateTotal(); });
+                  });
+                  form.querySelectorAll('input.use-qty').forEach(function (i) {
+                    i.addEventListener('input', function () { updateTotal(); });
+                  });
+                  updateTotal();
+                  form.addEventListener('submit', function (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    var total = updateTotal();
+                    if (Math.abs(total - limit) > 0.0001) {
+                      showMessage('error',
+                        'Selected quantity (' +
+                          total.toFixed(2) +
+                          ') must equal ' +
+                          limit +
+                          ' Qtls'
+                      );
+                      return;
+                    }
+                    var fd = new FormData();
+                    form.querySelectorAll('input[name=trade_ids]').forEach(function (c) {
+                      var alloc = form.querySelector('input[name="alloc_' + c.value + '"]');
+                      var used = parseFloat(alloc && alloc.value || '0');
+                      if (c.checked && used > 0) {
+                        fd.append('trade_ids', c.value);
+                        fd.append('alloc_' + c.value, used.toFixed(2));
+                      }
+                    });
+                    fd.append('quantity', total.toFixed(2));
+                    fd.append('symbol', symbolSel.value);
+                    if (gradeSel.value) fd.append('grade', gradeSel.value);
+                    var ld = form.querySelector('input[name=loading_date]').value;
+                    if (ld) fd.append('loading_date', ld);
+                    if (plombsField) fd.append('plombs_count', plombsField.value || '0');
+                    if (hasTrailerField && hasTrailerField.checked) fd.append('has_trailer', 'on');
+                    if (trailerCountField) fd.append('trailer_count', trailerCountField.value || '0');
+                    if (truckImageField && truckImageField.files && truckImageField.files[0]) {
+                      fd.append('truck_image', truckImageField.files[0]);
+                    }
+                    previewLoad(fd);
+                  });
+                }
+
+                function previewLoad(fd) {
+                  var fdPreview = new FormData();
+                  fd.forEach(function (value, key) {
+                    fdPreview.append(key, value);
+                  });
+                  if (ownerSel && ownerSel.value && !fdPreview.has('owner')) {
+                    fdPreview.append('owner', ownerSel.value);
+                  }
+                  fetch('/api/warehouses/' + btn.dataset.wid + '/load/?preview=1', {
+                    method: 'POST',
+                    body: fdPreview,
+                    headers: {
+                      'X-CSRFToken': document.querySelector('input[name=csrfmiddlewaretoken]').value
+                    },
+                    credentials: 'same-origin'
+                  })
+                    .then(function (r) {
+                      if (r.ok) return r.json();
+                      return r.text().then(function (t) { return { error: t || 'Preview failed' }; });
+                    })
+                    .then(function (data) {
+                      // If the server capped quantity for preview, it may still
+                      // include an error message. Show it, but continue to render
+                      // the preview so the user can confirm or edit.
+                      if (data.error && !data.trades) {
+                        showMessage('error', data.error || 'Failed to preview load');
+                        return;
+                      }
+                      if (data.error && data.available_trades) {
+                        showMessage('error', data.error);
+                      }
+                      // Populate trade IDs from the preview response so that
+                      // the final load request includes them. Without these
+                      // IDs, the backend rejects the request as missing fields.
+                      fd.delete('trade_ids');
+                      // Clean any previous allocations so we re-append fresh
+                      Array.from(fd.keys()).forEach(function (k) {
+                        if (String(k).startsWith('alloc_')) fd.delete(k);
+                      });
+                      if (Array.isArray(data.trades)) {
+                        data.trades.forEach(function (t) {
+                          if (t && t.id !== undefined) {
+                            fd.append('trade_ids', t.id);
+                            // carry the per-trade allocation amount for confirm
+                            if (t.quantity) {
+                              fd.append('alloc_' + t.id, t.quantity);
+                            }
+                          }
+                        });
+                      }
+                      var previewHtml =
+                        '<div class="load-preview">' +
+                        '<ul>' +
+                        data.trades
+                          .map(function (t) {
+                            var status = fmtDaysUntil(t.purchase_date);
+                            return (
+                              '<li>' +
+                              t.net_obligation_receipt_no +
+                              ' / ' +
+                              t.warehouse_receipt_no +
+                              ' [G: ' + (t.grade || '-') + ']' +
+                              ' - ' +
+                              t.quantity +
+                              ' Qtls (Purchase: ' +
+                              t.purchase_date_ethiopian +
+                              ') — ' + status +
+                              '</li>'
+                            );
+                          })
+                          .join('') +
+                        '</ul>' +
+                        '<p>Total: ' + data.total_quantity + ' Qtls</p>' +
+                        (Array.isArray(data.grade_groups) && data.grade_groups.length > 0
+                          ? (
+                              '<div class="group-files"><strong>Receipts per Grade</strong><br>' +
+                              data.grade_groups
+                                .map(function (g) {
+                                  return (
+                                    '<label>Receipt (' + g.origin + ' / G: ' + g.grade + ')' +
+                                    ' <input type="file" name="file_' + g.index + '" accept="image/*,application/pdf"></label>'
+                                  );
+                                })
+                                .join('<br>') +
+                              '</div>'
+                            )
+                          : ''
+                        ) +
+                        '<button type="button" class="edit-btn erp-btn">Edit</button>' +
+                        '<button type="button" class="confirm-btn erp-btn">Confirm Load</button>' +
+                        '</div>';
+                      e.popup.setContent(previewHtml);
+                      var container = e.popup.getElement();
+                      var requested = data.total_quantity;
+                      container
+                        .querySelector('.edit-btn')
+                        .addEventListener('click', function (ev) {
+                          ev.stopPropagation();
+                          // Build pre-allocations map for editing
+                          var preAlloc = {};
+                          (data.trades || []).forEach(function (t) { preAlloc[t.id] = parseFloat(t.quantity || '0') || 0; });
+                          showSelectionForm(
+                            data.available_trades || [],
+                            requested,
+                            data.trades.map(function (t) {
+                              return t.id;
+                            }),
+                            (fd.get && fd.get('loading_date')) || '',
+                            preAlloc
+                          );
+                        });
+                      container
+                        .querySelector('.confirm-btn')
+                        .addEventListener('click', function (ev) {
+                          ev.stopPropagation();
+                          // Append any per-grade files chosen in the preview UI
+                          var groupFiles = container.querySelectorAll('input[type=file][name^="file_"]');
+                          groupFiles.forEach(function (inp) {
+                            if (inp.files && inp.files[0]) {
+                              fd.append(inp.name, inp.files[0]);
+                            }
+                          });
+                          confirmLoad(fd);
+                        });
+                    })
+                    .catch(function () {
+                      showMessage('error', 'Failed to preview load');
+                    });
+                }
+
+                function confirmLoad(fd) {
+                  var fdFinal = new FormData();
+                  fd.forEach(function (value, key) { fdFinal.append(key, value); });
+                  if (ownerSel && ownerSel.value && !fdFinal.has('owner')) {
+                    fdFinal.append('owner', ownerSel.value);
+                  }
+                  var csrf = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+                  if (USER_ROLE === 'ECX_AGENT') {
+                    // For agents, submit a request for approval
+                    var fdReq = new FormData();
+                    fd.forEach(function (value, key) {
+                      if (key === 'trade_ids') {
+                        fdReq.append('trade_ids[]', value);
+                      } else {
+                        fdReq.append(key, value);
+                      }
+                    });
+                    fdReq.append('warehouse_id', btn.dataset.wid);
+                    if (!fdReq.has('symbol') && symbolSel.value) fdReq.append('symbol', symbolSel.value);
+                    if (!fdReq.has('grade') && gradeSel.value) fdReq.append('grade', gradeSel.value);
+                    fetch('/ecx-loads/request-from-map/', {
+                      method: 'POST',
+                      body: fdReq,
+                      headers: { 'X-CSRFToken': csrf },
+                      credentials: 'same-origin'
+                    })
+                      .then(function (r) { if (r.ok) return r.json(); return r.text().then(function (t) { return { ok: false, error: t || ('HTTP ' + r.status) }; }); })
+                      .then(function (data) {
+                        if (data.ok) {
+                          map.closePopup();
+                          showMessage('success', 'Submitted for approval');
+                          fetchWarehouses();
+                        } else {
+                          showMessage('error', data.error || 'Failed to submit request');
+                          showQuantityForm();
+                        }
+                      })
+                      .catch(function () {
+                        showMessage('error', 'Failed to submit request');
+                        showQuantityForm();
+                      });
+                  } else {
+                    // Logistics manager/admin/officer: record immediately
+                    // Ensure trade_ids are named correctly
+                    var fdDirect = new FormData();
+                    fd.forEach(function (value, key) {
+                      if (key === 'trade_ids[]') {
+                        fdDirect.append('trade_ids', value);
+                      } else {
+                        fdDirect.append(key, value);
+                      }
+                    });
+                    fetch('/api/warehouses/' + btn.dataset.wid + '/load/', {
+                      method: 'POST',
+                      body: fdDirect,
+                      headers: { 'X-CSRFToken': csrf },
+                      credentials: 'same-origin'
+                    })
+                      .then(function (r) { if (r.ok) return r.json(); return r.text().then(function (t) { return { ok: false, error: t || ('HTTP ' + r.status) }; }); })
+                      .then(function (data) {
+                        if (data.ok || data.success) {
+                          map.closePopup();
+                          showMessage('success', 'Load recorded');
+                          fetchWarehouses();
+                        } else if (data.error) {
+                          showMessage('error', data.error);
+                        } else {
+                          showMessage('error', 'Failed to record load');
+                        }
+                      })
+                      .catch(function () {
+                        showMessage('error', 'Failed to record load');
+                      });
+                  }
+                }
+
+                showQuantityForm();
+              });
+          });
+          markers.push(marker);
+        });
+      }
+
+      function fetchWarehouses() {
+        var params = [];
+        var owner = ownerSel.value;
+        var cat = categorySel.value;
+        var sym = symbolSel.value;
+        var grade = gradeSel.value;
+        if (owner) params.push('owner=' + encodeURIComponent(owner));
+        if (cat) params.push('category=' + encodeURIComponent(cat));
+        if (sym) params.push('symbol=' + encodeURIComponent(sym));
+        if (grade) params.push('grade=' + encodeURIComponent(grade));
+        var url = '/api/warehouses/';
+        if (params.length) url += '?' + params.join('&');
+        fetch(url, { credentials: 'same-origin' })
+          .then(function (r) { return r.json(); })
+          .then(addMarkers)
+          .catch(function (err) { console.error('Failed to load warehouses', err); });
+      }
+
+      function fetchOwners() {
+        var params = [];
+        var cat = categorySel.value;
+        var sym = symbolSel.value;
+        var grade = gradeSel.value;
+        if (cat) params.push('category=' + encodeURIComponent(cat));
+        if (sym) params.push('symbol=' + encodeURIComponent(sym));
+        if (grade) params.push('grade=' + encodeURIComponent(grade));
+        var url = '/api/ecx/owners/';
+        if (params.length) url += '?' + params.join('&');
+        fetch(url, { credentials: 'same-origin' })
+          .then(function (r) { return r.json(); })
+          .then(function (list) {
+            var current = ownerSel.value;
+            ownerSel.innerHTML = '<option value="">All Owners</option>' +
+              (Array.isArray(list) ? list.map(function(o){ return '<option value="' + o.id + '">' + o.name + ' (' + o.count + ')</option>'; }).join('') : '');
+            if (current) ownerSel.value = current;
+          })
+          .catch(function (err) { console.error('Failed to load owners', err); });
+      }
+
+      function populateCategories() {
+        var cats = new Set(seedTypes.map(function (s) { return s.category; }));
+        cats.forEach(function (c) {
+          var opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c.charAt(0) + c.slice(1).toLowerCase();
+          categorySel.appendChild(opt);
+        });
+      }
+
+      function populateSymbols() {
+        symbolSel.innerHTML = '<option value="">All Seed Types</option>';
+        gradeSel.innerHTML = '<option value="">All Grades</option>';
+        var cat = categorySel.value;
+        var symbols = new Set();
+        seedTypes.forEach(function (s) {
+          if (!cat || s.category === cat) symbols.add(s.symbol);
+        });
+        symbols.forEach(function (sym) {
+          var opt = document.createElement('option');
+          opt.value = sym;
+          opt.textContent = sym;
+          symbolSel.appendChild(opt);
+        });
+        symbolSel.disabled = symbols.size === 0;
+        gradeSel.disabled = true;
+      }
+
+      function populateGrades() {
+        gradeSel.innerHTML = '<option value="">All Grades</option>';
+        var cat = categorySel.value;
+        var sym = symbolSel.value;
+        var grades = new Set();
+        seedTypes.forEach(function (s) {
+          if ((!cat || s.category === cat) && (!sym || s.symbol === sym)) {
+            s.grade.split(',').forEach(function (g) { grades.add(g.trim()); });
+          }
+        });
+        grades.forEach(function (g) {
+          var opt = document.createElement('option');
+          opt.value = g;
+          opt.textContent = g;
+          gradeSel.appendChild(opt);
+        });
+        gradeSel.disabled = grades.size === 0;
+      }
+
+      categorySel.addEventListener('change', function () {
+        populateSymbols();
+        fetchOwners();
+        fetchWarehouses();
+      });
+      symbolSel.addEventListener('change', function () {
+        populateGrades();
+        fetchOwners();
+        fetchWarehouses();
+      });
+      gradeSel.addEventListener('change', fetchWarehouses);
+      ownerSel.addEventListener('change', fetchWarehouses);
+
+      fetch('/api/seed-type-details/', { credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var items = Array.isArray(data) ? data : data.results;
+          if (Array.isArray(items)) {
+            seedTypes = items;
+            populateCategories();
+            populateSymbols();
+          }
+        })
+        .catch(function (err) { console.error('Failed to load seed types', err); });
+
+      // initial owners list
+      fetchOwners();
+      fetchWarehouses();
+    });
+  </script>
+{% endblock %}

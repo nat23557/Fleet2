@@ -1,0 +1,94 @@
+{% comment %}Shared sidebar navigation{% endcomment %}
+<nav>
+  {% with role=request.user.profile.role|upper %}
+    {% if role == 'WEIGHBRIDGE_OPERATOR' %}
+      <div class="erp-sidebar__section">
+        <h4 class="erp-sidebar__section-title">Operations</h4>
+        <ul class="erp-sidebar__list">
+          <li><a href="{% url 'dashboard' %}" class="erp-sidebar__link">📊 <span>Dashboard</span></a></li>
+          <li><a href="{% url 'stock_movements' %}" class="erp-sidebar__link">🚚 <span>Stock Movements</span></a></li>
+        </ul>
+      </div>
+    {% endif %}
+    {% if role == 'ECX_AGENT' %}
+      <div class="erp-sidebar__section">
+        <h4 class="erp-sidebar__section-title">ECX Operations</h4>
+        <ul class="erp-sidebar__list">
+          <li><a href="{% url 'ecx_console' %}" class="erp-sidebar__link">🖥 <span>ECX Console</span></a></li>
+        </ul>
+      </div>
+    {% endif %}
+    {% if role == 'WAREHOUSE_OFFICER' or role == 'OPERATIONS_MANAGER' or role == 'ADMIN' %}
+      <div class="erp-sidebar__section">
+        <h4 class="erp-sidebar__section-title">Operations</h4>
+        <ul class="erp-sidebar__list">
+          {% if role == 'ADMIN' %}
+          <li><a href="{% url 'sm_dashboard' %}" class="erp-sidebar__link">📊 <span>Dashboard</span></a></li>
+          {% else %}
+          <li><a href="{% url 'dashboard' %}" class="erp-sidebar__link">📊 <span>Dashboard</span></a></li>
+          {% endif %}
+          {% if role == 'OPERATIONS_MANAGER' or role == 'ADMIN'%}
+          <li><a href="{% url 'stock_movements' %}" class="erp-sidebar__link">🚚 <span>Stock Movements</span></a></li>
+          {% endif %}
+          <li><a href="{% url 'daily_records' %}" class="erp-sidebar__link">📝 <span>Daily Records</span></a></li>
+          {% if role == 'OPERATIONS_MANAGER' or role == 'ADMIN' %}
+          <li><a href="{% url 'request_list' %}" class="erp-sidebar__link">📥 <span>Requests</span></a></li>
+          {% endif %}
+        </ul>
+      </div>
+    {% endif %}
+    {% if role == 'ECX_OFFICER' or role == 'OPERATIONS_MANAGER' or role == 'ADMIN' %}
+      <div class="erp-sidebar__section">
+        <h4 class="erp-sidebar__section-title">Purchasing</h4>
+        <ul class="erp-sidebar__list">
+          <li><a href="{% url 'ecxtrade_list' %}" class="erp-sidebar__link">🗒 <span>ECX Trades</span></a></li>
+          {% if role != 'ECX_OFFICER' %}
+          <li><a href="{% url 'ecx_console' %}" class="erp-sidebar__link">🖥 <span>ECX Console</span></a></li>
+          <li><a href="{% url 'contract_movement_list' %}" class="erp-sidebar__link">📦 <span>Contract Stocks</span></a></li>
+          {% endif %}
+        </ul>
+      </div>
+    {% endif %}
+    {% if role == 'ACCOUNTANT' %}
+      <div class="erp-sidebar__section">
+        <h4 class="erp-sidebar__section-title">Approvals</h4>
+        <ul class="erp-sidebar__list">
+          <li><a href="{% url 'contract_movement_request_list' %}" class="erp-sidebar__link">📦 <span>Contract Stock Requests</span></a></li>
+          <li><a href="{% url 'ecxtrade_request_list' %}" class="erp-sidebar__link">✅ <span>ECX Trade Approvals</span></a></li>
+          <li><a href="{% url 'accountant_overview' %}" class="erp-sidebar__link">📈 <span>Overview</span></a></li>
+        </ul>
+      </div>
+    {% endif %}
+    {% if role == 'WAREHOUSE_OFFICER' or role == 'OPERATIONS_MANAGER' or role == 'ADMIN' %}
+      <div class="erp-sidebar__section">
+        <h4 class="erp-sidebar__section-title">Inventory</h4>
+        <ul class="erp-sidebar__list">
+          <li><a href="{% url 'bin_cards' %}" class="erp-sidebar__link">📋 <span>Bin Cards</span></a></li>
+          <li><a href="{% url 'local_purchases' %}" class="erp-sidebar__link">🛒 <span>Local Purchases</span></a></li>
+          <li><a href="{% url 'stock_levels' %}" class="erp-sidebar__link">📈 <span>Stock Levels</span></a></li>
+          {% if role == 'OPERATIONS_MANAGER' or role == 'ADMIN' %}
+          <li><a href="{% url 'borrowed_stocks' %}" class="erp-sidebar__link">🔁 <span>Borrowed Stocks</span></a></li>
+          {% endif %}
+        </ul>
+      </div>
+    {% endif %}
+    {% if role == 'ADMIN' or role == 'OPERATIONS_MANAGER' %}
+      <div class="erp-sidebar__section">
+        <h4 class="erp-sidebar__section-title">Reporting</h4>
+        <ul class="erp-sidebar__list">
+          <li><a href="{% url 'reports' %}" class="erp-sidebar__link">📊 <span>Reports</span></a></li>
+        </ul>
+      </div>
+    {% endif %}
+    {% if role == 'ADMIN' %}
+      <div class="erp-sidebar__section">
+        <h4 class="erp-sidebar__section-title">Admin</h4>
+        <ul class="erp-sidebar__list">
+          <li><a href="{% url 'user_list' %}" class="erp-sidebar__link">👤 <span>Users & Roles</span></a></li>
+          <li><a href="{% url 'warehouse_list' %}" class="erp-sidebar__link">🏠 <span>Warehouses</span></a></li>
+          <li><a href="{% url 'seedtypedetail_list' %}" class="erp-sidebar__link">📄 <span>Seed Types</span></a></li>
+        </ul>
+      </div>
+    {% endif %}
+  {% endwith %}
+</nav>

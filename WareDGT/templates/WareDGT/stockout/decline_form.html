@@ -1,0 +1,20 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Decline Stock Out Request{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Decline Stock Out Request</h1>
+<div class="erp-card">
+  <div class="erp-card__body">
+    <p><strong>Officer:</strong> {{ req.created_by.get_full_name|default:req.created_by.username }}</p>
+    <p><strong>Warehouse:</strong> {{ req.warehouse }}</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mt-3">
+        <label>Reason</label>
+        <textarea name="reason" rows="3" class="w-full" required placeholder="Provide a clear justification">{{ reason|default:'' }}</textarea>
+      </div>
+      <button type="submit" class="erp-btn danger mt-2">Decline</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

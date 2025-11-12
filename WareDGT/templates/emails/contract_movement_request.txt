@@ -1,0 +1,19 @@
+Contract stock request requires approval.
+
+Owner: {{ cmr.owner }}
+Category: {{ payload.category }}
+Symbol: {{ payload.symbol }}
+Quantity: {{ payload.quantity_quintals }} qtl
+{% if payload.origin %}Origin: {{ payload.origin }}
+{% endif %}
+{% if payload.agent_name or payload.agent_phone %}Agent: {{ payload.agent_name }} {{ payload.agent_phone }}
+{% endif %}
+{% if payload.advice_number %}Advice No.: {{ payload.advice_number }}
+{% endif %}
+Dispatch No.: {{ payload.dispatch_number }}
+{% if payload.notes %}Notes: {{ payload.notes }}
+{% endif %}
+Submitted by: {{ cmr.created_by }}
+
+Review the request:
+{{ review_url }}

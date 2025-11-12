@@ -1,0 +1,188 @@
+{% extends 'WareDGT/layout.html' %}
+{% load ethiopian_calendar %}
+{% block title %}Stock Movements{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Stock Movements</h1>
+
+{% if role == 'WEIGHBRIDGE_OPERATOR' %}
+<h2 class="mt-4">Pending ECX Movements</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Warehouse</th>
+      <th>Item Type(s)</th>
+      <th>Quantity (qtls)</th>
+      <th>Vehicle</th>
+      <th class="receipts-col">Receipts</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sh in shipments %}
+    <tr>
+      <td>{{ sh.warehouse }}</td>
+      <td>{{ sh.item_types }}</td>
+      <td>{{ sh.quantity_quintals }}</td>
+      <td>
+        <div class="vehicle-info">
+          {% if sh.truck_image %}
+            <a class="vehicle-thumb" href="{{ sh.truck_image }}" target="_blank" rel="noopener">
+              <img src="{{ sh.truck_image }}" alt="truck" />
+            </a>
+          {% endif %}
+          <div class="plate-stack">
+            <span class="plate-chip">{{ sh.truck_plate|default:'-' }}</span>
+            <span class="plate-chip trailer">{{ sh.trailer_plate|default:'-' }}</span>
+          </div>
+        </div>
+      </td>
+      <td class="receipts-col">
+        <div class="receipt-thumbs">
+          {% if sh.images %}
+            {% for u in sh.images %}
+              {% if forloop.counter <= 3 %}
+                <a class="thumb" href="{{ u }}" target="_blank" rel="noopener">
+                  <img src="{{ u }}" alt="receipt" />
+                </a>
+              {% elif forloop.counter == 4 %}
+                <span class="more">+{{ sh.images|length|add:'-3' }} more</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if sh.files %}
+            {% for f in sh.files %}
+              {% if forloop.counter <= 2 %}
+                <a class="badge" href="{{ f }}" target="_blank" rel="noopener">PDF</a>
+              {% elif forloop.counter == 3 %}
+                <span class="more">+{{ sh.files|length|add:'-2' }} more</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if not sh.images and not sh.files %}-{% endif %}
+        </div>
+      </td>
+      <td><a href="{% url 'ecx_shipment_weigh' sh.id %}" class="erp-btn">Weigh</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No pending movements.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<h2 class="mt-4">ECX Movements by Truck</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Warehouse</th>
+      <th>Item Type(s)</th>
+      <th>Net Obligation Receipt</th>
+      <th>Warehouse Receipt</th>
+      <th>Vehicle</th>
+      <th class="receipts-col">Receipts</th>
+      <th>Quantity (qtls)</th>
+      <th>Purchase Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sh in shipments %}
+    <tr>
+      <td>{{ sh.warehouse }}</td>
+      <td>{{ sh.item_types }}</td>
+      <td>{{ sh.net_obligation_receipt_no }}</td>
+      <td>{{ sh.warehouse_receipt_no }}</td>
+      <td>
+        <div class="vehicle-info">
+          {% if sh.truck_image %}
+            <a class="vehicle-thumb" href="{{ sh.truck_image }}" target="_blank" rel="noopener">
+              <img src="{{ sh.truck_image }}" alt="truck" />
+            </a>
+          {% endif %}
+          <div class="plate-stack">
+            <span class="plate-chip">{{ sh.truck_plate|default:'-' }}</span>
+            <span class="plate-chip trailer">{{ sh.trailer_plate|default:'-' }}</span>
+          </div>
+        </div>
+      </td>
+      <td class="receipts-col">
+        <div class="receipt-thumbs">
+          {% if sh.images %}
+            {% for u in sh.images %}
+              {% if forloop.counter <= 3 %}
+                <a class="thumb" href="{{ u }}" target="_blank" rel="noopener">
+                  <img src="{{ u }}" alt="receipt" />
+                </a>
+              {% elif forloop.counter == 4 %}
+                <span class="more">+{{ sh.images|length|add:'-3' }} more</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if sh.files %}
+            {% for f in sh.files %}
+              {% if forloop.counter <= 2 %}
+                <a class="badge" href="{{ f }}" target="_blank" rel="noopener">PDF</a>
+              {% elif forloop.counter == 3 %}
+                <span class="more">+{{ sh.files|length|add:'-2' }} more</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if not sh.images and not sh.files %}-{% endif %}
+        </div>
+      </td>
+      <td>{{ sh.quantity_quintals }}</td>
+      <td>{{ sh.purchase_date|ethiopian_date }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">No movements recorded.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="mt-6">Contract Stocks (In Transit)</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Created</th>
+      <th>Owner</th>
+      <th>Category</th>
+      <th>Symbol</th>
+      <th>Origin</th>
+      <th>Qty (qtl)</th>
+      <th>Agent</th>
+      <th>Advice No</th>
+      <th>Dispatch No</th>
+      <th>Dispatch Image</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in contract_list %}
+    <tr>
+      <td>{{ c.created_at }}</td>
+      <td>{{ c.owner|default:'ThermoFam Trading PLC' }}</td>
+      <td>{{ c.get_category_display }}</td>
+      <td>{{ c.symbol }}</td>
+      <td>{{ c.origin }}</td>
+      <td>{{ c.quantity_quintals }}</td>
+      <td>{{ c.agent_name }}</td>
+      <td>{{ c.advice_number }}</td>
+      <td>{{ c.dispatch_number }}</td>
+      <td>
+        {% if c.dispatch_image %}
+          <a href="{{ c.dispatch_image.url }}" target="_blank" rel="noopener">
+            <img src="{{ c.dispatch_image.url }}" class="cmv-thumb" alt="dispatch" />
+          </a>
+        {% else %}-{% endif %}
+      </td>
+      <td>{{ c.get_status_display }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="11">No in-transit contract stocks.</td></tr>
+    {% endfor %}
+  </tbody>
+
+</table>
+{% endif %}
+{% endblock %}

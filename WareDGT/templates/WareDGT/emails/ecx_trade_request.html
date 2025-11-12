@@ -1,0 +1,44 @@
+{% extends "emails/base_email.html" %}
+{% block email_body %}
+<tr><td style="font-size:18px;font-weight:700;color:#0d6efd;">Approval Required: ECX Trade Submission</td></tr>
+<tr><td style="padding-top:10px;font-size:14px;line-height:1.6;color:#212529">
+  <b>Submitted by:</b> {{ submitter.get_full_name|default:submitter.username }}<br/>
+  <b>Owner:</b> {{ request_obj.owner }}<br/>
+  <b>Seed:</b> {{ request_obj.symbol }} [{{ request_obj.grade }}] &nbsp; <b>NOR:</b> {{ request_obj.net_obligation_receipt_no }}<br/>
+  <b>Warehouses:</b> {{ warehouses }}<br/>
+  <b>Purchase Date:</b> {{ request_obj.purchase_date }}<br/>
+  {% if total_quantity %}<b>Total Quantity:</b> {{ total_quantity }} qtl{% endif %}
+</td></tr>
+<tr><td style="padding-top:10px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th align="left" style="border:1px solid #e6e8eb;padding:8px;background:#f8f9fa;">Warehouse</th>
+        <th align="left" style="border:1px solid #e6e8eb;padding:8px;background:#f8f9fa;">Seed</th>
+        <th align="left" style="border:1px solid #e6e8eb;padding:8px;background:#f8f9fa;">Grade</th>
+        <th align="left" style="border:1px solid #e6e8eb;padding:8px;background:#f8f9fa;">Receipt No</th>
+        <th align="left" style="border:1px solid #e6e8eb;padding:8px;background:#f8f9fa;">Quantity (Qtls)</th>
+        <th align="left" style="border:1px solid #e6e8eb;padding:8px;background:#f8f9fa;">Image</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for l in lines %}
+      <tr>
+        <td style="border:1px solid #e6e8eb;padding:8px;">{{ l.warehouse_name }}</td>
+        <td style="border:1px solid #e6e8eb;padding:8px;">{{ l.symbol }}</td>
+        <td style="border:1px solid #e6e8eb;padding:8px;">{{ l.grade }}</td>
+        <td style="border:1px solid #e6e8eb;padding:8px;">{{ l.warehouse_receipt_no }}</td>
+        <td style="border:1px solid #e6e8eb;padding:8px;">{{ l.quantity }}</td>
+        <td style="border:1px solid #e6e8eb;padding:8px;">{% if l.file_url %}<img src="{{ l.file_url }}" alt="Receipt {{ forloop.counter }}" style="max-height:80px;" />{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</td></tr>
+<tr><td align="left" style="padding-top:12px;">
+  <a href="{{ review_url }}" style="background:#0d6efd;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:600;display:inline-block;">Review & Approve</a>
+  <a href="{{ review_url }}" style="background:#dc3545;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:600;display:inline-block;margin-left:8px;">Decline</a>
+</td></tr>
+<tr><td style="padding-top:10px;font-size:12px;color:#6c757d">If the button doesn’t work, copy and paste this link into your browser:</td></tr>
+<tr><td style="word-break:break-all; color:#0d6efd; font-size:12px;">{{ review_url }}</td></tr>
+{% endblock %}

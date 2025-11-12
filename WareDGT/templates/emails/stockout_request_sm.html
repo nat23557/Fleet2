@@ -1,0 +1,14 @@
+{% extends 'emails/base_email.html' %}
+{% block content %}
+  <h2>Borrow Stock Out – Approval Needed (System Manager)</h2>
+  <p><strong>Request:</strong> {{ req.id }}</p>
+  <p><strong>Warehouse:</strong> {{ req.warehouse }}</p>
+  <p><strong>Owner:</strong> {{ req.owner }}</p>
+  <p><strong>Borrower:</strong> {{ req.borrower }}</p>
+  <p>
+    <a href="{{ approve_url }}">Approve</a> |
+    <a href="{{ decline_url }}">Decline</a> |
+    <a href="{{ review_url }}">Review</a>
+  </p>
+{% endblock %}
+

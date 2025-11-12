@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +15,12 @@
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
   <!-- New UI polish: header + buttons -->
   <link rel="stylesheet" href="{% static 'css/ui.css' %}">
+  <!-- Cash module styling -->
+  <link rel="stylesheet" href="{% static 'css/cash.css' %}">
+  <!-- Terminal monitor styling -->
+  <link rel="stylesheet" href="{% static 'css/terminal.css' %}">
+  <!-- Transaction form styling -->
+  <link rel="stylesheet" href="{% static 'css/txn.css' %}">
 </head>
 <body>
 
@@ -178,6 +184,7 @@
             {% if user_role == 'ADMIN' or user_role == 'MANAGER' %}
             <a class="qa-btn" href="{% url 'admin_actions_hub' %}"><span class="qa-ico">🛠️</span><div>Administrative Actions<div class="qa-hint">Users, trucks, drivers</div></div></a>
             {% endif %}
+            <a class="qa-btn" href="{% url 'cash_management:banks' %}"><span class="qa-ico">💵</span><div>Cash<div class="qa-hint">Management</div></div></a>
             <a class="qa-btn" href="{% url 'truck-list' %}"><span class="qa-ico">🚚</span><div>View Trucks<div class="qa-hint">Open fleet</div></div></a>
             <a class="qa-btn" href="{% url 'truck-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">🚚</span><div>Register Truck<div class="qa-hint">Add a new vehicle</div></div></a>
             <a class="qa-btn" href="{% url 'driver-create' %}?next={% url 'home_hub' %}"><span class="qa-ico">👤</span><div>Register Driver<div class="qa-hint">Create driver profile</div></div></a>
@@ -772,3 +779,7 @@
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>
+
+
+
+

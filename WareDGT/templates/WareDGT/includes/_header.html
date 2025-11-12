@@ -1,0 +1,102 @@
+{% load static %}
+<header id="erp-header" class="erp-header shadow-md">
+  <div class="erp-header__left flex items-center gap-4">
+    <!-- Sidebar toggle button -->
+    <button
+      id="erp-sidebar-toggle"
+      class="erp-header__icon-btn"
+      aria-label="Toggle sidebar"
+      title="Toggle sidebar"
+      type="button"
+    >
+      <span class="erp-header__emoji" aria-hidden="true">☰</span>
+    </button>
+
+    <!-- Logo → link back to Fleet simple hub -->
+    <a href="{% url 'home_hub' %}" id="erp-logo-container" class="erp-logo-container relative" title="Go to Hub">
+      <img
+        src="{% static 'images/Thermologo.jpg' %}"
+        alt="ThermoFam Trading PLC"
+        class="erp-logo"
+      />
+      <span class="erp-logo__status"></span>
+    </a>
+
+    <span class="erp-header__system-name erp-header__system-name--full">ThermoFam Warehouse ERP</span>
+    <span class="erp-header__system-name erp-header__system-name--short">ThermoFam Warehouse ERP</span>
+  </div>
+
+  <div class="erp-header__right flex items-center gap-5">
+    <span id="erp-user-info" class="erp-header__user-info">
+      {{ request.user.get_full_name }} – {{ request.user.profile.get_role_display }}
+    </span>
+
+    <!-- Notification Button -->
+    <div class="erp-header__dropdown relative">
+      <button
+        id="erp-header__notif-btn"
+        class="erp-header__icon-btn"
+        aria-label="Notifications"
+      >
+        <span class="erp-header__emoji" aria-hidden="true">🔔</span>
+        <span class="erp-header__label">Notifications</span>
+      </button>
+      <ul id="erp-header__notif-menu" class="erp-header__dropdown-menu">
+        <li><a href="{% url 'notifications' %}">📥 All Notifications</a></li>
+        <li><a href="#">✅ Mark All Read</a></li>
+      </ul>
+    </div>
+
+    <!-- Messages Button -->
+    <div class="erp-header__dropdown relative">
+      <button
+        id="erp-header__msg-btn"
+        class="erp-header__icon-btn"
+        aria-label="Messages"
+      >
+        <span class="erp-header__emoji" aria-hidden="true">✉️</span>
+        <span class="erp-header__label">Messages</span>
+      </button>
+      <ul id="erp-header__msg-menu" class="erp-header__dropdown-menu">
+        <li><a href="{% url 'messages' %}">📨 Inbox</a></li>
+        <li><a href="#">📤 Sent</a></li>
+      </ul>
+    </div>
+
+    <!-- Settings Button -->
+    <div class="erp-header__dropdown relative">
+      <button
+        id="erp-header__settings-btn"
+        class="erp-header__icon-btn"
+        aria-label="Settings"
+      >
+        <span class="erp-header__emoji" aria-hidden="true">⚙️</span>
+        <span class="erp-header__label">Settings</span>
+      </button>
+      <ul id="erp-header__settings-menu" class="erp-header__dropdown-menu">
+        <li><a href="{% url 'user-profile' %}">👤 Profile</a></li>
+        <li><a href="{% url 'logout' %}">🚪 Log out</a></li>
+      </ul>
+    </div>
+
+    <!-- Compact mobile menu -->
+    <div class="erp-header__dropdown relative erp-header__mobile-menu">
+      <button
+        id="erp-header__mobile-menu-btn"
+        class="erp-header__icon-btn"
+        aria-label="Menu"
+      >
+        <span class="erp-header__emoji" aria-hidden="true">⋮</span>
+        <span class="erp-header__label">Menu</span>
+      </button>
+      <ul id="erp-header__mobile-menu-list" class="erp-header__dropdown-menu">
+        <li><a href="{% url 'notifications' %}">📥 Notifications</a></li>
+        <li><a href="#">✅ Mark All Read</a></li>
+        <li><a href="{% url 'messages' %}">✉️ Inbox</a></li>
+        <li><a href="#">📤 Sent</a></li>
+        <li><a href="{% url 'user-profile' %}">👤 Profile</a></li>
+        <li><a href="{% url 'logout' %}">🚪 Log out</a></li>
+      </ul>
+    </div>
+  </div>
+</header>

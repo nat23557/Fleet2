@@ -1,0 +1,11 @@
+Your ECX Load Request was {{ approved|yesno:"Approved,Declined" }}
+Warehouse: {{ req.warehouse }}
+Plombs/Seals: {{ req.plombs_count }}{% if req.has_trailer %} Trailer(s): {{ req.trailer_count }}{% endif %}
+{% if req.truck_image %}Truck image: {{ req.truck_image.url }}{% endif %}
+{% for rf in req.receipt_files.all %}Load request receipt: {{ rf.file.url }}
+{% endfor %}
+Trades:
+{% for t in req.trades.all %}- {{ t.receipt_no }} – {{ t.seed_type }} – {{ t.quantity }}
+  {% for r in t.receipt_files.all %}Receipt: {{ r.file.url }}
+  {% endfor %}
+{% endfor %}

@@ -1,0 +1,29 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Warehouses{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Warehouses</h1>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Capacity (qtls)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for w in object_list %}
+    <tr>
+      <td>{{ w.code }}</td>
+      <td>{{ w.name }}</td>
+      <td>{{ w.description }}</td>
+      <td>{{ w.capacity_quintals }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No warehouses found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="mt-4"><a href="{% url 'warehouse_create' %}" class="erp-btn">Add Warehouse</a></p>
+{% endblock %}

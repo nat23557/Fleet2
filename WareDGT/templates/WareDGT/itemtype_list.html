@@ -1,0 +1,25 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Seed Types{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Seed Types</h1>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in object_list %}
+    <tr>
+      <td>{{ t.code }}</td>
+      <td>{{ t.description }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="2">No seed types found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="mt-4"><a href="{% url 'itemtype_create' %}" class="erp-btn">Add Seed Type</a></p>
+{% endblock %}

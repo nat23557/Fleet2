@@ -1,0 +1,261 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Accountant Overview{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Accountant Overview</h1>
+
+<div class="erp-card">
+  <div class="erp-card__header">Filters</div>
+  <div class="erp-card__body">
+    <!-- Bin-card style quick filter bar -->
+    <div class="ecx-filter-bar" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+      <input id="ownerFilter" list="ownerOptions" placeholder="Filter owner" autocomplete="off" />
+      <datalist id="ownerOptions"></datalist>
+      <input id="symbolFilter" list="symbolOptions" placeholder="Filter seed symbol" autocomplete="off" />
+      <datalist id="symbolOptions"></datalist>
+      <input id="gradeFilter" list="gradeOptions" placeholder="Filter grade" autocomplete="off" />
+      <datalist id="gradeOptions"></datalist>
+      <input id="dateFilter" list="dateOptions" placeholder="Filter purchase date" autocomplete="off" />
+      <datalist id="dateOptions"></datalist>
+      <button type="button" id="clearFiltersBtn" class="erp-btn" style="margin-left:4px;">Clear</button>
+      <a class="erp-btn" href="{% url 'accountant_overview' %}">Reset</a>
+    </div>
+  </div>
+
+  <div class="erp-card__body" style="display:flex; gap:16px; flex-wrap:wrap;">
+    <div class="erp-stat">
+      <div class="erp-stat__label">ECX Trades Total (Qtls)</div>
+      <div class="erp-stat__value"><span id="ecxTotalCounter" data-default="{{ ecx_total|default:0 }}">{{ ecx_total|default:0 }}</span></div>
+    </div>
+    <div class="erp-stat">
+      <div class="erp-stat__label">Contract Stocks Total (Qtls)</div>
+      <div class="erp-stat__value"><span id="cmTotalCounter" data-default="{{ cm_total|default:0 }}">{{ cm_total|default:0 }}</span></div>
+    </div>
+  </div>
+
+  <div id="noFiltersHint" class="erp-alert" style="display:none; margin: 8px 16px 16px;">
+    Add a filter to see breakdown details.
+  </div>
+</div>
+
+<div id="ecxCard" class="erp-card">
+  <div class="erp-card__header">ECX Trades (Grouped by Seed, Grade, Owner, Date)</div>
+  <div class="erp-card__body">
+    <table id="ecxTable" class="erp-table">
+      <thead>
+        <tr>
+          <th class="seed-col">Seed</th>
+          <th class="grade-col">Grade</th>
+          <th class="owner-col">Owner</th>
+          <th class="date-col">Purchase Date</th>
+          <th>Total (Qtls)</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in ecx_rows %}
+        <tr
+          data-owner-name="{{ r.owner__name }}"
+          data-symbol="{{ r.commodity__seed_type__code }}"
+          data-grade="{{ r.commodity__grade }}"
+          data-date="{{ r.purchase_date }}"
+          data-total="{{ r.total }}"
+        >
+          <td class="seed-col">{{ r.commodity__seed_type__code }}</td>
+          <td class="grade-col">{{ r.commodity__grade }}</td>
+          <td class="owner-col">{{ r.owner__name }}</td>
+          <td class="date-col">{{ r.purchase_date }}</td>
+          <td class="total-col">{{ r.total }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">No ECX trade data for the current filter.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="cmCard" class="erp-card">
+  <div class="erp-card__header">Contract Stocks (Grouped by Seed, Owner)</div>
+  <div class="erp-card__body">
+    <p style="margin:0 0 8px 0;color:#6c757d;font-size:12px;">Note: Contract stocks are shown as totals by owner and seed; a specific purchase date is not tracked.</p>
+    <table id="cmTable" class="erp-table">
+      <thead>
+        <tr>
+          <th class="seed-col">Seed Symbol</th>
+          <th class="owner-col">Owner</th>
+          <th>Total (Qtls)</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in cm_rows %}
+        <tr data-owner-name="{{ r.owner__name }}" data-symbol="{{ r.symbol }}" data-total="{{ r.total }}">
+          <td class="seed-col">{{ r.symbol }}</td>
+          <td class="owner-col">{{ r.owner__name }}</td>
+          <td class="total-col">{{ r.total }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="3">No contract stock data for the current filter.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const HAS_SERVER_FILTERS = {% if filters.owner or filters.symbol or filters.grade or filters.purchase_date %}true{% else %}false{% endif %};
+  const ownerFilter = document.getElementById('ownerFilter');
+  const ownerOptions = document.getElementById('ownerOptions');
+  const symbolFilter = document.getElementById('symbolFilter');
+  const symbolOptions = document.getElementById('symbolOptions');
+  const gradeFilter = document.getElementById('gradeFilter');
+  const gradeOptions = document.getElementById('gradeOptions');
+  const dateFilter  = document.getElementById('dateFilter');
+  const dateOptions = document.getElementById('dateOptions');
+  const clearBtn = document.getElementById('clearFiltersBtn');
+
+  const ecxTable = document.getElementById('ecxTable');
+  const cmTable  = document.getElementById('cmTable');
+  const ecxCard  = document.getElementById('ecxCard');
+  const cmCard   = document.getElementById('cmCard');
+  const noFiltersHint = document.getElementById('noFiltersHint');
+  const ecxRows = ecxTable ? Array.from(ecxTable.querySelectorAll('tbody tr')) : [];
+  const cmRows  = cmTable ? Array.from(cmTable.querySelectorAll('tbody tr')) : [];
+
+  // Build option lists from rows (combine ECX + CM for owner/symbol)
+  const owners = new Set();
+  const symbols = new Set();
+  const grades = new Set();
+  const dates  = new Set();
+  ecxRows.forEach(r => {
+    const o = r.dataset.ownerName || '';
+    const s = r.dataset.symbol || '';
+    const g = r.dataset.grade || '';
+    const d = r.dataset.date  || '';
+    if (o) owners.add(o);
+    if (s) symbols.add(s);
+    if (g) grades.add(g);
+    if (d) dates.add(d);
+  });
+  cmRows.forEach(r => {
+    const o = r.dataset.ownerName || '';
+    const s = r.dataset.symbol || '';
+    if (o) owners.add(o);
+    if (s) symbols.add(s);
+  });
+  function populate(list, target) {
+    if (!target) return;
+    target.innerHTML = '';
+    Array.from(list).sort().forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; target.appendChild(opt);
+    });
+  }
+  populate(owners, ownerOptions);
+  populate(symbols, symbolOptions);
+  populate(grades, gradeOptions);
+  populate(dates,  dateOptions);
+
+  function toggleColumn(table, cls, hide) {
+    if (!table) return;
+    const th = table.querySelector('th.' + cls);
+    const tds = table.querySelectorAll('td.' + cls);
+    const display = hide ? 'none' : '';
+    if (th) th.style.display = display;
+    tds.forEach(td => td.style.display = display);
+  }
+
+  function anyFiltersActive() {
+    const owner = (ownerFilter && ownerFilter.value) || '';
+    const sym   = (symbolFilter && symbolFilter.value) || '';
+    const grade = (gradeFilter && gradeFilter.value) || '';
+    const date  = (dateFilter  && dateFilter.value)  || '';
+    return !!(owner || sym || grade || date);
+  }
+
+  function updateTotals() {
+    const ecxTotalNode = document.getElementById('ecxTotalCounter');
+    const cmTotalNode  = document.getElementById('cmTotalCounter');
+    const any = anyFiltersActive();
+    if (!any && !HAS_SERVER_FILTERS) {
+      if (ecxTotalNode) ecxTotalNode.textContent = ecxTotalNode.dataset.default || '0';
+      if (cmTotalNode)  cmTotalNode.textContent  = cmTotalNode.dataset.default  || '0';
+      return;
+    }
+    let ecxSum = 0, cmSum = 0;
+    ecxRows.forEach(r => {
+      if (r.style.display !== 'none') {
+        const v = parseFloat(r.dataset.total || '0');
+        if (!isNaN(v)) ecxSum += v;
+      }
+    });
+    cmRows.forEach(r => {
+      if (r.style.display !== 'none') {
+        const v = parseFloat(r.dataset.total || '0');
+        if (!isNaN(v)) cmSum += v;
+      }
+    });
+    if (ecxTotalNode) ecxTotalNode.textContent = (Math.round(ecxSum * 100) / 100).toFixed(2);
+    if (cmTotalNode)  cmTotalNode.textContent  = (Math.round(cmSum  * 100) / 100).toFixed(2);
+  }
+
+  function filterRows() {
+    const owner = (ownerFilter && ownerFilter.value) || '';
+    const sym   = (symbolFilter && symbolFilter.value) || '';
+    const grade = (gradeFilter && gradeFilter.value) || '';
+    const date  = (dateFilter  && dateFilter.value)  || '';
+
+    ecxRows.forEach(r => {
+      const ok = (!owner || r.dataset.ownerName === owner)
+        && (!sym   || r.dataset.symbol === sym)
+        && (!grade || r.dataset.grade  === grade)
+        && (!date  || r.dataset.date   === date);
+      r.style.display = ok ? '' : 'none';
+    });
+    cmRows.forEach(r => {
+      const ok = (!owner || r.dataset.ownerName === owner)
+        && (!sym   || r.dataset.symbol === sym);
+      r.style.display = ok ? '' : 'none';
+    });
+
+    // Toggle repeated columns when a filter is set (like bin card)
+    const hideOwner = !!owner;
+    const hideSeed  = !!sym;
+    const hideGrade = !!grade;
+    const hideDate  = !!date;
+    toggleColumn(ecxTable, 'owner-col', hideOwner);
+    toggleColumn(ecxTable, 'seed-col',  hideSeed);
+    toggleColumn(ecxTable, 'grade-col', hideGrade);
+    toggleColumn(ecxTable, 'date-col',  hideDate);
+    toggleColumn(cmTable,  'owner-col', hideOwner);
+    toggleColumn(cmTable,  'seed-col',  hideSeed);
+
+    // Show detail cards only if filters are active or server applied filters
+    const showDetails = !!(owner || sym || grade || date || HAS_SERVER_FILTERS);
+    if (ecxCard) ecxCard.style.display = showDetails ? '' : 'none';
+    if (cmCard)  cmCard.style.display  = showDetails ? '' : 'none';
+    if (noFiltersHint) noFiltersHint.style.display = showDetails ? 'none' : '';
+
+    updateTotals();
+  }
+
+  if (ownerFilter) ownerFilter.addEventListener('input', filterRows);
+  if (symbolFilter) symbolFilter.addEventListener('input', filterRows);
+  if (gradeFilter) gradeFilter.addEventListener('input', filterRows);
+  if (dateFilter)  dateFilter.addEventListener('input',  filterRows);
+  if (clearBtn) clearBtn.addEventListener('click', function () {
+    if (ownerFilter) ownerFilter.value = '';
+    if (symbolFilter) symbolFilter.value = '';
+    if (gradeFilter) gradeFilter.value = '';
+    if (dateFilter)  dateFilter.value = '';
+    filterRows();
+  });
+
+  // Initial render: apply visibility and totals based on current state
+  filterRows();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  backdrop-filter: blur(6px);
+  background: rgba(20, 31, 18, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.filter-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.filter-inputs label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #4b5563;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.filter-chip .count {
+  opacity: 0.6;
+}
+.as-of-pill {
+  margin-left: auto;
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: #111827;
+  color: #fff;
+  font-size: 0.75rem;
+}
+.chart-wrapper {
+  position: relative;
+}
+#stockChart {
+  max-height: 400px;
+}
+#docPreview {
+  position: absolute;
+  display: none;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 4px;
+  z-index: 10;
+  pointer-events: none;
+}
+#docPreview img {
+  width: 80px;
+  height: auto;
+  margin: 2px;
+}
+/* Keep layout styles; rotation removed */
+/* No rotation is applied anymore. */
+
+.erp-message .btn-close {
+  filter: invert(1);
+  margin-left: 0.5rem;
+}
+#orientation-alert {
+  position: fixed;
+  top: calc(var(--erp-header-height, 4rem) + 1.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  max-width: min(92vw, 520px);
+}
+
+/* Rotation removed; no special rotated overrides needed */

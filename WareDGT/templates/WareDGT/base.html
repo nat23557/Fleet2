@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WMS{% endblock %}</title>
+  <link href="{% static 'WareDGT/css/styles.css' %}" rel="stylesheet">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% if messages %}
+  <div id="messages" class="erp-messages">
+    {% for msg in messages %}
+    <div class="erp-message {{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+  <script src="{% static 'WareDGT/js/scripts.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

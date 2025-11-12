@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+{% load static crispy_forms_tags %}
+
+{% block content %}
+<div class="dashboard" style="max-width:700px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:1rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">{{ title }}</h1>
+      <p class="dashboard-subtext">Manage bank accounts</p>
+    </div>
+    <div class="dashboard-hero-meta">
+      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}">⬅ Back</a>
+    </div>
+  </div>
+
+  <section class="section">
+    <form method="post" class="form">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div style="display:flex; gap:.5rem;">
+        <button class="cta-button" type="submit">Save</button>
+        <a class="btn btn-ghost" href="{% url 'cash_management:dashboard' %}">Cancel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}
+

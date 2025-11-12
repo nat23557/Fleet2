@@ -1,0 +1,14 @@
+ECX Load Request Pending
+
+{{ req.created_by.get_full_name|default:req.created_by.username }} submitted a load request for {{ req.warehouse }}.
+
+Trades:
+{% for t in req.trades.all %}
+- {{ t.commodity }} / {{ t.warehouse_receipt_no }} / {{ t.quantity_quintals }} qtls
+{% endfor %}
+{% if req.truck_image %}Truck image: {{ req.truck_image.url }}
+{% endif %}
+{% for rf in req.receipt_files.all %}Receipt: {{ rf.file.url }}
+{% endfor %}
+
+Review request: {{ review_url }}

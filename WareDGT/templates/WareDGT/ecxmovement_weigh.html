@@ -1,0 +1,57 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Weigh ECX Movement{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Weigh ECX Movement</h1>
+{% if movement.shipment %}
+<div class="erp-panel" style="margin-bottom:1rem;">
+  <div><strong>Shipment:</strong> {{ movement.shipment.id }}</div>
+  <div><strong>Truck Plate:</strong> {{ veh_truck_plate|default:"-" }}</div>
+  <div><strong>Trailer Plate:</strong> {{ veh_trailer_plate|default:"-" }}</div>
+  {% if veh_truck_image %}
+    <div style="margin-top:8px;">
+      <img src="{{ veh_truck_image }}" alt="Truck image" style="max-width:320px; height:auto; border:1px solid var(--border); border-radius:6px;" />
+    </div>
+  {% endif %}
+</div>
+{% endif %}
+<form method="post" enctype="multipart/form-data" class="erp-form upload-card">
+  {% csrf_token %}
+  <div class="upload-grid">
+    <div class="upload-preview" id="wb-preview">No file selected</div>
+    <div>
+      <label class="file-input">
+        <button type="button" class="choose-btn">Choose File</button>
+        <span class="file-name" id="wb-fname">{{ form.weighbridge_certificate.label }}</span>
+        {{ form.weighbridge_certificate }}
+      </label>
+      <div class="upload-hint">Accepted: PDF, JPG, PNG. This certificate will be stored on this movement.</div>
+    </div>
+  </div>
+  <div style="margin-top: 1rem;">
+    <button type="submit" class="erp-btn">Attach Certificate</button>
+  </div>
+</form>
+
+<script>
+  (function(){
+    var input = document.querySelector('input[name="weighbridge_certificate"]');
+    var fname = document.getElementById('wb-fname');
+    var preview = document.getElementById('wb-preview');
+    var chooseBtn = document.querySelector('.file-input .choose-btn');
+    if (input) input.setAttribute('accept', 'image/*,application/pdf');
+    if (chooseBtn) chooseBtn.addEventListener('click', function(){ input && input.click(); });
+    function previewFile(file){
+      if (!file) { preview.textContent = 'No file selected'; return; }
+      fname.textContent = file.name + ' (' + Math.round(file.size/1024) + ' KB)';
+      if (file.type && file.type.indexOf('image') === 0){
+        var url = URL.createObjectURL(file);
+        preview.innerHTML = '<img src="' + url + '" alt="preview">';
+      } else {
+        preview.textContent = 'Selected: ' + file.name;
+      }
+    }
+    if (input) input.addEventListener('change', function(){ previewFile(this.files && this.files[0]); });
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Review Trade Request{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Review ECX Trade Request</h1>
+
+<div class="erp-card">
+  <div class="erp-card__header">Submission Overview</div>
+  <div class="erp-card__body">
+    <p><strong>Submitter:</strong> {{ request_obj.created_by.get_full_name|default:request_obj.created_by.username }}</p>
+    <p><strong>Submitted:</strong> {{ request_obj.created_at }}</p>
+    <p><strong>Owner:</strong> {{ request_obj.owner }}</p>
+    <p><strong>Seed:</strong> {{ request_obj.symbol }} [{{ request_obj.grade }}]</p>
+    <p><strong>NOR:</strong> {{ request_obj.net_obligation_receipt_no }}</p>
+    <p><strong>Purchase Date:</strong> {{ request_obj.purchase_date }}</p>
+    {% if total_quantity %}
+    <p><strong>Total Quantity:</strong> {{ total_quantity }} Qtls</p>
+    {% endif %}
+    <h3>Receipt Lines</h3>
+    <table class="erp-table">
+      <thead>
+        <tr><th>Warehouse</th><th>Seed</th><th>Grade</th><th>Receipt No</th><th>Quantity (Qtls)</th><th>Receipt Image</th></tr>
+      </thead>
+      <tbody>
+        {% for line in lines_display %}
+        <tr>
+          <td>{{ line.warehouse_name }}</td>
+          <td>{{ line.symbol }}</td>
+          <td>{{ line.grade }}</td>
+          <td>{{ line.warehouse_receipt_no }}</td>
+          <td>{{ line.quantity }}</td>
+          <td>{% if line.file %}<a href="{{ line.file.file.url }}" target="_blank"><img src="{{ line.file.file.url }}" alt="Receipt {{ forloop.counter }}" style="max-height:80px;"></a>{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<form method="post" class="mt-4">
+  {% csrf_token %}
+  <label>Reason
+    <textarea name="note" rows="3" class="w-full"></textarea>
+  </label>
+  <div class="mt-3">
+    <button type="submit" name="action" value="approve" class="erp-btn primary">Approve & Register</button>
+    <button type="submit" name="action" value="decline" class="erp-btn danger">Decline</button>
+  </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}{% if form.instance.pk %}Edit User{% else %}Add User{% endif %}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">{% if form.instance.pk %}Edit User{% else %}Add User{% endif %}</h1>
+<form method="post" class="erp-form">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    {% if field.name != 'warehouses' %}
+      <div class="form-group">
+        {{ field.label_tag }} {{ field }}
+        {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %}
+        {% for error in field.errors %}<div class="error">{{ error }}</div>{% endfor %}
+      </div>
+    {% endif %}
+  {% endfor %}
+  <div id="warehouse-field" class="form-group" style="display:none;">
+    {{ form.warehouses.label_tag }} {{ form.warehouses }}
+    <small class="text-muted">Select ECX warehouses for this agent (multiple allowed).</small>
+    {% for error in form.warehouses.errors %}<div class="error">{{ error }}</div>{% endfor %}
+  </div>
+  <button type="submit" class="erp-btn">Save</button>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function(){
+    const roleSelect = document.getElementById("id_role");
+    const whGroup = document.getElementById("warehouse-field");
+    function toggleWarehouses(){
+      if (!roleSelect) return;
+      const v = roleSelect.value || "";
+      if (v === "ECX_AGENT") {
+        whGroup.style.display = "";
+      } else {
+        whGroup.style.display = "none";
+        const select = document.getElementById("id_warehouses");
+        if (select) [...select.options].forEach(o => o.selected = false);
+      }
+    }
+    roleSelect && roleSelect.addEventListener("change", toggleWarehouses);
+    toggleWarehouses();
+  })();
+</script>
+{% endblock %}
+

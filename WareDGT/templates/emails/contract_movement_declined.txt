@@ -1,0 +1,2 @@
+Your contract stock request was declined.
+{% if cmr.decision_note %}Reason: {{ cmr.decision_note }}{% endif %}

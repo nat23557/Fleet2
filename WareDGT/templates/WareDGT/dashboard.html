@@ -1,0 +1,68 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <h1 id="dashboard-title" class="dashboard__title">Dashboard</h1>
+
+  <section id="dashboard-widgets" class="dashboard__grid">
+    {% if role|upper in 'WAREHOUSE_OFFICER OPERATIONS_MANAGER ADMIN ECX_OFFICER' %}
+    <!-- Inbound Today -->
+    <article id="widget-inbound" class="dashboard-widget dashboard-widget--inbound">
+      <div class="dashboard-widget__header">Inbound Today (qtls)</div>
+      <div class="dashboard-widget__value">{{ inbound_today }}</div>
+    </article>
+
+    <!-- Outbound Today -->
+    <article id="widget-outbound" class="dashboard-widget dashboard-widget--outbound">
+      <div class="dashboard-widget__header">Outbound Today (qtls)</div>
+      <div class="dashboard-widget__value">{{ outbound_today }}</div>
+    </article>
+    {% endif %}
+
+    {% if role|upper in 'WAREHOUSE_OFFICER OPERATIONS_MANAGER ADMIN' %}
+    <!-- Pending QC -->
+    <article id="widget-pending-qc" class="dashboard-widget dashboard-widget--pending-qc">
+      <div class="dashboard-widget__header">Pending QC Tests</div>
+      <div class="dashboard-widget__value">{{ pending_qc }}</div>
+    </article>
+    {% endif %}
+
+    {% if role|upper in 'OPERATIONS_MANAGER ADMIN' %}
+    <!-- QC Failures -->
+    <article id="widget-qc-failures" class="dashboard-widget dashboard-widget--alert">
+      <div class="dashboard-widget__header">QC Failures</div>
+      <div class="dashboard-widget__value widget-value--negative">{{ qc_failed }}</div>
+    </article>
+    {% endif %}
+
+    {% if role|upper in 'ECX_OFFICER OPERATIONS_MANAGER ADMIN' %}
+    <!-- Pending POs -->
+    <article id="widget-pending-pos" class="dashboard-widget dashboard-widget--pending-pos">
+      <div class="dashboard-widget__header">Pending POs</div>
+      <div class="dashboard-widget__value">{{ pending_pos }}</div>
+    </article>
+
+    <!-- PO Deadlines -->
+    <article id="widget-po-deadlines" class="dashboard-widget dashboard-widget--po-deadlines">
+      <div class="dashboard-widget__header">POs Due Soon</div>
+      <div class="dashboard-widget__value">{{ po_deadlines }}</div>
+    </article>
+    {% endif %}
+  </section>
+
+  <section id="dashboard-actions" class="dashboard-actions">
+    {% if role|upper == 'WAREHOUSE_OFFICER' %}
+      <a href="{% url 'stock_movements' %}" class="dashboard-action">Record Movement</a>
+    {% elif role|upper == 'ECX_OFFICER' %}
+      <a href="{% url 'ecxtrade_create' %}" class="dashboard-action">Record ECX Trade</a>
+    {% elif role|upper == 'OPERATIONS_MANAGER' %}
+      <a href="{% url 'reports' %}" class="dashboard-action">View Reports</a>
+    {% elif role|upper == 'ADMIN' %}
+      <a href="{% url 'user_list' %}" class="dashboard-action">Manage Users</a>
+    {% endif %}
+  </section>
+
+  <div id="dashboard-placeholder" class="dashboard__placeholder">
+    <p class="dashboard__placeholder-text">More dashboard widgets coming soon…</p>
+  </div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:1000px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:1rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">Daily Cash</h1>
+      <p class="dashboard-subtext">Aggregated inflow/outflow across all banks{% if selected_currency %} • {{ selected_currency }}{% endif %}</p>
+    </div>
+    <div class="dashboard-hero-meta">
+      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}">⬅ Back</a>
+    </div>
+  </div>
+
+  <section class="section" style="margin-top:.25rem;">
+    <div class="section-header">
+      <div class="section-title">Filters</div>
+      {% if can_add_txn %}
+      <div>
+        <a class="cta-button btn-sm" href="{% url 'cash_management:new_transaction' %}">➕ New Transaction</a>
+        <a class="btn btn-ghost btn-sm" href="{% url 'cash_management:live' %}">🖥 Live Monitor</a>
+      </div>
+      {% endif %}
+    </div>
+    <form method="get" class="form-row" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:end;">
+      <div>
+        <label class="label">Currency</label>
+        <select name="currency" class="input">
+          <option value="" {% if not selected_currency %}selected{% endif %}>All</option>
+          <option value="ETB" {% if selected_currency == 'ETB' %}selected{% endif %}>ETB</option>
+          <option value="USD" {% if selected_currency == 'USD' %}selected{% endif %}>USD</option>
+        </select>
+      </div>
+      <div>
+        <label class="label">Start</label>
+        <input name="start" type="date" value="{{ start }}" class="input" />
+      </div>
+      <div>
+        <label class="label">End</label>
+        <input name="end" type="date" value="{{ end }}" class="input" />
+      </div>
+      <div>
+        <button class="btn" type="submit">Apply</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">Daily Transactions</div>
+    </div>
+    <div class="table" style="overflow-x:auto; overflow-y:visible; max-width:100%;">
+      <table class="table-basic table-creative" style="min-width:760px;">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th style="text-align:right;">Inflow</th>
+            <th style="text-align:right;">Outflow</th>
+            <th style="text-align:right;">Net</th>
+            <th style="text-align:right;">Running</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><em>Opening</em></td>
+            <td style="text-align:right;">-</td>
+            <td style="text-align:right;">-</td>
+            <td style="text-align:right;">-</td>
+            <td style="text-align:right;">{{ opening|floatformat:2 }}</td>
+          </tr>
+          {% for r in rows %}
+          <tr>
+            <td>{{ r.day }}</td>
+            <td style="text-align:right;" class="mono">{{ r.inflow|floatformat:2 }}</td>
+            <td style="text-align:right;" class="mono">{{ r.outflow|floatformat:2 }}</td>
+            <td style="text-align:right;" class="mono {% if r.net >= 0 %}net-pos{% else %}net-neg{% endif %}">
+              {{ r.net|floatformat:2 }}
+              {% if r.net_pct is not None %}
+              <div class="metric-bar {% if r.net >= 0 %}pos{% else %}neg{% endif %}" aria-hidden="true"><div class="bar" style="width: {{ r.net_pct }}%;"></div></div>
+              {% endif %}
+            </td>
+            <td style="text-align:right;">
+              <span class="run-pill mono">{{ r.running|floatformat:2 }}</span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-muted">No data.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

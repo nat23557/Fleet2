@@ -1,0 +1,29 @@
+{% extends 'WareDGT/layout.html' %}
+{% load ethiopian_calendar %}
+{% block title %}Lot {{ lot.in_out_no }}{% endblock %}
+{% block content %}
+<h1 class="page-title">Lot {{ lot.in_out_no }}</h1>
+<div id="lot-kpis" class="kpi-grid" style="margin-bottom:1rem">
+  <div class="kpi-card"><div class="small text-muted">Raw balance (kg)</div><div class="value" id="raw_balance">{{ lot.raw_balance_kg }}</div></div>
+  <div class="kpi-card"><div class="small text-muted">Cleaned total (kg)</div><div class="value" id="cleaned_total">{{ lot.cleaned_total_kg }}</div></div>
+  <div class="kpi-card"><div class="small text-muted">Rejects total (kg)</div><div class="value" id="rejects_total">{{ lot.rejects_total_kg }}</div></div>
+  <div class="kpi-card"><div class="small text-muted">Yield %</div><div class="value" id="yield_pct">{% if yield_pct %}{{ yield_pct|floatformat:1 }}{% else %}0{% endif %}</div></div>
+</div>
+<p class="text-muted">Last cleaned at: <span id="last_cleaned">{% if lot.last_cleaned_at %}{{ lot.last_cleaned_at|ethiopian_date }}{% else %}–{% endif %}</span></p>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function refreshLot(){
+  const r = await fetch('/api/lots/{{ lot.id }}/', {credentials:'include'});
+  if(!r.ok) return;
+  const d = await r.json();
+  document.getElementById('raw_balance').textContent = Number(d.raw_balance_kg).toLocaleString();
+  document.getElementById('cleaned_total').textContent = Number(d.cleaned_total_kg).toLocaleString();
+  document.getElementById('rejects_total').textContent = Number(d.rejects_total_kg).toLocaleString();
+  const total = Number(d.cleaned_total_kg) + Number(d.rejects_total_kg);
+  document.getElementById('yield_pct').textContent = total>0 ? (Number(d.cleaned_total_kg)/total*100).toFixed(1) : '0';
+  document.getElementById('last_cleaned').textContent = d.last_cleaned_at ? new Date(d.last_cleaned_at).toLocaleString() : '–';
+}
+document.addEventListener('DOMContentLoaded', refreshLot);
+</script>
+{% endblock %}

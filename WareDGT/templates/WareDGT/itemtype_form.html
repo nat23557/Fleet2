@@ -1,0 +1,11 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Add Seed Type{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Add Seed Type</h1>
+<form method="post" class="erp-form">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="erp-btn">Save</button>
+</form>
+{% endblock %}

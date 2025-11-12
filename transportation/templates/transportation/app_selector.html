@@ -1,0 +1,52 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:900px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:1rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">Choose Your Workspace</h1>
+      <p class="dashboard-subtext">Select the app to continue.</p>
+    </div>
+  </div>
+
+  <section class="kpi-grid" style="margin-top:.5rem;">
+    <a class="kpi-link" href="{% url 'choose_app' %}?go=fleet">
+      <div class="kpi-card accent-blue">
+        <div>
+          <div class="kpi-title">Fleet</div>
+          <div class="kpi-value">Operations</div>
+        </div>
+        <div class="kpi-icon">🚚</div>
+      </div>
+    </a>
+
+    {% if show_finance %}
+    <a class="kpi-link" href="{% url 'choose_app' %}?go=finance">
+      <div class="kpi-card accent-emerald">
+        <div>
+          <div class="kpi-title">Finance</div>
+          <div class="kpi-value">Cash Management</div>
+        </div>
+        <div class="kpi-icon">💰</div>
+      </div>
+    </a>
+    {% endif %}
+
+    {% if show_warehouse %}
+    <a class="kpi-link" href="{% url 'choose_app' %}?go=warehouse">
+      <div class="kpi-card accent-indigo">
+        <div>
+          <div class="kpi-title">Warehouse</div>
+          <div class="kpi-value">DGT Inventory</div>
+        </div>
+        <div class="kpi-icon">🏬</div>
+      </div>
+    </a>
+    {% endif %}
+  </section>
+
+  <p class="text-muted" style="margin-top:1rem;">This choice will be remembered for next time. You can still switch using the navigation or by visiting this page again.</p>
+</div>
+{% endblock %}
+

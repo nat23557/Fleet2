@@ -1,0 +1,37 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Review Contract Stock Request{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Review Contract Stock Request</h1>
+
+<div class="erp-card">
+  <div class="erp-card__header">Submission Overview</div>
+  <div class="erp-card__body">
+    <p><strong>Submitter:</strong> {{ cmr.created_by.get_full_name|default:cmr.created_by.username }}</p>
+    <p><strong>Submitted:</strong> {{ cmr.created_at }}</p>
+    <p><strong>Owner:</strong> {{ cmr.owner }}</p>
+    <p><strong>Warehouse:</strong> {{ cmr.warehouse }}</p>
+    <p><strong>Direction:</strong> {{ cmr.direction }}</p>
+    <p><strong>Category:</strong> {{ cmr.payload.category }}</p>
+    <p><strong>Symbol:</strong> {{ cmr.payload.symbol }}</p>
+    <p><strong>Quantity:</strong> {{ cmr.payload.quantity_quintals }} qtl</p>
+    {% if cmr.payload.origin %}<p><strong>Origin:</strong> {{ cmr.payload.origin }}</p>{% endif %}
+    {% if cmr.payload.agent_name or cmr.payload.agent_phone %}<p><strong>Agent:</strong> {{ cmr.payload.agent_name }} {{ cmr.payload.agent_phone }}</p>{% endif %}
+    {% if cmr.payload.advice_number %}<p><strong>Advice No.:</strong> {{ cmr.payload.advice_number }}</p>{% endif %}
+    <p><strong>Dispatch No.:</strong> {{ cmr.payload.dispatch_number }}</p>
+    {% if cmr.payload.notes %}<p><strong>Notes:</strong> {{ cmr.payload.notes }}</p>{% endif %}
+    {% if cmr.dispatch_image %}<p><strong>Dispatch Image:</strong> <a href="{{ cmr.dispatch_image.url }}" target="_blank">View</a></p>{% endif %}
+  </div>
+</div>
+
+<form method="post" class="mt-4">
+  {% csrf_token %}
+  <label>Reason
+    <textarea name="reason" rows="3" class="w-full"></textarea>
+  </label>
+  <div class="mt-3">
+    <button name="action" value="approve" type="submit" class="erp-btn primary">Approve & Register</button>
+    <button name="action" value="decline" type="submit" class="erp-btn danger">Decline</button>
+  </div>
+</form>
+{% endblock %}

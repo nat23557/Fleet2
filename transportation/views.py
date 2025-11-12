@@ -591,8 +591,8 @@ def check_user_role(request, allowed_roles):
     raw_role = get_user_role(request)
     user_role = (raw_role or "").strip().upper()
 
-    # If not ADMIN, MANAGER, or DRIVER, deny
-    if user_role not in ['ADMIN', 'MANAGER', 'DRIVER']:
+    # If not a known role, deny (allow CLERK as a recognized role)
+    if user_role not in ['ADMIN', 'MANAGER', 'DRIVER', 'CLERK']:
         messages.error(request, "You do not have permission to access any functionality. Please contact the admin.")
         return False, user_role or None
 
@@ -625,6 +625,19 @@ def login_view(request):
             # Log the user in
             login(request, user)
 
+            # Ensure WareDGT profile exists for cross-app access
+            try:
+                from WareDGT.models import UserProfile as _WUserProfile
+                _WUserProfile.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        'role': _WUserProfile.ADMIN if user.is_superuser else _WUserProfile.WAREHOUSE_OFFICER
+                    }
+                )
+            except Exception:
+                # Do not block login if warehouse app/profile creation fails
+                pass
+
             # Fetch the user's role from the Staff model
             staff_obj = Staff.objects.filter(user=user).first()
             if staff_obj:
@@ -634,14 +647,22 @@ def login_view(request):
                 # If not found or no valid role, store None
                 request.session['user_role'] = None
 
-            # Redirect to a simple hub after login (for ADMIN/MANAGER);
-            # drivers still get redirected by index() logic if they visit home.
+            # Redirect post-login:
+            # - ADMIN/MANAGER: Fleet hub
+            # - If no Staff profile (likely warehouse-only user): WareDGT dashboard
+            # - Otherwise: Fleet home (driver or basic staff)
             try:
                 role = get_user_role(request)
                 if role in ['ADMIN', 'MANAGER']:
                     return redirect('home_hub')
+                if role == 'DRIVER':
+                    return redirect('driver_home')
+                if role == 'CLERK':
+                    return redirect('cash_management:daily')
             except Exception:
                 pass
+            if staff_obj is None:
+                return redirect('dashboard')
             return redirect('home')
         else:
             error_message = "Invalid username or password."
@@ -749,11 +770,14 @@ def index(request):
     # For drivers, send to a dedicated, map-free home.
     if user_role == 'DRIVER':
         return redirect('driver_home')
+    # For clerks, jump straight to daily cash view
+    if user_role == 'CLERK':
+        return redirect('cash_management:daily')
 
     # Only update GPS data for non-driver dashboards
     update_gps_records_sync()
 
-    if user_role not in ['ADMIN', 'MANAGER', 'DRIVER']:
+    if user_role not in ['ADMIN', 'MANAGER', 'DRIVER', 'CLERK']:
         messages.error(request, "You do not have the required permissions.")
         return redirect('login')
 

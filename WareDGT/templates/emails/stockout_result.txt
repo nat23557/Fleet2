@@ -1,0 +1,2 @@
+Your Stock Out Request was {{ approved|yesno:"Approved,Declined" }}
+{% if not approved and req.reason %}Reason: {{ req.reason }}{% endif %}

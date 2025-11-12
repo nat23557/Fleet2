@@ -1,0 +1,21 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Decline Bin Card Entry{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Decline Bin Card Entry</h1>
+<div class="erp-card">
+  <div class="erp-card__body">
+    <p><strong>Officer:</strong> {{ req.created_by.get_full_name|default:req.created_by.username }}</p>
+    <p><strong>Warehouse:</strong> {{ req.warehouse }}</p>
+    <p><strong>Direction:</strong> {{ req.direction }}</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mt-3">
+        <label>Reason</label>
+        <textarea name="reason" rows="3" class="w-full" required></textarea>
+      </div>
+      <button type="submit" class="erp-btn danger mt-2">Decline</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1414 @@
+{% extends 'WareDGT/layout.html' %}
+{% load ethiopian_calendar %}
+{% block title %}Bin Cards{% endblock %}
+
+{% block extra_css %}
+<style>
+#ecx-movement-list, #contract-movement-list {
+  margin-top: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: visible;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0;
+}
+.movement-item {
+  position: relative;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.movement-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.movement-item.selected {
+  background: rgba(154, 236, 37, 0.2);
+}
+
+/* Modal for viewing receipt */
+.movement-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.8);
+  z-index: 100;
+}
+.movement-modal.show {
+  display: flex;
+}
+.movement-modal-content {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 4px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+.movement-modal-content img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+/* Stock-out wizard enhancements */
+.stockout-form,
+.stockin-form {
+  max-width: 840px;
+  width: 100%;
+}
+
+.stockout-form fieldset,
+.stockin-form fieldset {
+  border: 1px solid rgba(154, 236, 37, 0.15);
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.85rem;
+  margin: 0 0 1.5rem;
+  background: rgba(13, 30, 0, 0.55);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+.stockout-form fieldset legend,
+.stockin-form fieldset legend {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0 0.35rem;
+  color: var(--wms-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stockout-form .form-grid,
+.stockin-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem 1.5rem;
+}
+
+.stockout-form .form-grid .form-field,
+.stockin-form .form-grid .form-field {
+  margin: 0;
+}
+
+.stockout-form .form-grid .form-field.full-width,
+.stockin-form .form-grid .form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.stockout-form .form-grid label,
+.stockin-form .form-grid label {
+  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.stockout-form select,
+.stockout-form input,
+.stockout-form textarea,
+.stockin-form select,
+.stockin-form input,
+.stockin-form textarea {
+  margin-bottom: 0;
+}
+
+.stockout-form .radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.stockout-form .radio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  transition: border-color 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+}
+
+.stockout-form .radio-pill:hover {
+  border-color: var(--wms-accent);
+  background: rgba(154, 236, 37, 0.12);
+}
+
+.stockout-form .radio-pill input {
+  accent-color: var(--wms-accent);
+}
+
+.stockout-form .radio-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted, #8BA291);
+  opacity: 0.9;
+}
+
+.stockout-form .availability-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(154, 236, 37, 0.12);
+  color: var(--wms-accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.stockout-form .form-status,
+.stockin-form .form-status {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  background: rgba(15, 45, 25, 0.6);
+  border: 1px solid rgba(154, 236, 37, 0.25);
+}
+
+.stockout-form .form-status.error,
+.stockin-form .form-status.error {
+  background: rgba(70, 16, 16, 0.65);
+  border-color: rgba(255, 120, 120, 0.4);
+  color: #ffd5d5;
+}
+
+.stockout-form .form-actions,
+.stockin-form .form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.stockout-form .form-hint,
+.stockin-form .form-hint {
+  color: var(--text-muted, #8BA291);
+  font-size: 0.9rem;
+}
+</style>
+<!-- Flatpickr datepicker for robust calendar support -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Bin Card Entries</h1>
+<style>
+  /* Make the filter form stretch to container width */
+  #filtersForm.erp-form{max-width:100%;}
+  /* Use container-responsive grid, not viewport-based columns */
+  .filters-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:.75rem;align-items:end;grid-auto-flow:dense
+  }
+  .filters-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+  .filters-grid .erp-btn{margin-right:.5rem}
+  @media (max-width: 640px){.filters-grid{grid-template-columns:repeat(2,minmax(160px,1fr))}}
+</style>
+<form method="get" class="erp-form" id="filtersForm" style="margin-bottom:12px;">
+  <div class="filters-grid">
+  <div>
+    <label for="start">From</label>
+    <input type="date" id="start" name="start" value="{{ f_start|date:'Y-m-d' }}">
+  </div>
+  <div>
+    <label for="end">To</label>
+    <input type="date" id="end" name="end" value="{{ f_end|date:'Y-m-d' }}">
+  </div>
+  <div>
+    <label for="owner_name">Owner</label>
+    <select id="owner_name" name="owner_name">
+      <option value="">All owners</option>
+      {% for n in filter_owner_choices %}
+      <option value="{{ n }}" {% if selected_owner_name == n %}selected{% endif %}>{{ n }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="warehouse_name">Warehouse</label>
+    <select id="warehouse_name" name="warehouse_name">
+      <option value="">All warehouses</option>
+      {% for n in filter_warehouse_choices %}
+      <option value="{{ n }}" {% if selected_warehouse_name == n %}selected{% endif %}>{{ n }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="seed">Seed Symbol</label>
+    <select id="seed" name="seed">
+      <option value="">All</option>
+      {% for s in filter_seed_choices %}
+      <option value="{{ s }}" {% if f_seed == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="grade">Grade</label>
+    <select id="grade" name="grade">
+      <option value="">All</option>
+      {% for g in filter_grade_choices %}
+      <option value="{{ g }}" {% if f_grade == g %}selected{% endif %}>{{ g }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="io">In/Out No</label>
+    <input type="text" id="io" name="io" value="{{ f_io }}" placeholder="e.g. 1234">
+  </div>
+  <div>
+    <label for="per">Per Page</label>
+    <select id="per" name="per">
+      <option value="5"   {% if per == 5 %}selected{% endif %}>5</option>
+      <option value="10"  {% if per == 10 %}selected{% endif %}>10</option>
+      <option value="25"  {% if per == 25 %}selected{% endif %}>25</option>
+      <option value="50"  {% if per == 50 %}selected{% endif %}>50</option>
+      <option value="100" {% if per == 100 %}selected{% endif %}>100</option>
+      <option value="200" {% if per == 200 %}selected{% endif %}>200</option>
+      <option value="500" {% if per == 500 %}selected{% endif %}>500</option>
+    </select>
+  </div>
+  <div class="filters-actions">
+    <button type="submit" class="erp-btn">Apply</button>
+    <a class="erp-btn" href="{% url 'bin_cards' %}">Reset</a>
+    <a class="erp-btn" href="{% url 'bincards_export' %}?start={{ f_start|date:'Y-m-d' }}&end={{ f_end|date:'Y-m-d' }}&owner_name={{ f_owner_name|urlencode }}&warehouse_name={{ f_warehouse_name|urlencode }}&seed={{ f_seed|urlencode }}&grade={{ f_grade|urlencode }}&io={{ f_io|urlencode }}">Export CSV</a>
+  </div>
+</div>
+</form>
+{% with role=request.user.profile.role|upper %}
+{% if register_out and role != 'OPERATIONS_MANAGER' %}
+<form id="stock-out-form" method="post" action="?register_out=1" class="erp-form stockout-form" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <fieldset id="step0" class="stockout-step">
+    <legend>Step 1 – Base details</legend>
+    <div class="form-grid">
+      <p class="form-field">
+        <label for="ownerSelect">Owner</label>
+        <select id="ownerSelect" name="owner">
+          <option value="">---------</option>
+          {% for owner in owners %}
+            <option value="{{ owner.id }}">{{ owner.name }}</option>
+          {% endfor %}
+        </select>
+      </p>
+      <p class="form-field">
+        {{ form.warehouse.label_tag }} {{ form.warehouse }}
+        {% for error in form.warehouse.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+    </div>
+  </fieldset>
+
+  <fieldset id="step1" class="stockout-step" hidden>
+    <legend>Step 2 – Seed type</legend>
+    <div class="form-grid">
+      <p class="form-field">
+        <label for="seedType">Seed Type</label>
+        <select id="seedType" name="seed_type"></select>
+      </p>
+    </div>
+  </fieldset>
+
+  <fieldset id="step2" class="stockout-step" hidden>
+    <legend>Step 3 – Stock class</legend>
+    <div class="form-grid">
+      <p class="form-field full-width">
+        <span class="form-hint">Choose which balance to deduct from.</span>
+        <div class="erp-alert" style="margin:.4rem 0 .6rem;">
+          <label><input type="checkbox" id="isBorrow"> Borrow (exceptional approval)</label>
+          <span class="form-hint">Raw outflows are only allowed for borrowing.</span>
+        </div>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr; gap:.5rem;">
+          <p class="form-field" id="borrowerField" hidden>
+            <label for="borrowerSelect">Borrower</label>
+            <select id="borrowerSelect">
+              <option value="">---------</option>
+              {% for owner in owners %}
+                <option value="{{ owner.id }}">{{ owner.name }}</option>
+              {% endfor %}
+              <option value="__other__">Other (type name)</option>
+            </select>
+          </p>
+          <p class="form-field" id="borrowerNameField" hidden>
+            <label for="borrowerName">Borrower Name</label>
+            <input type="text" id="borrowerName" placeholder="Company name" />
+          </p>
+        </div>
+        <div class="radio-group">
+          <label class="radio-pill">
+            <input type="radio" name="class" value="cleaned" id="class-cleaned">
+            <span>Cleaned</span>
+            <span class="radio-hint" id="cleanedHint"></span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="class" value="reject" id="class-reject">
+            <span>Reject</span>
+            <span class="radio-hint" id="rejectHint"></span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="class" value="raw" id="class-raw">
+            <span>Raw</span>
+            <span class="radio-hint" id="rawHint"></span>
+          </label>
+        </div>
+      </p>
+    </div>
+  </fieldset>
+
+  <fieldset id="step3" class="stockout-step" hidden>
+    <legend>Step 4 – Quantity</legend>
+    <div class="form-grid">
+      <p class="form-field">
+        <span id="availableBadge" class="availability-chip" hidden></span>
+      </p>
+      <p class="form-field">
+        <label for="quantity">Load Quantity (qtls)</label>
+        <input type="number" step="0.01" min="0" id="quantity" name="quantity">
+      </p>
+    </div>
+    <div id="step3Error" class="form-status error" hidden></div>
+    <div class="form-actions">
+      <button type="button" id="toStep4" class="erp-btn" disabled>Next</button>
+    </div>
+  </fieldset>
+
+  <fieldset id="step4" class="stockout-step" hidden>
+    <legend>Step 5 – Supporting details</legend>
+    <div class="form-grid">
+      <p class="form-field">
+        {{ form.loading_rate_etb_per_qtl.label_tag }} {{ form.loading_rate_etb_per_qtl }}
+        {% for error in form.loading_rate_etb_per_qtl.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      <p class="form-field">
+        {{ form.num_bags.label_tag }} {{ form.num_bags }}
+        {% for error in form.num_bags.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      <p class="form-field">
+        {{ form.car_plate_number.label_tag }} {{ form.car_plate_number }}
+        {% for error in form.car_plate_number.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      <p class="form-field">
+        {{ form.weighbridge_certificate.label_tag }} {{ form.weighbridge_certificate }}
+        {% for error in form.weighbridge_certificate.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        {% if form.weighbridge_certificate.help_text %}<small class="form-text text-muted">{{ form.weighbridge_certificate.help_text }}</small>{% endif %}
+      </p>
+      <p class="form-field">
+        {{ form.warehouse_document_number.label_tag }} {{ form.warehouse_document_number }}
+        {% for error in form.warehouse_document_number.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      <p class="form-field">
+        {{ form.warehouse_document.label_tag }} {{ form.warehouse_document }}
+        {% for error in form.warehouse_document.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      <p class="form-field">
+        <label for="entryDateOut">Entry Date (optional)</label>
+        <input type="date" id="entryDateOut" name="entry_date">
+      </p>
+    </div>
+    <div id="submitError" class="form-status error" hidden></div>
+    <div id="submitSuccess" class="form-status" hidden></div>
+    <div class="form-actions">
+      <button type="submit" id="submitBtn" class="erp-btn primary" disabled>Submit</button>
+    </div>
+  </fieldset>
+</form>
+{% elif form and role != 'OPERATIONS_MANAGER' %}
+<form id="stock-in-form" method="post" action="?register=1" enctype="multipart/form-data" class="erp-form stockout-form stockin-form">
+  {% csrf_token %}
+  {% if idempotency_key %}<input type="hidden" name="idempotency_key" value="{{ idempotency_key }}">{% endif %}
+  {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+  {% if form.non_field_errors %}
+  <div class="form-status error">
+    {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+  </div>
+  {% endif %}
+
+  <fieldset class="stockout-step">
+    <legend>Step 1 – Ownership & Source</legend>
+    <div class="form-grid">
+      <p class="form-field">
+        {{ form.owner.label_tag }} {{ form.owner }}
+        {% for error in form.owner.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      <p class="form-field">
+        {{ form.warehouse.label_tag }} {{ form.warehouse }}
+        {% for error in form.warehouse.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      {% if form.source_type %}
+      <p class="form-field">
+        {{ form.source_type.label_tag }} {{ form.source_type }}
+        {% if form.source_type.help_text %}<small class="form-text text-muted">{{ form.source_type.help_text }}</small>{% endif %}
+        {% for error in form.source_type.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      {% endif %}
+      {% if form.new_owner_name %}
+      <p class="form-field">
+        {{ form.new_owner_name.label_tag }} {{ form.new_owner_name }}
+        {% for error in form.new_owner_name.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      {% endif %}
+      {% if form.new_owner_description %}
+      <p class="form-field full-width">
+        {{ form.new_owner_description.label_tag }} {{ form.new_owner_description }}
+        {% for error in form.new_owner_description.errors %}<span class="error">{{ error }}</span>{% endfor %}
+      </p>
+      {% endif %}
+    </div>
+  </fieldset>
+
+  <fieldset class="stockout-step">
+    <legend>Step 2 – Movement Details</legend>
+    <div class="form-grid">
+      {% for field in form %}
+        {% if field.name != 'owner' and field.name != 'warehouse' and field.name != 'source_type' and field.name != 'new_owner_name' and field.name != 'new_owner_description' %}
+        <p class="form-field{% if field.name in 'description contract_movement ecx_movement' %} full-width{% endif %}">
+          {{ field.label_tag }} {{ field }}
+          {% if field.name == 'ecx_movement' %}
+            <a id="weighbridge-link" href="#" target="_blank" style="display:none; margin-left:1rem;">View Weighbridge Certificate</a>
+          {% endif %}
+          {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+          {% for error in field.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </p>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <button type="submit" class="erp-btn primary" id="stock-in-submit">Save</button>
+  </div>
+</form>
+{% else %}
+<p>
+  {% if role != 'OPERATIONS_MANAGER' %}
+    <a href="{% url 'bin_cards' %}?register=1" class="erp-sidebar__link">Register stock</a>
+    <a href="{% url 'bin_cards' %}?register_out=1" class="erp-sidebar__link">Register stock out</a>
+  {% endif %}
+</p>
+{% endif %}
+{% endwith %}
+
+<div class="ecx-filter-bar">
+  {% if total_in_qtl is not None %}
+  <div class="erp-alert" style="margin:8px 0;">
+    <strong>Summary:</strong>
+    In = {{ total_in_qtl }} qtl · Out = {{ total_out_qtl }} qtl · Net = {{ net_total_qtl }} qtl
+  </div>
+  {% endif %}
+  <input id="ownerFilter" list="ownerOptions" placeholder="Filter owner" autocomplete="off" />
+  <datalist id="ownerOptions"></datalist>
+  <input id="warehouseFilter" list="warehouseOptions" placeholder="Filter warehouse" autocomplete="off" />
+  <datalist id="warehouseOptions"></datalist>
+  <input id="seedFilter" list="seedOptions" placeholder="Filter seed type" autocomplete="off" />
+  <datalist id="seedOptions"></datalist>
+  <input id="gradeFilter" list="gradeOptions" placeholder="Filter grade" autocomplete="off" />
+  <datalist id="gradeOptions"></datalist>
+  <input id="purityFilter" list="purityOptions" placeholder="Filter purity" autocomplete="off" />
+  <datalist id="purityOptions"></datalist>
+</div>
+<style>
+  /* Sticky header only; let the page scroll naturally */
+  #bincardTable thead th {
+    position: sticky;
+    top: 0;             /* sticks to top of the scrollable main area */
+    background: #1b2a1d;/* match header background so it doesn’t become transparent */
+    z-index: 3;         /* ensure it stays above rows while scrolling */
+  }
+</style>
+<script>
+// Prevent double-submit for stock-in: disable button and show 'Submitting…'
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('stock-in-form');
+  const btn = document.getElementById('stock-in-submit');
+  if (!form || !btn) return;
+  // Avoid native HTML validations blocking submission (server validates)
+  form.setAttribute('novalidate', 'novalidate');
+  let locked = false;
+  function lock() {
+    if (locked) return; // already locked
+    locked = true;
+    btn.disabled = true;
+    btn.dataset.originalText = btn.textContent;
+    btn.textContent = 'Submitting…';
+  }
+  // Lock on first user intent
+  btn.addEventListener('click', function(e) {
+    if (!locked) {
+      lock();
+      // Force submit to avoid any interference
+      try { form.requestSubmit ? form.requestSubmit() : form.submit(); } catch (err) { form.submit(); }
+    }
+  });
+  // Ensure submit proceeds; just lock once and do NOT preventDefault
+  form.addEventListener('submit', function() { lock(); });
+});
+</script>
+<div class="table-wrap">
+<table id="bincardTable" class="erp-table ecx-table mt-4">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th class="seed-col">Seed Type</th>
+      <th>Grade</th>
+      <th>Purity (%)</th>
+      <th class="owner-col">Owner</th>
+      <th class="warehouse-col">Warehouse</th>
+      <th>In/Out No</th>
+      <th>Description</th>
+      <th>Weight (Quintals)</th>
+      <th>Balance (Quintals)</th>
+      <th>Cleaned (Quintals)</th>
+      <th>Rejects (Quintals)</th>
+      <th>Total Cleaned (Quintals)</th>
+      <th>Total Rejects (Quintals)</th>
+      <th>Last Cleaned</th>
+      <th>PDF</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for entry in entries %}
+    <tr data-owner="{{ entry.owner_id }}" data-owner-name="{{ entry.owner }}" data-warehouse="{{ entry.warehouse_id }}" data-warehouse-name="{{ entry.warehouse }}" data-seed-type="{{ entry.get_seed_type_display|default:entry.seed_type }}" data-grade="{{ entry.grade }}" data-purity="{{ entry.purity }}">
+      <td>{{ entry.date|ethiopian_date }}</td>
+      <td class="seed-col">{{ entry.get_seed_type_display|default:entry.seed_type }}</td>
+      <td>{{ entry.grade }}</td>
+      <td>{{ entry.purity }}%</td>
+      <td class="owner-col">{{ entry.owner }}</td>
+      <td class="warehouse-col">{{ entry.warehouse }}</td>
+      <td>{{ entry.in_out_no }}</td>
+      <td>{{ entry.description }}</td>
+      <td>{{ entry.weight }} quintals</td>
+      <td>{{ entry.display_balance_qtl|default:entry.balance }} quintals</td>
+      <td>{{ entry.cleaned_total_qtl|default_if_none:0 }}</td>
+      <td>{{ entry.rejects_total_qtl|default_if_none:0 }}</td>
+      <td>{{ entry.display_cleaned_seed_total_qtl|default:entry.cleaned_seed_total_qtl }}</td>
+      <td>{{ entry.display_reject_seed_total_qtl|default:entry.reject_seed_total_qtl }}</td>
+        <td>{% if entry.last_cleaned_at %}{{ entry.last_cleaned_at|ethiopian_date }}{% else %}--{% endif %}</td>
+      <td>
+        <a href="{% url 'bincard-pdf' entry.id %}">Download</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="16">No bin card entries recorded.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if page %}
+  <div class="mt-2" style="display:flex;gap:.5rem;align-items:center;">
+    <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_previous %}
+      <a class="erp-btn" href="?{% if f_start %}start={{ f_start|date:'Y-m-d' }}&{% endif %}{% if f_end %}end={{ f_end|date:'Y-m-d' }}&{% endif %}{% if f_owner %}owner={{ f_owner }}&{% endif %}{% if f_warehouse %}warehouse={{ f_warehouse }}&{% endif %}{% if f_seed %}seed={{ f_seed }}&{% endif %}{% if f_grade %}grade={{ f_grade }}&{% endif %}{% if f_io %}io={{ f_io }}&{% endif %}per={{ per }}&p={{ page.previous_page_number }}">Prev</a>
+    {% endif %}
+    {% if page.has_next %}
+      <a class="erp-btn" href="?{% if f_start %}start={{ f_start|date:'Y-m-d' }}&{% endif %}{% if f_end %}end={{ f_end|date:'Y-m-d' }}&{% endif %}{% if f_owner %}owner={{ f_owner }}&{% endif %}{% if f_warehouse %}warehouse={{ f_warehouse }}&{% endif %}{% if f_seed %}seed={{ f_seed }}&{% endif %}{% if f_grade %}grade={{ f_grade }}&{% endif %}{% if f_io %}io={{ f_io }}&{% endif %}per={{ per }}&p={{ page.next_page_number }}">Next</a>
+    {% endif %}
+  </div>
+{% endif %}
+<div id="movement-modal" class="movement-modal">
+  <div class="movement-modal-content">
+    <img id="movement-modal-image" src="" alt="Receipt preview" />
+    <button type="button" id="movement-modal-select">Select</button>
+    <button type="button" id="movement-modal-close">Close</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Enable a reliable calendar on entry date fields (stock-in and stock-out)
+  try {
+    if (window.flatpickr) {
+      var entryIn = document.getElementById('id_entry_date');
+      if (entryIn) flatpickr(entryIn, { dateFormat: 'Y-m-d', allowInput: true });
+      var entryOut = document.getElementById('entryDateOut');
+      if (entryOut) flatpickr(entryOut, { dateFormat: 'Y-m-d', allowInput: true });
+    }
+  } catch (e) {}
+
+  const ownerFilter = document.getElementById('ownerFilter');
+  const ownerOptions = document.getElementById('ownerOptions');
+  const warehouseFilter = document.getElementById('warehouseFilter');
+  const warehouseOptions = document.getElementById('warehouseOptions');
+  const seedFilter = document.getElementById('seedFilter');
+  const seedOptions = document.getElementById('seedOptions');
+  const gradeFilter = document.getElementById('gradeFilter');
+  const gradeOptions = document.getElementById('gradeOptions');
+  const purityFilter = document.getElementById('purityFilter');
+  const purityOptions = document.getElementById('purityOptions');
+  const table = document.getElementById('bincardTable');
+  if (!ownerFilter || !ownerOptions || !warehouseFilter || !warehouseOptions || !seedFilter || !seedOptions || !table) return;
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  const owners = {};
+  const warehouses = {};
+  const seeds = {};
+  const grades = {};
+  const purities = {};
+  rows.forEach(row => {
+    const name = row.dataset.ownerName;
+    const warehouse = row.dataset.warehouseName;
+    const seed = row.dataset.seedType;
+    const grade = row.dataset.grade;
+    const purity = row.dataset.purity;
+    if (name) owners[name] = true;
+    if (warehouse) warehouses[warehouse] = true;
+    if (seed) seeds[seed] = true;
+    if (grade) grades[grade] = true;
+    if (purity) purities[purity] = true;
+  });
+  Object.keys(owners).forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    ownerOptions.appendChild(opt);
+  });
+  Object.keys(seeds).forEach(seed => {
+    const opt = document.createElement('option');
+    opt.value = seed;
+    seedOptions.appendChild(opt);
+  });
+  Object.keys(warehouses).forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w;
+    warehouseOptions.appendChild(opt);
+  });
+  Object.keys(grades).forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g;
+    gradeOptions.appendChild(opt);
+  });
+  Object.keys(purities).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    purityOptions.appendChild(opt);
+  });
+  function toggleColumn(cls, hide) {
+    const th = table.querySelector('th.' + cls);
+    const tds = table.querySelectorAll('td.' + cls);
+    const display = hide ? 'none' : '';
+    if (th) th.style.display = display;
+    tds.forEach(td => td.style.display = display);
+  }
+  function filterRows() {
+    const ownerName = ownerFilter.value;
+    const warehouseName = warehouseFilter.value;
+    const seedType = seedFilter.value;
+    const grade = gradeFilter.value;
+    const purity = purityFilter.value;
+    rows.forEach(row => {
+      const ownerMatch = !ownerName || row.dataset.ownerName === ownerName;
+      const warehouseMatch = !warehouseName || row.dataset.warehouseName === warehouseName;
+      const seedMatch = !seedType || row.dataset.seedType === seedType;
+      const gradeMatch = !grade || row.dataset.grade === grade;
+      const purityMatch = !purity || row.dataset.purity === purity;
+      row.style.display = ownerMatch && warehouseMatch && seedMatch && gradeMatch && purityMatch ? '' : 'none';
+    });
+    toggleColumn('owner-col', !!ownerName);
+    toggleColumn('warehouse-col', !!warehouseName);
+    toggleColumn('seed-col', !!seedType);
+  }
+  ownerFilter.addEventListener('input', filterRows);
+  warehouseFilter.addEventListener('input', filterRows);
+  seedFilter.addEventListener('input', filterRows);
+  gradeFilter.addEventListener('input', filterRows);
+  purityFilter.addEventListener('input', filterRows);
+  toggleColumn('owner-col', false);
+  toggleColumn('warehouse-col', false);
+  toggleColumn('seed-col', false);
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const ownerEl = document.getElementById('id_owner');
+  if (!ownerEl) return;
+  const owner = ownerEl.closest('p');
+  const newName = document.getElementById('id_new_owner_name')?.closest('p');
+  const newDesc = document.getElementById('id_new_owner_description')?.closest('p');
+  const source = document.getElementById('id_source_type')?.closest('p');
+  const movement = document.getElementById('id_ecx_movement')?.closest('p');
+  const selectMv = document.getElementById('id_ecx_movement');
+  const wbLink = document.getElementById('weighbridge-link');
+  const contractMovement = document.getElementById('id_contract_movement')?.closest('p');
+  const selectCMv = document.getElementById('id_contract_movement');
+  const modal = document.getElementById('movement-modal');
+  const modalImg = document.getElementById('movement-modal-image');
+  const modalSelect = document.getElementById('movement-modal-select');
+  const modalClose = document.getElementById('movement-modal-close');
+  let mvList;
+  let mvCertMap = {};
+  if (movement && selectMv) {
+    mvList = document.createElement('div');
+    mvList.id = 'ecx-movement-list';
+    mvList.className = 'movement-list';
+    selectMv.style.display = 'none';
+    movement.appendChild(mvList);
+  }
+  let cmvList;
+  if (contractMovement && selectCMv) {
+    cmvList = document.createElement('div');
+    cmvList.id = 'contract-movement-list';
+    cmvList.className = 'movement-list';
+    selectCMv.style.display = 'none';
+    contractMovement.appendChild(cmvList);
+  }
+  const rest = Array.from(document.querySelectorAll('.erp-form p')).filter(p => ![owner,newName,newDesc,source,movement,contractMovement].includes(p));
+  const warehouseP = document.getElementById('id_warehouse')?.closest('p');
+  // Category/Symbol inputs (for LOCAL purchases)
+  const catP = document.getElementById('id_category')?.closest('p');
+  const symP = document.getElementById('id_symbol')?.closest('p');
+  const symSel = document.getElementById('id_symbol');
+  const seedTypeP = document.getElementById('id_seed_type')?.closest('p');
+  const weightP = document.getElementById('id_weight')?.closest('p');
+  const bagsP = document.getElementById('id_num_bags')?.closest('p');
+  const descP = document.getElementById('id_description')?.closest('p');
+  const purityP = document.getElementById('id_purity')?.closest('p');
+  // Third-party limited fields
+  const rnoP = document.getElementById('id_r_no')?.closest('p');
+  const srvRateP = document.getElementById('id_service_rate_etb_per_qtl')?.closest('p');
+  const storRateP = document.getElementById('id_storage_rate_etb_per_day')?.closest('p');
+  const storDaysP = document.getElementById('id_storage_days')?.closest('p');
+
+  function hideAll() {
+    if (source) source.style.display = 'none';
+    if (movement) movement.style.display = 'none';
+    if (contractMovement) contractMovement.style.display = 'none';
+    if (newName) newName.style.display = 'none';
+    if (newDesc) newDesc.style.display = 'none';
+    rest.forEach(p => p.style.display = 'none');
+  }
+
+  function isThirdPartyOwner() {
+    const idx = ownerEl.selectedIndex;
+    if (idx < 0) return false;
+    const txt = ownerEl.options[idx].text || '';
+    const norm = txt.toLowerCase().replace(/\s+/g, '');
+    return norm && norm !== 'dgt' && norm !== 'bestway';
+  }
+
+  function update() {
+    hideAll();
+    const ownerVal = ownerEl.value;
+    if (ownerVal) {
+      if (source) source.style.display = '';
+      const selectedText = ownerEl.options[ownerEl.selectedIndex].text.toLowerCase();
+      if (selectedText === 'other') {
+        if (newName) newName.style.display = '';
+        if (newDesc) newDesc.style.display = '';
+        if (source) source.style.display = 'none';
+        if (warehouseP) warehouseP.style.display = '';
+        // Show limited set only
+        [weightP, bagsP, rnoP, srvRateP, storRateP, storDaysP].forEach(p => { if (p) p.style.display = ''; });
+        // Hide purity, description, storage days and any heavy fields not needed
+        if (purityP) purityP.style.display = 'none';
+        if (descP) descP.style.display = 'none';
+        // keep storDays visible for limited tracking
+        // if (storDaysP) storDaysP.style.display = 'none';
+        return;
+      }
+    }
+    const sourceVal = document.getElementById('id_source_type')?.value;
+    if (ownerVal && sourceVal === 'ECX') {
+      if (movement) movement.style.display = '';
+      if (contractMovement) contractMovement.style.display = 'none';
+      if (catP) catP.style.display = 'none';
+      if (symP) symP.style.display = 'none';
+      if (seedTypeP) seedTypeP.style.display = 'none';
+    }
+    const mvVal = document.getElementById('id_ecx_movement')?.value;
+    if (sourceVal === 'ECX' && mvVal) {
+      rest.forEach(p => p.style.display = '');
+      // Hide contract-only fields on ECX flow
+      // No cat/sym fields anymore
+      if (contractMovement) contractMovement.style.display = 'none';
+    }
+    // For Contract farming source, use registered movements (non-Other owners)
+    if (ownerVal && sourceVal === 'CONTRACT') {
+      if (warehouseP) warehouseP.style.display = '';
+      const idx = ownerEl.selectedIndex;
+      const ownerText = idx >= 0 ? (ownerEl.options[idx].text || '').toLowerCase() : '';
+      const isOther = ownerText === 'other';
+      if (!isOther) {
+        if (contractMovement) contractMovement.style.display = '';
+        if (selectCMv && selectCMv.value) {
+          rest.forEach(p => p.style.display = '');
+        }
+      } else {
+        // For 'Other', still allow filling basic fields but without cat/sym
+        rest.forEach(p => p.style.display = '');
+      }
+      if (catP) catP.style.display = 'none';
+      if (symP) symP.style.display = 'none';
+      if (seedTypeP) seedTypeP.style.display = 'none';
+    }
+
+    // Local purchases: directly show movement details without ECX/Contract lists
+    if (ownerVal && sourceVal === 'LOCAL') {
+      if (warehouseP) warehouseP.style.display = '';
+      if (movement) movement.style.display = 'none';
+      if (contractMovement) contractMovement.style.display = 'none';
+      rest.forEach(p => p.style.display = '');
+      // Show category + symbol, hide legacy seed_type selector
+      if (catP) catP.style.display = '';
+      if (symP) symP.style.display = '';
+      if (seedTypeP) seedTypeP.style.display = 'none';
+    }
+
+    // Toggle third-party limited fields depending on owner (non-DGT/BestWay)
+    const thirdParty = isThirdPartyOwner();
+    [rnoP, srvRateP, storRateP, storDaysP].forEach(p => { if (p) p.style.display = thirdParty ? '' : 'none'; });
+
+    if (wbLink) {
+      const mvId = document.getElementById('id_ecx_movement')?.value;
+      const cert = mvCertMap[mvId];
+      if (cert) {
+        wbLink.href = cert;
+        wbLink.style.display = '';
+      } else {
+        wbLink.style.display = 'none';
+      }
+    }
+  }
+  // symbol field removed
+
+  async function loadMovements(ownerId) {
+    const select = document.getElementById('id_ecx_movement');
+    const list = document.getElementById('ecx-movement-list');
+    if (!select || !list) return;
+    select.innerHTML = '<option value="">---------</option>';
+    list.innerHTML = '';
+    mvCertMap = {};
+    if (!ownerId) return;
+    try {
+      const res = await fetch(`/api/ecx/movements/?owner=${ownerId}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      data.forEach(mv => {
+        const opt = document.createElement('option');
+        opt.value = mv.id;
+        opt.textContent = mv.display || mv.warehouse_receipt_no;
+        select.appendChild(opt);
+
+        const item = document.createElement('div');
+        item.className = 'movement-item';
+        item.textContent = mv.display || mv.warehouse_receipt_no;
+        item.dataset.id = mv.id;
+        if (mv.files && mv.files.length > 0) {
+          item.dataset.img = mv.files[0].image;
+        }
+        if (mv.weighbridge_certificate) {
+          mvCertMap[mv.id] = mv.weighbridge_certificate;
+        }
+        item.addEventListener('click', function() {
+          const imgSrc = item.dataset.img;
+          if (imgSrc) {
+            modalImg.src = imgSrc;
+            modal.dataset.mvId = mv.id;
+            modal.classList.add('show');
+          } else {
+            select.value = mv.id;
+            Array.from(list.children).forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            update();
+          }
+        });
+        list.appendChild(item);
+      });
+    } catch (e) {
+      console.error('Failed loading movements', e);
+    }
+  }
+
+  async function loadContract(ownerId) {
+    const select = document.getElementById('id_contract_movement');
+    const list = document.getElementById('contract-movement-list');
+    if (!select || !list) return;
+    select.innerHTML = '<option value="">---------</option>';
+    list.innerHTML = '';
+    if (!ownerId) return;
+    try {
+      const res = await fetch(`/api/contract/movements/?owner=${ownerId}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const cmvWeights = {};
+      data.forEach(mv => {
+        const opt = document.createElement('option');
+        opt.value = mv.id;
+        opt.textContent = mv.display || (mv.symbol + ' – ' + mv.dispatch_number + (mv.quantity_quintals ? ` – ${mv.quantity_quintals} qtl` : ''));
+        select.appendChild(opt);
+
+        const item = document.createElement('div');
+        item.className = 'movement-item';
+        item.textContent = mv.display || (mv.symbol + ' – ' + mv.dispatch_number + (mv.quantity_quintals ? ` – ${mv.quantity_quintals} qtl` : ''));
+        item.dataset.id = mv.id;
+        if (mv.quantity_quintals) {
+          item.dataset.qty = mv.quantity_quintals;
+          cmvWeights[mv.id] = mv.quantity_quintals;
+        }
+        if (mv.dispatch_image) {
+          item.dataset.img = mv.dispatch_image;
+        }
+        item.addEventListener('click', function() {
+          const imgSrc = item.dataset.img;
+          if (imgSrc) {
+            modalImg.src = imgSrc;
+            modal.dataset.cmvId = mv.id;
+            modal.classList.add('show');
+          } else {
+            select.value = mv.id;
+            Array.from(list.children).forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            // Autofill weight from registered quantity
+            const wt = cmvWeights[mv.id];
+            const wInput = document.getElementById('id_weight');
+            if (wInput && wt) { wInput.value = wt; }
+            update();
+          }
+        });
+        list.appendChild(item);
+      });
+      // also update when changing the select directly
+      select.addEventListener('change', function() {
+        const wt = cmvWeights[this.value];
+        const wInput = document.getElementById('id_weight');
+        if (wInput && wt) { wInput.value = wt; }
+      });
+    } catch (e) {
+      console.error('Failed loading contract movements', e);
+    }
+  }
+
+  hideAll();
+  loadMovements(ownerEl.value);
+  loadContract(ownerEl.value);
+  ownerEl.addEventListener('change', function() {
+    loadMovements(ownerEl.value);
+    loadContract(ownerEl.value);
+    update();
+  });
+  update();
+  ['source_type','ecx_movement','contract_movement'].forEach(function(id){
+    const el = document.getElementById('id_' + id);
+    if (el) el.addEventListener('change', update);
+  });
+
+  if (modal && modalSelect && modalClose) {
+    modalSelect.addEventListener('click', function() {
+      const mvId = modal.dataset.mvId;
+      const cmvId = modal.dataset.cmvId;
+      if (mvId) {
+        const select = document.getElementById('id_ecx_movement');
+        const list = document.getElementById('ecx-movement-list');
+        if (select && list) {
+          select.value = mvId;
+          Array.from(list.children).forEach(i => i.classList.remove('selected'));
+          const chosen = Array.from(list.children).find(i => i.dataset.id === mvId);
+          if (chosen) chosen.classList.add('selected');
+          update();
+        }
+      } else if (cmvId) {
+        const select = document.getElementById('id_contract_movement');
+        const list = document.getElementById('contract-movement-list');
+        if (select && list) {
+          select.value = cmvId;
+          Array.from(list.children).forEach(i => i.classList.remove('selected'));
+          const chosen = Array.from(list.children).find(i => i.dataset.id === cmvId);
+          if (chosen) chosen.classList.add('selected');
+          update();
+        }
+      }
+      modal.classList.remove('show');
+    });
+    modalClose.addEventListener('click', function() {
+      modal.classList.remove('show');
+    });
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) modal.classList.remove('show');
+    });
+  }
+});
+</script>
+<script>
+// Narrow contract farming seed symbol list by selected category
+document.addEventListener('DOMContentLoaded', function () {
+  const catSel = document.getElementById('id_category');
+  const symSel = document.getElementById('id_symbol');
+  if (!catSel || !symSel) return;
+
+  let seedTypes = [];
+  const KNOWN_CATS = ['COFFEE','SESAME','BEANS'];
+  const OTHER_SYMBOLS = ['NS'];
+
+  fetch('/api/seed-type-details/', { credentials: 'same-origin' })
+    .then(r => r.ok ? r.json() : Promise.reject('seed types'))
+    .then(data => {
+      const items = Array.isArray(data) ? data : data.results;
+      seedTypes = items || [];
+      populateSymbols();
+    })
+    .catch(() => {});
+
+  catSel.addEventListener('change', populateSymbols);
+
+  function populateSymbols() {
+    const cat = catSel.value;
+    const selected = symSel.value;
+    const allowed = new Set(
+      seedTypes
+        .filter(s => (
+          !cat ? true : (cat === 'OTHER'
+            ? (!KNOWN_CATS.includes(s.category) || OTHER_SYMBOLS.includes(s.symbol))
+            : s.category === cat)
+        ))
+        .map(s => s.symbol)
+    );
+    const keep = new Set();
+    // Rebuild options keeping placeholder
+    const placeholder = symSel.querySelector('option[value=""]');
+    symSel.innerHTML = '';
+    if (placeholder) symSel.appendChild(placeholder);
+    Array.from(allowed).sort().forEach(sym => {
+      const opt = document.createElement('option');
+      opt.value = sym; opt.textContent = sym;
+      symSel.appendChild(opt);
+      keep.add(sym);
+    });
+    if (!keep.has(selected)) symSel.value = '';
+  }
+});
+</script>
+{% if register_out %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('stock-out-form');
+  let submitting = false;
+  if (!form) return;
+  const ownerSelect = document.getElementById('ownerSelect');
+  const warehouseSelect = document.getElementById('id_warehouse');
+  const seedSelect = document.getElementById('seedType');
+  const step1 = document.getElementById('step1');
+  const step2 = document.getElementById('step2');
+  const step3 = document.getElementById('step3');
+  const step4 = document.getElementById('step4');
+  const cleanedRadio = document.getElementById('class-cleaned');
+  const rejectRadio = document.getElementById('class-reject');
+  const cleanedHint = document.getElementById('cleanedHint');
+  const rejectHint = document.getElementById('rejectHint');
+  const availableBadge = document.getElementById('availableBadge');
+  const qtyInput = document.getElementById('quantity');
+  const nextBtn = document.getElementById('toStep4');
+  const submitBtn = document.getElementById('submitBtn');
+  const step3Error = document.getElementById('step3Error');
+  const submitError = document.getElementById('submitError');
+  const successMsg = document.getElementById('submitSuccess');
+  let availabilityByClass = {};
+
+  function hideStatus(el) {
+    if (!el) return;
+    el.textContent = '';
+    el.hidden = true;
+  }
+
+  function resetStepProgress() {
+    step1.hidden = true;
+    step2.hidden = true;
+    step3.hidden = true;
+    step4.hidden = true;
+    availabilityByClass = {};
+    cleanedRadio.checked = false;
+    rejectRadio.checked = false;
+    cleanedRadio.disabled = true;
+    rejectRadio.disabled = true;
+    cleanedHint.textContent = '';
+    rejectHint.textContent = '';
+    availableBadge.textContent = '';
+    availableBadge.hidden = true;
+    qtyInput.value = '';
+    qtyInput.removeAttribute('max');
+    nextBtn.disabled = true;
+    submitBtn.disabled = true;
+    hideStatus(step3Error);
+    hideStatus(submitError);
+    hideStatus(successMsg);
+  }
+
+  resetStepProgress();
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  fetch('/api/stock/owners/available')
+    .then(r => r.json())
+    .then(data => {
+      ownerSelect.innerHTML = '<option value="">---------</option>';
+      data.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o.id;
+        opt.textContent = o.name;
+        ownerSelect.appendChild(opt);
+      });
+    });
+
+  function loadSeedTypes() {
+    const ownerId = ownerSelect.value;
+    const whId = warehouseSelect.value;
+    seedSelect.innerHTML = '<option value="">---------</option>';
+    resetStepProgress();
+    if (!ownerId || !whId) return;
+    fetch(`/api/stock/seed-types/available?owner=${ownerId}&warehouse=${whId}`)
+      .then(r => r.json())
+      .then(data => {
+        data.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.seed_type;
+          opt.textContent = s.label;
+          seedSelect.appendChild(opt);
+        });
+        step1.hidden = false;
+      });
+  }
+
+  ownerSelect.addEventListener('change', loadSeedTypes);
+  warehouseSelect.addEventListener('change', loadSeedTypes);
+
+  seedSelect.addEventListener('change', function() {
+    const val = this.value;
+    if (!val) return;
+      hideStatus(step3Error);
+      hideStatus(submitError);
+      hideStatus(successMsg);
+      fetch(`/api/stock/classes/available?seed_type=${val}&owner=${ownerSelect.value}&warehouse=${warehouseSelect.value}`)
+      .then(r => r.json())
+      .then(data => {
+        cleanedHint.textContent = `(${data.cleaned} qtl available)`;
+        rejectHint.textContent = `(${data.reject} qtl available)`;
+        document.getElementById('rawHint').textContent = `(${data.raw} qtl available)`;
+        availabilityByClass = data;
+        cleanedRadio.disabled = parseFloat(data.cleaned) <= 0;
+        rejectRadio.disabled = parseFloat(data.reject) <= 0;
+        const rawRadio = document.getElementById('class-raw');
+        rawRadio.disabled = parseFloat(data.raw) <= 0;
+        cleanedRadio.checked = false;
+        rejectRadio.checked = false;
+        rawRadio.checked = false;
+        availableBadge.textContent = '';
+        availableBadge.hidden = true;
+        step2.hidden = false;
+        step3.hidden = true;
+        step4.hidden = true;
+      });
+  });
+
+  const rawRadio = document.getElementById('class-raw');
+  [cleanedRadio, rejectRadio, rawRadio].forEach(radio => {
+    radio.addEventListener('change', function() {
+      const cls = this.value;
+      const available = availabilityByClass[cls];
+      availableBadge.textContent = `Available: ${available} qtl`;
+      availableBadge.hidden = !available || parseFloat(available) <= 0;
+      qtyInput.value = '';
+      qtyInput.max = available;
+      nextBtn.disabled = true;
+      step3.hidden = false;
+      step4.hidden = true;
+      hideStatus(step3Error);
+      hideStatus(submitError);
+      hideStatus(successMsg);
+      if (cls === 'raw') {
+        const borrowBox = document.getElementById('isBorrow');
+        if (borrowBox && !borrowBox.checked) { borrowBox.checked = true; borrowBox.dispatchEvent(new Event('change')); }
+      }
+    });
+  });
+
+  function validateQty() {
+    const qty = parseFloat(qtyInput.value);
+    const max = parseFloat(qtyInput.max);
+    const selectedClass = document.querySelector('input[name="class"]:checked');
+    if (!qty || qty <= 0 || qty > max) {
+      nextBtn.disabled = true;
+      hideStatus(step3Error);
+      return;
+    }
+    if (!selectedClass) {
+      nextBtn.disabled = true;
+      return;
+    }
+      const payload = {
+        owner: ownerSelect.value,
+        warehouse: warehouseSelect.value,
+        seed_type: seedSelect.value,
+        stock_class: selectedClass.value,
+        quantity: qtyInput.value
+      };
+    fetch('/api/stock/validate-out', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(payload)
+    }).then(async r => {
+      if (r.ok) {
+        hideStatus(step3Error);
+        nextBtn.disabled = false;
+      } else {
+        const d = await r.json();
+        step3Error.textContent = d.error || 'Invalid quantity';
+        step3Error.hidden = false;
+        nextBtn.disabled = true;
+      }
+    });
+  }
+
+  qtyInput.addEventListener('input', validateQty);
+
+  nextBtn.addEventListener('click', function() {
+    hideStatus(step3Error);
+    step4.hidden = false;
+    submitBtn.disabled = false;
+  });
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (submitting) return; // prevent double submit while in-flight
+    submitting = true;
+    hideStatus(submitError);
+    hideStatus(successMsg);
+    const fd = new FormData();
+    fd.append('owner', ownerSelect.value);
+    fd.append('warehouse', warehouseSelect.value);
+    fd.append('seed_type', seedSelect.value);
+    const classEl = document.querySelector('input[name="class"]:checked');
+    if (!classEl) {
+      submitError.textContent = 'Select a stock class to continue.';
+      submitError.hidden = false;
+      return;
+    }
+    const stockClass = classEl.value;
+      fd.append('stock_class', stockClass);
+      fd.append('quantity', qtyInput.value);
+    const desc = stockClass === 'cleaned' ? 'Cleaned product stock out' : (stockClass === 'reject' ? 'Reject product stock out' : 'Raw product stock out');
+    fd.append('description', desc);
+    // Borrow options
+    const isBorrow = document.getElementById('isBorrow').checked;
+    const borrower = document.getElementById('borrowerSelect').value;
+    if (isBorrow) {
+      fd.append('is_borrow', 'true');
+      const other = borrower === '__other__';
+      if (!other && borrower) {
+        fd.append('borrower', borrower);
+      } else {
+        const bname = document.getElementById('borrowerName').value.trim();
+        if (bname) fd.append('borrower_name', bname);
+      }
+    }
+    const loadingRate = document.getElementById('id_loading_rate_etb_per_qtl').value;
+    if (loadingRate) fd.append('loading_rate_etb_per_qtl', loadingRate);
+    const numBags = document.getElementById('id_num_bags').value;
+    if (numBags) fd.append('num_bags', numBags);
+    const carPlate = document.getElementById('id_car_plate_number').value;
+    if (carPlate) fd.append('car_plate_number', carPlate);
+    const docNo = document.getElementById('id_warehouse_document_number').value;
+    if (docNo) fd.append('warehouse_document_number', docNo);
+    const whDoc = document.getElementById('id_warehouse_document').files[0];
+    if (whDoc) fd.append('warehouse_document', whDoc);
+    const wbCert = document.getElementById('id_weighbridge_certificate').files[0];
+    if (wbCert) fd.append('weighbridge_certificate', wbCert);
+    const entryDate = document.getElementById('entryDateOut').value;
+    if (entryDate) fd.append('entry_date', entryDate);
+    // Generate an idempotency key for this submission
+    const idemKey = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2));
+    // Also include in body for servers not reading headers
+    fd.append('idempotency_key', idemKey);
+    // Disable the submit button and show progress
+    const originalBtnText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    try { submitBtn.textContent = 'Submitting…'; } catch (e) {}
+    fetch('/api/stock/out', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Idempotency-Key': idemKey
+      },
+      body: fd
+    }).then(async r => {
+      let data = {};
+      try {
+        data = await r.json();
+      } catch (err) {}
+      if (!r.ok) {
+        submitError.textContent = data.error || 'Submission failed';
+        submitError.hidden = false;
+        return;
+      }
+      if (data.pending) {
+        // Show a clear confirmation and keep it visible.
+        successMsg.textContent = 'Submitted for logistics manager approval. You will be notified after review.';
+        successMsg.hidden = false;
+        // Reset inputs but keep the current step visible so the message remains
+        // on screen instead of being hidden by resetStepProgress().
+        form.reset();
+        ownerSelect.value = '';
+        warehouseSelect.value = '';
+        seedSelect.innerHTML = '<option value="">---------</option>';
+        submitBtn.disabled = true;
+        nextBtn.disabled = true;
+        // Optional: fade out the success message after a few seconds.
+        setTimeout(() => { try { successMsg.hidden = true; } catch(e){} }, 6000);
+        return;
+      }
+      window.location.href = window.location.pathname;
+    }).catch(() => {
+      submitError.textContent = 'Submission failed. Please try again.';
+      submitError.hidden = false;
+    }).finally(() => {
+      // If submission failed, allow retry; keep disabled if success path handled
+      if (successMsg.hidden) {
+        submitting = false;
+        submitBtn.disabled = false;
+      }
+      try { submitBtn.textContent = originalBtnText; } catch (e) {}
+    });
+  });
+
+  // Borrow UI toggle
+  (function(){
+    const box = document.getElementById('isBorrow');
+    const field = document.getElementById('borrowerField');
+    const nameField = document.getElementById('borrowerNameField');
+    const select = document.getElementById('borrowerSelect');
+    if (!box || !field) return;
+    function toggleBorrow() {
+      field.hidden = !box.checked;
+      nameField.hidden = !box.checked || (select && select.value !== '__other__');
+      const rawRadio = document.getElementById('class-raw');
+      if (!box.checked) {
+        if (rawRadio) { rawRadio.checked = false; rawRadio.disabled = true; }
+      } else {
+        if (rawRadio && parseFloat((document.getElementById('rawHint').textContent||'0').replace(/[^0-9.]/g,''))>0) { rawRadio.disabled = false; }
+      }
+    }
+    box.addEventListener('change', toggleBorrow);
+    if (select) select.addEventListener('change', toggleBorrow);
+    toggleBorrow();
+  })();
+
+});
+</script>
+{% endif %}
+{% endblock %}

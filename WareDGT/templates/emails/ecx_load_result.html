@@ -1,0 +1,21 @@
+{% extends "emails/base_email.html" %}
+{% block email_body %}
+<tr><td style="font-size:18px;font-weight:700;color:#9AEC25;">Your ECX Load Request was {{ approved|yesno:"Approved,Declined" }}</td></tr>
+<tr><td style="padding-top:10px;font-size:14px;line-height:1.6">
+  <b>Warehouse:</b> {{ req.warehouse }}<br/>
+  <b>Plombs/Seals:</b> {{ req.plombs_count }}{% if req.has_trailer %} &nbsp; <b>Trailer(s):</b> {{ req.trailer_count }}{% endif %}
+  {% if req.truck_image %}<br/><img src="{{ req.truck_image.url }}" alt="Truck image" style="max-width:100%;margin-top:4px;"/>{% endif %}
+  {% for rf in req.receipt_files.all %}
+    <br/><img src="{{ rf.file.url }}" alt="Load request receipt" style="max-width:100%;margin-top:4px;"/>
+  {% endfor %}
+  <ul style="margin:6px 0 0 18px;">
+    {% for t in req.trades.all %}
+      <li>{{ t.receipt_no }} – {{ t.seed_type }} – {{ t.quantity }}
+        {% for r in t.receipt_files.all %}
+          <br/><img src="{{ r.file.url }}" alt="ECX receipt" style="max-width:100%;margin-top:4px;"/>
+        {% endfor %}
+      </li>
+    {% endfor %}
+  </ul>
+</td></tr>
+{% endblock %}

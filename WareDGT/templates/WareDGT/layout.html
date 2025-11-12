@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WMS{% endblock %}</title>
+  <link href="{% static 'WareDGT/css/styles.css' %}" rel="stylesheet">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div id="page-rotate-root">
+    {% include 'WareDGT/includes/_header.html' %}
+
+    <!-- Mobile modal sidebar elements -->
+    <div id="sidebar-backdrop" class="erp-sidebar-backdrop"></div>
+    <aside id="mobile-sidebar" class="erp-mobile-sidebar">
+      <button
+        id="mobile-sidebar-close"
+        class="erp-mobile-sidebar__close"
+        aria-label="Close sidebar"
+        type="button"
+      >×</button>
+      <button
+        id="mobile-sidebar-close-btn"
+        class="erp-mobile-sidebar__close-btn"
+        type="button"
+      >Close</button>
+      {% include 'WareDGT/includes/_sidebar_content.html' %}
+    </aside>
+
+    <div class="flex h-screen pt-16">
+      {% include 'WareDGT/includes/_sidebar.html' %}
+      <div class="flex-1 overflow-auto">
+        <main class="p-6">
+          {% if messages %}
+          <div id="messages" class="erp-messages">
+            {% for msg in messages %}
+            <div class="erp-message {{ msg.tags }}">{{ msg }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'WareDGT/js/scripts.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

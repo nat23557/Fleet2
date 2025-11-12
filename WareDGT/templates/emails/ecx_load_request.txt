@@ -1,0 +1,13 @@
+ECX Load Request – Approval Needed
+Agent: {{ req.created_by.get_full_name|default:req.created_by.username }}
+Warehouse: {{ req.warehouse }}
+Plombs/Seals: {{ req.plombs_count }}
+Has trailer: {{ req.has_trailer|yesno:"Yes,No" }}{% if req.has_trailer %} Trailer count: {{ req.trailer_count }}{% endif %}
+Trades:
+{% for t in req.trades.all %}- {{ t.receipt_no }} – {{ t.seed_type }} – {{ t.quantity }}
+{% endfor %}
+{% if req.truck_image %}Truck image: {{ req.truck_image.url }}
+{% endif %}
+{% for rf in req.receipt_files.all %}Receipt: {{ rf.file.url }}
+{% endfor %}
+Review & Decide: {{ approve_url }}

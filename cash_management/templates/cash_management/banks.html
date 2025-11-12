@@ -1,0 +1,71 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:1000px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:1rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">Banks</h1>
+      <p class="dashboard-subtext">Aggregated balances by bank{% if selected_currency %} • {{ selected_currency }}{% endif %}</p>
+    </div>
+    <div class="dashboard-hero-meta" style="display:flex;gap:.5rem;align-items:center;">
+      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}">⬅ Back</a>
+    </div>
+  </div>
+
+  <section class="section" style="margin-top:.25rem;">
+    <div class="section-header">
+      <div class="section-title">Cash Snapshot</div>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+        <div class="segmented">
+          <a class="seg-item {% if not selected_currency %}active{% endif %}" href="{% url 'cash_management:banks' %}">All</a>
+          <a class="seg-item {% if selected_currency == 'ETB' %}active{% endif %}" href="{% url 'cash_management:banks' %}?currency=ETB">ETB</a>
+          <a class="seg-item {% if selected_currency == 'USD' %}active{% endif %}" href="{% url 'cash_management:banks' %}?currency=USD">USD</a>
+        </div>
+        {% if can_add_txn %}
+        <a class="cta-button btn-sm" href="{% url 'cash_management:new_transaction' %}">➕ New Transaction</a>
+        {% endif %}
+        <a class="btn btn-ghost btn-sm" href="{% url 'cash_management:live' %}">🖥 Live Monitor</a>
+        <a class="btn btn-ghost btn-sm" href="{% url 'cash_management:cash_summary' %}">🧮 Cash Summary</a>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card accent-green">
+        <div class="kpi-title">ETB Accounts</div>
+        <div class="kpi-value">{{ total_etb_native|default:totals.ETB|default:0|floatformat:2 }}</div>
+      </div>
+      <div class="kpi-card accent-blue">
+        <div class="kpi-title">USD Accounts</div>
+        <div class="kpi-value">{{ totals.USD|default:0|floatformat:2 }}</div>
+      </div>
+      <div class="kpi-card accent-purple">
+        <div class="kpi-title">FOREX in ETB</div>
+        <div class="kpi-value">{{ total_forex_to_etb|default:0|floatformat:2 }}</div>
+      </div>
+      <div class="kpi-card accent-amber">
+        <div class="kpi-title">Grand Total (ETB)</div>
+        <div class="kpi-value">{{ grand_total|default:0|floatformat:2 }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">Bank List</div>
+    </div>
+    <div class="list">
+      {% for name, bal in rows %}
+        <a class="list-item" href="{% url 'cash_management:bank_detail' name %}{% if selected_currency %}?currency={{ selected_currency }}{% endif %}">
+          <div class="item-meta">
+            <div class="meta-title">{{ name }}</div>
+            <div class="meta-sub">Balance{% if selected_currency %} • <span class="bank-badge">{{ selected_currency }}</span>{% endif %}</div>
+          </div>
+          <div class="kpi-value" style="font-variant-numeric:tabular-nums;">{{ bal|floatformat:2 }}</div>
+        </a>
+      {% empty %}
+        <div class="empty">No banks found.</div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

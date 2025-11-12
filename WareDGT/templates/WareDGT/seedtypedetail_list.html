@@ -1,0 +1,115 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Seed Types{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Seed Types</h1>
+
+<p class="mt-4"><a href="{% url 'seedtypedetail_create' %}" class="erp-btn">Add Seed Type</a></p>
+
+<h2>Sesame <a href="{% url 'sesame_contract' %}" class="seed-type-link">🌾 Sesame Contract</a></h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Name</th>
+      <th>Delivery Location</th>
+      <th>Grade</th>
+      <th>Origin</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in sesame_seed_types %}
+    <tr>
+      <td>{{ s.symbol }}</td>
+      <td>{{ s.name }}</td>
+      <td>{{ s.delivery_location.name }}</td>
+      <td>{{ s.grade }}</td>
+      <td>{{ s.origin }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No seed types found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Beans <a href="{% url 'bean_contract' %}" class="seed-type-link">🫘 Bean Contract</a></h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Name</th>
+      <th>Delivery Location</th>
+      <th>Grade</th>
+      <th>Origin</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in bean_seed_types %}
+    <tr>
+      <td>{{ s.symbol }}</td>
+      <td>{{ s.name }}</td>
+      <td>{{ s.delivery_location.name }}</td>
+      <td>{{ s.grade }}</td>
+      <td>{{ s.origin }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No seed types found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Other</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Name</th>
+      <th>Delivery Location</th>
+      <th>Grade</th>
+      <th>Origin</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in other_seed_types %}
+    <tr>
+      <td>{{ s.symbol }}</td>
+      <td>{{ s.name }}</td>
+      <td>{{ s.delivery_location.name }}</td>
+      <td>{{ s.grade }}</td>
+      <td>{{ s.origin }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No seed types found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Coffee <a href="{% url 'coffee_details' %}" class="seed-type-link">☕ Coffee Details</a></h2>
+{% for group, items in coffee_groups.items %}
+  <h3>{{ group }}</h3>
+  <table class="erp-table mb-4">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Name</th>
+        <th>Delivery Location</th>
+        <th>Grade</th>
+        <th>Origin</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in items %}
+      <tr>
+        <td>{{ s.symbol }}</td>
+        <td>{{ s.name }}</td>
+        <td>{{ s.delivery_location.name }}</td>
+        <td>{{ s.grade }}</td>
+        <td>{{ s.origin }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">No seed types found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endfor %}
+{% endblock %}

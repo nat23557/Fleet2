@@ -1,0 +1,7 @@
+{% extends "emails/base_email.html" %}
+{% block email_body %}
+<tr><td style="font-size:18px;font-weight:700;color:#9AEC25;">Your Stock Out Request was {{ approved|yesno:"Approved,Declined" }}</td></tr>
+{% if not approved and req.reason %}
+<tr><td style="padding-top:8px;font-size:14px;line-height:1.6"><b>Reason:</b> {{ req.reason }}</td></tr>
+{% endif %}
+{% endblock %}

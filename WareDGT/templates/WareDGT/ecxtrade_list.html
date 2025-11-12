@@ -1,0 +1,208 @@
+{% extends 'WareDGT/layout.html' %}
+{% load ethiopian_calendar %}
+{% block title %}ECX Trades{% endblock %}
+
+{% block extra_css %}
+<style>
+  .receipt-thumbs { display:flex; gap:6px; align-items:center; flex-wrap:wrap; max-width:260px; }
+  .receipt-thumbs .thumb { width:44px; height:44px; border-radius:6px; overflow:hidden; border:1px solid #2b3942; box-shadow:0 1px 2px rgba(0,0,0,.15); background:#0b141a; }
+  .receipt-thumbs .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .receipt-thumbs .badge { font-size:12px; padding:2px 6px; border-radius:12px; border:1px solid #2b3942; color:#c8d1d9; background:#0f1a21; text-decoration:none; }
+  .receipt-thumbs .more { font-size:12px; color:#8fb3ff; }
+  .erp-table th.receipts-col, .erp-table td.receipts-col { width: 300px; }
+  @media (max-width: 900px) { .erp-table th.receipts-col, .erp-table td.receipts-col { width:auto; } }
+  .erp-table td { vertical-align: middle; }
+  .erp-table td.receipts-col { padding-top:10px; padding-bottom:10px; }
+  .erp-table a.thumb:hover { filter:brightness(1.1); }
+  .erp-table a.badge:hover { border-color:#3a4a55; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">ECX Trades</h1>
+{% if role|upper in 'ECX_OFFICER OPERATIONS_MANAGER ADMIN' %}
+<p class="mb-4"><a href="{% url 'ecxtrade_create' %}" class="erp-btn">Record ECX Trade</a></p>
+{% endif %}
+
+<div class="ecx-filter-bar">
+  <input id="warehouseFilter" list="warehouseOptions" placeholder="Filter warehouse" autocomplete="off" />
+  <datalist id="warehouseOptions"></datalist>
+  <input id="ownerFilter" list="ownerOptions" placeholder="Filter owner" autocomplete="off" />
+  <datalist id="ownerOptions"></datalist>
+</div>
+
+<table id="ecxtradeTable" class="erp-table ecx-table">
+  <thead>
+    <tr>
+      <th class="wh-col">Warehouse</th>
+      <th>Owner</th>
+      <th>Commodity</th>
+      <th>Net Obligation Receipt</th>
+      <th class="receipts-col">Receipts</th>
+      <th>Warehouse Receipt</th>
+      <th>Quantity (qtls)</th>
+      <th>
+        Purchase Date
+        <span style="font-weight:normal; margin-left:8px; font-size:12px;">
+          Calendar:
+          <select id="calendarMode" style="padding:2px 6px;">
+            <option value="ethiopian">Ethiopian</option>
+            <option value="gregorian">Gregorian</option>
+          </select>
+        </span>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in trade_rows %}
+    <tr data-warehouse="{{ row.trade.warehouse_id }}" data-warehouse-name="{{ row.trade.warehouse.code }}" data-owner="{{ row.trade.owner_id }}" data-owner-name="{{ row.trade.owner }}">
+      <td class="wh-col">{{ row.trade.warehouse.code }}</td>
+      <td>{{ row.trade.owner|default:"-" }}</td>
+      <td>{{ row.trade.commodity }}</td>
+      <td>{{ row.trade.net_obligation_receipt_no }}</td>
+      <td class="receipts-col">
+        <div class="receipt-thumbs">
+          {% if row.images %}
+            {% for u in row.images %}
+              {% if forloop.counter <= 3 %}
+                <a class="thumb" href="{{ u }}" target="_blank" rel="noopener">
+                  <img src="{{ u }}" alt="receipt" />
+                </a>
+              {% elif forloop.counter == 4 %}
+                <span class="more">+{{ row.images|length|add:'-3' }} more</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if row.files %}
+            {% for f in row.files %}
+              {% if forloop.counter <= 2 %}
+                <a class="badge" href="{{ f }}" target="_blank" rel="noopener">PDF</a>
+              {% elif forloop.counter == 3 %}
+                <span class="more">+{{ row.files|length|add:'-2' }} more</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if not row.images and not row.files %}-{% endif %}
+        </div>
+      </td>
+      <td>{{ row.trade.warehouse_receipt_no }}</td>
+      <td>{{ row.trade.quantity_quintals }}</td>
+      <td>
+        <span class="date-cell"
+              data-ethiopian="{{ row.trade.purchase_date|ethiopian_date }}"
+              data-gregorian="{{ row.trade.purchase_date }}">
+          {{ row.trade.purchase_date|ethiopian_date }}
+        </span>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8">No trades recorded.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const warehouseFilter = document.getElementById('warehouseFilter');
+  const ownerFilter = document.getElementById('ownerFilter');
+  const warehouseOptions = document.getElementById('warehouseOptions');
+  const ownerOptions = document.getElementById('ownerOptions');
+  const rows = Array.from(document.querySelectorAll('#ecxtradeTable tbody tr'));
+
+  const warehouses = {};
+  rows.forEach(row => {
+    const wName = row.dataset.warehouseName;
+    const wId = row.dataset.warehouse;
+    if (wName && wId) warehouses[wName] = wId;
+  });
+  Object.keys(warehouses).forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    warehouseOptions.appendChild(opt);
+  });
+
+  function populateOwners(warehouseName) {
+    const owners = {};
+    rows.forEach(row => {
+      if (!warehouseName || row.dataset.warehouseName === warehouseName) {
+        const oname = row.dataset.ownerName;
+        if (oname) owners[oname] = true;
+      }
+    });
+    ownerOptions.innerHTML = '';
+    Object.keys(owners).forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      ownerOptions.appendChild(opt);
+    });
+  }
+
+  function toggleWarehouseColumn(hide) {
+    const th = document.querySelector('#ecxtradeTable th.wh-col');
+    const tds = document.querySelectorAll('#ecxtradeTable td.wh-col');
+    const display = hide ? 'none' : '';
+    if (th) th.style.display = display;
+    tds.forEach(td => td.style.display = display);
+  }
+
+  function filterRows() {
+    const whName = warehouseFilter.value;
+    const ownerName = ownerFilter.value;
+    rows.forEach(row => {
+      const whMatch = !whName || row.dataset.warehouseName === whName;
+      const ownerMatch = !ownerName || row.dataset.ownerName === ownerName;
+      row.style.display = whMatch && ownerMatch ? '' : 'none';
+    });
+    toggleWarehouseColumn(!!whName);
+  }
+
+  warehouseFilter.addEventListener('input', () => {
+    populateOwners(warehouseFilter.value);
+    ownerFilter.value = '';
+    filterRows();
+  });
+  ownerFilter.addEventListener('input', filterRows);
+
+  populateOwners('');
+  toggleWarehouseColumn(false);
+
+  // Calendar toggle for Purchase Date column
+  const modeSelect = document.getElementById('calendarMode');
+  const DATE_PREF_KEY = 'ecx_trade_calendar_mode';
+  function applyCalendarMode(mode) {
+    const cells = document.querySelectorAll('.date-cell');
+    cells.forEach(function(el){
+      if (mode === 'gregorian') {
+        el.textContent = el.getAttribute('data-gregorian') || '';
+      } else {
+        el.textContent = el.getAttribute('data-ethiopian') || '';
+      }
+    });
+  }
+  // Load saved preference
+  try {
+    const saved = localStorage.getItem(DATE_PREF_KEY);
+    if (saved === 'gregorian' || saved === 'ethiopian') {
+      if (modeSelect) modeSelect.value = saved;
+      applyCalendarMode(saved);
+    } else {
+      // default to Ethiopian (existing behaviour)
+      if (modeSelect) modeSelect.value = 'ethiopian';
+      applyCalendarMode('ethiopian');
+    }
+  } catch (e) {
+    // Fallback silently
+    applyCalendarMode('ethiopian');
+  }
+  if (modeSelect) {
+    modeSelect.addEventListener('change', function(){
+      const mode = modeSelect.value === 'gregorian' ? 'gregorian' : 'ethiopian';
+      applyCalendarMode(mode);
+      try { localStorage.setItem(DATE_PREF_KEY, mode); } catch (e) {}
+    });
+  }
+});
+</script>
+{% endblock %}

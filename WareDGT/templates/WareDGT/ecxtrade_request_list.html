@@ -1,0 +1,139 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Trade Approvals{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Polished filter card with floating action buttons */
+  .filter-card { position: relative; margin-bottom: 12px; }
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(140px, 1fr));
+    gap: 8px;
+    align-items: end;
+    margin: 0;
+    max-width: none !important;
+    width: 100%;
+  }
+  .fab-group {
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translate(0, -50%);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .fab-group .erp-btn {
+    background: var(--wms-accent);
+    color: #0b0e03;
+    border-radius: 12px;
+    box-shadow: 0 8px 22px rgba(154,236,37,0.24);
+    font-weight: 700;
+  }
+  .fab-group .erp-btn.secondary {
+    background: linear-gradient(94deg, rgba(154,236,37,0.16), rgba(51,83,8,0.25));
+    color: var(--wms-text);
+  }
+  /* small pointer flair */
+  .fab-group .erp-btn::before {
+    content: '';
+    position: absolute;
+    left: -8px; top: 50%; transform: translateY(-50%);
+    border-width: 8px; border-style: solid;
+    border-color: transparent var(--wms-accent) transparent transparent;
+    filter: drop-shadow(-2px 2px 2px rgba(0,0,0,0.25));
+  }
+  .fab-group .erp-btn.secondary::before {
+    border-color: transparent rgba(51,83,8,0.25) transparent transparent;
+  }
+  /* Responsive: stack buttons below on small screens */
+  @media (max-width: 900px) {
+    .fab-group { position: static; transform: none; flex-direction: row; justify-content: flex-end; margin-top: 6px; }
+    .filter-grid { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">ECX Trade Approval Requests</h1>
+
+<div class="erp-card filter-card">
+  <form id="filterForm" method="get" class="erp-form filter-grid">
+    <label>Owner
+      <select name="owner">
+        <option value="">All</option>
+        {% for o in owners %}
+        <option value="{{ o.id }}" {% if selected_owner == o.id|stringformat:'s' %}selected{% endif %}>{{ o.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>NOR contains
+      <input type="text" name="q" value="{{ query }}" />
+    </label>
+    <label>From
+      <input type="date" name="start" value="{{ start }}" />
+    </label>
+    <label>To
+      <input type="date" name="end" value="{{ end }}" />
+    </label>
+  </form>
+  <!-- Floating button stack aligned to the right -->
+  <div class="fab-group" aria-label="Filter actions">
+    <button class="erp-btn" type="submit" form="filterForm">Filter</button>
+    <a id="exportCsvBtn" class="erp-btn secondary" href="{% url 'ecxtrade_request_export' %}?owner={{ selected_owner }}&q={{ query }}&start={{ start }}&end={{ end }}">Export CSV</a>
+  </div>
+</div>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Submitted</th>
+      <th>Submitter</th>
+      <th>Owner</th>
+      <th>Warehouses</th>
+      <th>Seed</th>
+      <th>NOR</th>
+      <th>Purchase Date</th>
+      <th>Total (Qtls)</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req in object_list %}
+    <tr>
+      <td>{{ req.created_at }}</td>
+      <td>{{ req.created_by.get_full_name|default:req.created_by.username }}</td>
+      <td>{{ req.owner }}</td>
+      <td>{{ req.warehouses_display }}</td>
+      <td>{{ req.symbol }}{% if req.grade %} [{{ req.grade }}]{% endif %}</td>
+      <td>{{ req.net_obligation_receipt_no }}</td>
+      <td>{{ req.purchase_date }}</td>
+      <td>{{ req.total_quantity }}</td>
+      <td>{{ req.status }}</td>
+      <td>
+        <a class="erp-btn" href="{% url 'ecxtrade_request_review' req.id %}">Review</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8">No requests.</td></tr>
+    {% endfor %}
+ </tbody>
+  </table>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Keep Export CSV link in sync with current inputs without a full submit
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('filterForm');
+    const exportBtn = document.getElementById('exportCsvBtn');
+    if (!form || !exportBtn) return;
+    const base = "{% url 'ecxtrade_request_export' %}";
+    const updateHref = () => {
+      const fd = new FormData(form);
+      const params = new URLSearchParams(fd);
+      exportBtn.href = `${base}?${params}`;
+    };
+    form.addEventListener('input', updateHref);
+    updateHref();
+  });
+  </script>
+{% endblock %}

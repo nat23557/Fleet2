@@ -1,0 +1,273 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Contract Farming Stocks{% endblock %}
+
+{% block extra_css %}
+<style>
+.cmv-form { margin-bottom: 1rem; }
+.cmv-thumb { max-height: 48px; }
+.dt-filters input { width: 100%; box-sizing: border-box; }
+/* Hide DataTables default controls to match ERP style */
+.dataTables_length,
+.dataTables_filter,
+.dataTables_info,
+.dataTables_paginate { display: none !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Contract Farming Stocks (In Movement)</h1>
+
+<p class="mb-4">
+  <button type="button" id="toggleFormBtn" class="erp-btn">+ New Contract Stock</button>
+  <small class="ml-2">Click to add a new record</small>
+  </p>
+
+<div id="cmvFormWrap" style="display: {% if form.errors %}block{% else %}none{% endif %};">
+<form method="post" enctype="multipart/form-data" class="erp-form cmv-form">
+  {% csrf_token %}
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <p>{{ form.owner.label_tag }} {{ form.owner }}</p>
+    <p>{{ form.category.label_tag }} {{ form.category }}</p>
+    <p>{{ form.symbol.label_tag }} {{ form.symbol }}</p>
+    <p>{{ form.quantity_quintals.label_tag }} {{ form.quantity_quintals }}</p>
+    <p>{{ form.origin.label_tag }} {{ form.origin }}</p>
+    <p>{{ form.agent_name.label_tag }} {{ form.agent_name }}</p>
+    <p>{{ form.agent_phone.label_tag }} {{ form.agent_phone }}</p>
+    <p>{{ form.advice_number.label_tag }} {{ form.advice_number }}</p>
+    <p>{{ form.dispatch_number.label_tag }} {{ form.dispatch_number }}</p>
+    <p>{{ form.dispatch_image.label_tag }} {{ form.dispatch_image }}</p>
+    <p class="md:col-span-3">{{ form.notes.label_tag }} {{ form.notes }}</p>
+  </div>
+  <button type="submit" class="erp-btn">Add Contract Stock</button>
+</form>
+</div>
+
+<div class="ecx-filter-bar">
+  <input id="cm-ownerFilter" list="cm-ownerOptions" placeholder="Filter owner" autocomplete="off" />
+  <datalist id="cm-ownerOptions"></datalist>
+  <input id="cm-categoryFilter" list="cm-categoryOptions" placeholder="Filter category" autocomplete="off" />
+  <datalist id="cm-categoryOptions"></datalist>
+  <input id="cm-symbolFilter" list="cm-symbolOptions" placeholder="Filter symbol" autocomplete="off" />
+  <datalist id="cm-symbolOptions"></datalist>
+  <input id="cm-originFilter" list="cm-originOptions" placeholder="Filter origin" autocomplete="off" />
+  <datalist id="cm-originOptions"></datalist>
+  <input id="cm-agentFilter" list="cm-agentOptions" placeholder="Filter agent" autocomplete="off" />
+  <datalist id="cm-agentOptions"></datalist>
+  <input id="cm-adviceFilter" list="cm-adviceOptions" placeholder="Filter advice no" autocomplete="off" />
+  <datalist id="cm-adviceOptions"></datalist>
+  <input id="cm-dispatchFilter" list="cm-dispatchOptions" placeholder="Filter dispatch no" autocomplete="off" />
+  <datalist id="cm-dispatchOptions"></datalist>
+  <input id="cm-statusFilter" list="cm-statusOptions" placeholder="Filter status" autocomplete="off" />
+  <datalist id="cm-statusOptions"></datalist>
+</div>
+
+<table id="cmvTable" class="erp-table ecx-table" style="width:100%">
+  <thead>
+    <tr>
+      <th>Created</th>
+      <th class="owner-col">Owner</th>
+      <th class="category-col">Category</th>
+      <th class="symbol-col">Symbol</th>
+      <th class="origin-col">Origin</th>
+      <th>Qty (qtl)</th>
+      <th class="agent-col">Agent</th>
+      <th class="phone-col">Phone</th>
+      <th class="advice-col">Advice No</th>
+      <th class="dispatch-col">Dispatch No</th>
+      <th>Dispatch Image</th>
+      <th class="status-col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr
+      data-owner="{{ obj.owner|default:'ThermoFam Trading PLC' }}"
+      data-category="{{ obj.get_category_display }}"
+      data-symbol="{{ obj.symbol }}"
+      data-origin="{{ obj.origin }}"
+      data-agent="{{ obj.agent_name }}"
+      data-advice="{{ obj.advice_number }}"
+      data-dispatch="{{ obj.dispatch_number }}"
+      data-status="{{ obj.get_status_display }}"
+    >
+      <td>{{ obj.created_at }}</td>
+      <td class="owner-col">{{ obj.owner|default:'ThermoFam Trading PLC' }}</td>
+      <td class="category-col">{{ obj.get_category_display }}</td>
+      <td class="symbol-col">{{ obj.symbol }}</td>
+      <td class="origin-col">{{ obj.origin }}</td>
+      <td>{{ obj.quantity_quintals }}</td>
+      <td class="agent-col">{{ obj.agent_name }}</td>
+      <td class="phone-col">{{ obj.agent_phone }}</td>
+      <td class="advice-col">{{ obj.advice_number }}</td>
+      <td class="dispatch-col">{{ obj.dispatch_number }}</td>
+      <td>
+        {% if obj.dispatch_image %}
+          <a href="{{ obj.dispatch_image.url }}" target="_blank" rel="noopener">
+            <img src="{{ obj.dispatch_image.url }}" class="cmv-thumb" alt="dispatch" />
+          </a>
+        {% else %}-{% endif %}
+      </td>
+      <td class="status-col">{{ obj.get_status_display }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  
+  
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Populate symbol choices from SeedTypeDetail and filter by selected category
+    const catSel = document.getElementById('id_category');
+    const symSel = document.getElementById('id_symbol');
+    let seedTypes = [];
+    function populateSymbols() {
+      if (!symSel) return;
+      const cat = catSel ? catSel.value : '';
+      const selected = symSel.value;
+      const keep = new Set();
+      const allowed = new Set(
+        (seedTypes || [])
+          .filter(s => !cat || s.category === cat)
+          .map(s => s.symbol)
+      );
+      // Rebuild options with placeholder
+      symSel.innerHTML = '';
+      const ph = document.createElement('option');
+      ph.value = '';
+      ph.textContent = '---------';
+      symSel.appendChild(ph);
+      Array.from(allowed).sort().forEach(sym => {
+        const opt = document.createElement('option');
+        opt.value = sym;
+        opt.textContent = sym;
+        symSel.appendChild(opt);
+        keep.add(sym);
+      });
+      if (!keep.has(selected)) symSel.value = '';
+    }
+    fetch('/api/seed-type-details/', { credentials: 'same-origin' })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        const items = Array.isArray(data) ? data : data.results;
+        seedTypes = items || [];
+        populateSymbols();
+      })
+      .catch(() => {});
+    if (catSel) catSel.addEventListener('change', populateSymbols);
+
+    // Toggle form show/hide
+    const wrap = document.getElementById('cmvFormWrap');
+    const btn = document.getElementById('toggleFormBtn');
+    if (wrap && btn) {
+      const setLabel = () => {
+        const hidden = wrap.style.display === 'none';
+        btn.textContent = hidden ? '+ New Contract Stock' : '− Hide Form';
+      };
+      setLabel();
+      btn.addEventListener('click', function () {
+        wrap.style.display = (wrap.style.display === 'none') ? 'block' : 'none';
+        setLabel();
+      });
+    }
+
+    // Build filter bar options and filtering behavior (similar to Bin Card page)
+    const table = document.getElementById('cmvTable');
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    const ownerFilter = document.getElementById('cm-ownerFilter');
+    const categoryFilter = document.getElementById('cm-categoryFilter');
+    const symbolFilter = document.getElementById('cm-symbolFilter');
+    const originFilter = document.getElementById('cm-originFilter');
+    const agentFilter = document.getElementById('cm-agentFilter');
+    const adviceFilter = document.getElementById('cm-adviceFilter');
+    const dispatchFilter = document.getElementById('cm-dispatchFilter');
+    const statusFilter = document.getElementById('cm-statusFilter');
+
+    const ownerOptions = document.getElementById('cm-ownerOptions');
+    const categoryOptions = document.getElementById('cm-categoryOptions');
+    const symbolOptions = document.getElementById('cm-symbolOptions');
+    const originOptions = document.getElementById('cm-originOptions');
+    const agentOptions = document.getElementById('cm-agentOptions');
+    const adviceOptions = document.getElementById('cm-adviceOptions');
+    const dispatchOptions = document.getElementById('cm-dispatchOptions');
+    const statusOptions = document.getElementById('cm-statusOptions');
+
+    function addOptions(map, dl) {
+      Object.keys(map)
+        .filter(v => v && v !== 'undefined' && v !== 'null')
+        .sort()
+        .forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v; dl.appendChild(opt);
+        });
+    }
+    const owners = {}, cats = {}, syms = {}, origins = {}, agents = {}, advs = {}, disps = {}, stats = {};
+    rows.forEach(r => {
+      const d = r.dataset || {};
+      if (d.owner) owners[d.owner] = true;
+      if (d.category) cats[d.category] = true;
+      if (d.symbol) syms[d.symbol] = true;
+      if (d.origin) origins[d.origin] = true;
+      if (d.agent) agents[d.agent] = true;
+      if (d.advice) advs[d.advice] = true;
+      if (d.dispatch) disps[d.dispatch] = true;
+      if (d.status) stats[d.status] = true;
+    });
+    addOptions(owners, ownerOptions);
+    addOptions(cats, categoryOptions);
+    addOptions(syms, symbolOptions);
+    addOptions(origins, originOptions);
+    addOptions(agents, agentOptions);
+    addOptions(advs, adviceOptions);
+    addOptions(disps, dispatchOptions);
+    addOptions(stats, statusOptions);
+
+    function toggleColumn(cls, hide) {
+      const th = table.querySelector('th.' + cls);
+      const tds = table.querySelectorAll('td.' + cls);
+      const display = hide ? 'none' : '';
+      if (th) th.style.display = display;
+      tds.forEach(td => td.style.display = display);
+    }
+
+    function norm(v) { return (v || '').toString().trim(); }
+    function filterRows() {
+      const o = norm(ownerFilter.value);
+      const c = norm(categoryFilter.value);
+      const s = norm(symbolFilter.value);
+      const or = norm(originFilter.value);
+      const ag = norm(agentFilter.value);
+      const av = norm(adviceFilter.value);
+      const dp = norm(dispatchFilter.value);
+      const st = norm(statusFilter.value);
+      rows.forEach(r => {
+        const d = r.dataset || {};
+        const ok = (!o || d.owner === o)
+          && (!c || d.category === c)
+          && (!s || d.symbol === s)
+          && (!or || d.origin === or)
+          && (!ag || d.agent === ag)
+          && (!av || d.advice === av)
+          && (!dp || d.dispatch === dp)
+          && (!st || d.status === st);
+        r.style.display = ok ? '' : 'none';
+      });
+      toggleColumn('owner-col', !!o);
+      toggleColumn('category-col', !!c);
+      toggleColumn('symbol-col', !!s);
+      toggleColumn('origin-col', !!or);
+      toggleColumn('agent-col', !!ag);
+      toggleColumn('advice-col', !!av);
+      toggleColumn('dispatch-col', !!dp);
+      toggleColumn('status-col', !!st);
+    }
+
+    [ownerFilter, categoryFilter, symbolFilter, originFilter, agentFilter, adviceFilter, dispatchFilter, statusFilter].forEach(el => {
+      if (el) el.addEventListener('input', filterRows);
+    });
+    filterRows();
+  });
+</script>
+{% endblock %}

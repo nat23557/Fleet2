@@ -1,0 +1,7 @@
+Stock Out – Approval Needed
+Officer: {{ req.created_by.get_full_name|default:req.created_by.username }}
+Warehouse: {{ req.warehouse }}
+Quantity: {{ req.payload.quantity }}
+Details: {{ review_url }}
+Approve: {{ approve_url }}
+Decline: {{ decline_url }}

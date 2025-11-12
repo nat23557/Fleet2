@@ -1,0 +1,11 @@
+Borrow Stock Out – Approval Needed (System Manager)
+
+Request ID: {{ req.id }}
+Warehouse: {{ req.warehouse }}
+Owner: {{ req.owner }}
+Borrower: {{ req.borrower }}
+
+Approve: {{ approve_url }}
+Decline: {{ decline_url }}
+Review:  {{ review_url }}
+

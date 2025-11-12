@@ -1,0 +1,1125 @@
+{% extends 'WareDGT/layout.html' %}
+{% load ethiopian_calendar %}
+{% block title %}Daily Records{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+  :root{
+    --out-green:#2ad66b;
+    --out-green-weak:rgba(42,214,107,.2);
+    --rej-red:#ff6363;
+    --rej-red-weak:rgba(255,99,99,.2);
+    --waste-grey:rgba(255,255,255,.22);
+    --ring-track:rgba(255,255,255,.12);
+    --text-muted:var(--wms-text-muted,#b5c0c9);
+    --accent:var(--wms-accent,#8af5ff);
+    /* Brighten filter colours so controls are clearly visible on light backgrounds */
+    --filter-bg:#ffffff;
+    --filter-border:#ced4da;
+  }
+
+  /* ===== Layout polish ===== */
+  .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+  .erp-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:.65rem;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+  .erp-btn:active{transform:translateY(1px)}
+  .toolbar-note{color:var(--text-muted);font-size:.875rem}
+
+  /* ===== ONE-OF-A-KIND FILTER DOCK ===== */
+  .filter-dock{position:sticky;top:.35rem;z-index:20;display:flex;flex-wrap:wrap;gap:.65rem 1rem;align-items:center;padding:.75rem 1rem;border:1px solid var(--filter-border);background:var(--filter-bg);backdrop-filter:saturate(160%) blur(6px);border-radius:1rem;box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);margin-bottom:1rem}
+  .filter-dock::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:conic-gradient(from 180deg at 50% 50%,var(--accent),transparent 25%,var(--out-green),transparent 50%,var(--rej-red),transparent 75%,var(--accent));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.25}
+  .filter-dock.dirty{box-shadow:0 12px 34px rgba(0,0,0,.4), 0 0 0 2px rgba(138,245,255,.06) inset}
+
+  .filter-title{display:flex;align-items:center;gap:.4rem;font-weight:700}
+
+  .input-icon{position:relative;display:inline-flex;align-items:center}
+  .input-icon i{position:absolute;left:.65rem;pointer-events:none;opacity:.85}
+  .input-icon input[type="date"]{padding:.5rem .75rem .5rem 2rem;border-radius:.65rem;border:1px solid var(--filter-border);background:#fff;color:#07160f;min-width:190px}
+  .input-icon input:hover{border-color:rgba(0,0,0,.25)}
+
+  .seg-group{display:flex;gap:.35rem;padding:.25rem;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));}
+  .seg{position:relative}
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg label{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .7rem;border-radius:999px;font-weight:600;cursor:pointer;user-select:none;transition:transform .08s ease}
+  .seg label:active{transform:translateY(1px)}
+  .seg input:checked + label{background:radial-gradient(120% 140% at 0% 0%, rgba(138,245,255,.35), rgba(138,245,255,.05));box-shadow:0 0 0 1px rgba(138,245,255,.35) inset}
+  .seg i{font-size:1rem}
+
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chip-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .6rem;border-radius:.65rem;border:1px dashed #ced4da;background:#fff;color:#07160f;font-size:.85rem}
+  .chip-btn:hover{border-style:solid;border-color:#adb5bd}
+
+  .btn-apply{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .95rem;border:0;border-radius:.8rem;font-weight:800;color:#07160f;background:linear-gradient(90deg,#82ffc5,#2ad66b);box-shadow:0 8px 24px rgba(42,214,107,.25)}
+  .btn-ghost{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .8rem;border-radius:.8rem;border:1px solid #ced4da;background:transparent;color:#07160f}
+
+  .divider{width:1px;height:34px;background:#ced4da}
+
+  /* ===== KPIs ===== */
+  .kpi-grid{margin-bottom:1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+  .kpi-card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);border-radius:.8rem;padding:1rem;text-align:center}
+  .kpi-card .value{font-size:1.6rem;font-weight:700}
+  .text-muted{color:var(--text-muted)} .small{font-size:.875rem} .fw-600{font-weight:600}
+
+  /* ===== Collapsible form card ===== */
+  .entry-card{border:1px solid rgba(255,255,255,.12);border-radius:1rem;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));box-shadow:0 6px 18px rgba(0,0,0,.25);margin-bottom:1.25rem}
+  .entry-head{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+  .entry-title{display:flex;align-items:center;gap:.6rem;font-weight:700}
+  .chev{transition:transform .25s ease}
+  .chev.rotate{transform:rotate(180deg)}
+
+  .collapsible{overflow:hidden;max-height:0;opacity:.0;transition:max-height .35s ease, opacity .2s ease}
+  .collapsible.open{max-height:1600px;opacity:1}
+
+  .entry-body{padding:1rem}
+  .erp-form .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+  .erp-form .field{display:flex;flex-direction:column;gap:.35rem}
+  .erp-form .field .form-label{font-size:.9rem;color:var(--text-muted)}
+  .erp-form .helptext,.errorlist{font-size:.8rem}
+  .errorlist{color:#ff9b9b;margin:0}
+
+  .action-bar{position:sticky;bottom:0;z-index:10;background:linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.4));padding:.75rem;display:flex;justify-content:flex-end;gap:.5rem;border-top:1px solid rgba(255,255,255,.12);backdrop-filter:blur(6px)}
+  .btn-save{background:#2ad66b;border:0;color:#0b1e12;font-weight:700}
+  .btn-post{background:#73e36b;border:0;color:#0b1e12;font-weight:700}
+  .btn-save,.btn-post{padding:.55rem .9rem;border-radius:.65rem}
+  .btn-icon{display:inline-grid;place-items:center;width:1.25rem;height:1.25rem}
+
+  /* ===== Flags / status ===== */
+  .row-flagged{border-left:4px solid var(--rej-red)}
+  .flag-chip{width:8px;height:8px;border-radius:50%;display:inline-block;background-color:var(--rej-red)}
+  .status-posted{color:var(--accent)} .status-draft{color:var(--text-muted)}
+
+  /* ===== Lot capsule ===== */
+  .d-flex{display:flex}.align-items-center{align-items:center}.gap-2{gap:.5rem}.flex-grow-1{flex:1}.mt-1{margin-top:.25rem}
+  .lot-pill{padding:.35rem .6rem;border-radius:1rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);backdrop-filter:saturate(140%) blur(2px);box-shadow:0 2px 6px rgba(0,0,0,.4);transition:box-shadow .3s,border-color .3s}
+  .lot-pill:hover{box-shadow:0 6px 18px rgba(0,0,0,.5);border-color:var(--accent)}
+  .owner-chip{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-weight:700;font-size:.75rem;background:rgba(255,255,255,.12)}
+  .lot-code{letter-spacing:.2px}
+
+  /* Donut: Output (green) + Reject (red) vs Input; grey = wastage */
+  .donut{display:block}
+  .donut .track{fill:none;stroke:var(--ring-track);stroke-width:5}
+  .donut .halo{fill:none;stroke:var(--waste-grey);stroke-width:5}
+  .donut .out{fill:none;stroke:var(--out-green);stroke-linecap:round;stroke-width:5;filter:drop-shadow(0 0 6px var(--out-green-weak))}
+  .donut .rej{fill:none;stroke:var(--rej-red);stroke-linecap:round;stroke-width:5;filter:drop-shadow(0 0 6px var(--rej-red-weak))}
+  .donut text{fill:#fff;font-size:8px;font-weight:700}
+  .donut .sub{font-size:6.7px;opacity:.9}
+  .donut [data-animate]{transition:stroke-dasharray .6s ease, stroke-dashoffset .6s ease}
+
+  /* Split bar = composition within Output only */
+  .split{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;position:relative}
+  .split .seg{display:block;height:100%}
+  .split .seg-out{background:linear-gradient(90deg,var(--out-green-weak),var(--out-green))}
+  .split .seg-rej{background:linear-gradient(90deg,var(--rej-red-weak),var(--rej-red))}
+  .split::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.08);border-radius:999px;pointer-events:none}
+
+  .badge.purity{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+  .chip{padding:.1rem .4rem;border-radius:999px;border:1px solid rgba(255,255,255,.12)}
+  .chip-red{background:rgba(255,0,0,.08);border-color:#ff7676}
+  .chip-ok{background:rgba(0,255,140,.08);border-color:#7dffb0}
+  .pin{opacity:1;color:var(--accent);font-size:1rem}
+
+  /* ===== QC table ===== */
+  .qc-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.75rem;border:1px solid rgba(255,255,255,.12);border-radius:.5rem;overflow:hidden;margin-top:.5rem}
+  .qc-table th{background:var(--accent);color:#0b1e12;font-weight:600;padding:.3rem;text-align:center}
+  .qc-table td{padding:.3rem;text-align:center;background:rgba(255,255,255,.04);border-top:1px solid rgba(255,255,255,.08)}
+  .qc-table tbody tr:nth-child(even) td{background:rgba(255,255,255,.08)}
+
+  /* Metric chips */
+  .metric{display:inline-flex;align-items:center;gap:.25rem;padding:.1rem .35rem;border-radius:.4rem;font-weight:600;font-size:.75rem}
+  .metric i{font-size:.9rem}
+  .in-val{background:rgba(90,167,255,.15);color:#cfe3ff}
+  .out-val{background:rgba(42,214,107,.18);color:var(--out-green)}
+  .reject-val{background:rgba(255,99,99,.18);color:var(--rej-red)}
+  .yield-val{background:rgba(255,209,92,.15);color:#ffd15c}
+  .est-pre{background:rgba(90,167,255,.15);color:#cfe3ff}
+  .est-mid{background:rgba(255,209,92,.15);color:#ffd15c}
+  .est-post{background:rgba(42,214,107,.18);color:var(--out-green)}
+
+  /* ===== Quality check modal ===== */
+  .qc-modal{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:2000}
+  .qc-modal[hidden]{display:none}
+  .qc-box{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);border-radius:.8rem;padding:1rem;min-width:300px}
+  .qc-box .field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.5rem}
+  .qc-box .actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.5rem}
+
+  /* Responsive tweaks */
+  @media (max-width:720px){
+    .input-icon input[type="date"]{min-width:160px}
+    .divider{display:none}
+  }
+
+  /* ===== Partial cleaning control ===== */
+  .partial-clean-wrap{display:flex;flex-direction:column;gap:.4rem;margin:.35rem 0 .75rem}
+  .partial-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .partial-slider{flex:1;accent-color:#2ad66b}
+  .partial-chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .partial-chips .chip-btn{border-style:solid}
+  .partial-est{display:flex;gap:.5rem;flex-wrap:wrap;color:var(--text-muted)}
+  .partial-est .pill{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .45rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.18);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));}
+
+  /* ===== Hourly input (simple) ===== */
+  .hourly-progress{margin-top:.4rem;display:flex;flex-direction:column;gap:.35rem}
+  .hourly-progress .row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .hourly-progress .meta{color:var(--text-muted);font-size:.85rem}
+  .hourly-progress .row .erp-btn{display:inline-flex}
+  .btn-green{background:linear-gradient(90deg,#82ffc5,#2ad66b);color:#06240f;border:0;border-radius:.55rem;padding:.45rem .8rem;font-weight:700;box-shadow:0 8px 24px rgba(42,214,107,.25)}
+  .btn-green:hover{filter:brightness(1.05)}
+</style>
+{% endblock %}
+
+{% block content %}
+{% with role=request.user.profile.role|upper %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Daily Records</h1>
+    <div class="toolbar-note">Create a new lot entry and track yield and purity changes.</div>
+  </div>
+  {% if role != 'OPERATIONS_MANAGER' %}
+    <button class="erp-btn" type="button" id="record-form-toggle" aria-expanded="false">
+      <i class="bi bi-plus-circle"></i><span>New Entry</span>
+    </button>
+  {% endif %}
+</div>
+
+<!-- UPGRADED FILTERS -->
+<!-- FILTERS (single-control, no duplicates) -->
+<form method="get" id="filters" class="filter-dock" aria-label="Filter records" novalidate>
+  <div class="filter-title"><i class="bi bi-funnel"></i> Filters</div>
+  <div class="divider" role="separator" aria-hidden="true"></div>
+
+  <div class="input-icon">
+    <i class="bi bi-calendar-event" aria-hidden="true"></i>
+    <label class="visually-hidden" for="start">Start date</label>
+    <input type="date" id="start" name="start" value="{{ start|date:'Y-m-d' }}">
+  </div>
+
+  <div class="divider" role="separator" aria-hidden="true"></div>
+
+  <fieldset class="seg-group" aria-label="Period">
+    <legend class="visually-hidden">Period</legend>
+    <div class="seg">
+      <input type="radio" id="p-all"   name="period" value="all"   {% if period == 'all' %}checked{% endif %}>
+      <label for="p-all"><i class="bi bi-infinity"></i> All</label>
+    </div>
+    <div class="seg">
+      <input type="radio" id="p-day"   name="period" value="day"   {% if period == 'day' %}checked{% endif %}>
+      <label for="p-day"><i class="bi bi-sun"></i> Day</label>
+    </div>
+    <div class="seg">
+      <input type="radio" id="p-week"  name="period" value="week"  {% if period == 'week' %}checked{% endif %}>
+      <label for="p-week"><i class="bi bi-calendar-week"></i> Week</label>
+    </div>
+    <div class="seg">
+      <input type="radio" id="p-month" name="period" value="month" {% if period == 'month' %}checked{% endif %}>
+      <label for="p-month"><i class="bi bi-calendar3"></i> Month</label>
+    </div>
+    <div class="seg">
+      <input type="radio" id="p-year"  name="period" value="year"  {% if period == 'year' %}checked{% endif %}>
+      <label for="p-year"><i class="bi bi-calendar4"></i> Year</label>
+    </div>
+  </fieldset>
+
+  <span class="flex-grow-1"></span>
+
+  <button class="btn-apply" type="submit"><i class="bi bi-check2-circle"></i> Apply</button>
+  <button id="btn-reset-filters" class="btn-ghost" type="button"><i class="bi bi-backspace"></i> Reset</button>
+</form>
+
+<script>
+// Calendar for entry date field inside the form
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if(window.flatpickr){
+      var ed=document.getElementById('id_entry_date');
+      if(ed) flatpickr(ed,{dateFormat:'Y-m-d', allowInput:true});
+      var sd=document.getElementById('start');
+      if(sd) flatpickr(sd,{dateFormat:'Y-m-d', allowInput:true});
+    }
+  }catch(e){}
+});
+(function(){
+  const form   = document.getElementById('filters');
+  const start  = form.querySelector('#start');
+  const radios = Array.from(form.querySelectorAll('input[name="period"]'));
+  // Removed owner/seed/status/op filters; keep only date/period
+
+  const pad = n => String(n).padStart(2,'0');
+  const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+  function mondayISO(d){
+    const day = d.getDay(); // 0..6 (Sun..Sat)
+    const diff = (day === 0 ? -6 : 1 - day);
+    const m = new Date(d);
+    m.setDate(d.getDate() + diff);
+    m.setHours(0,0,0,0);
+    return m;
+  }
+
+  function applyPeriod(val){
+    const now = new Date(); now.setHours(0,0,0,0);
+    const base = start.value ? new Date(start.value) : now; base.setHours(0,0,0,0);
+    switch(val){
+      case 'all':
+        start.value = '';
+        break;
+      case 'day':
+        start.value = ymd(base);
+        break;
+      case 'week':
+        start.value = ymd(mondayISO(base));
+        break;
+      case 'month':
+        start.value = ymd(new Date(base.getFullYear(), base.getMonth(), 1));
+        break;
+      case 'year':
+        start.value = ymd(new Date(base.getFullYear(), 0, 1));
+        break;
+    }
+  }
+
+  // Radios behave as quick-picks and submit immediately
+  radios.forEach(r => r.addEventListener('change', ()=>{
+    applyPeriod(r.value);
+    form.requestSubmit ? form.requestSubmit() : form.submit();
+  }));
+
+  // When the date changes, default to Day and submit
+  if (start) {
+    start.addEventListener('change', ()=>{
+      const day = form.querySelector('#p-day');
+      if (day) day.checked = true;
+      form.requestSubmit ? form.requestSubmit() : form.submit();
+    });
+  }
+
+  // Reset clears params to "All"
+  document.getElementById('btn-reset-filters')?.addEventListener('click', ()=>{
+    start.value = '';
+    const all = form.querySelector('#p-all');
+    if (all) all.checked = true;
+    if (history.pushState) history.pushState('', '', location.pathname);
+    form.submit();
+  });
+  // No item filter listeners
+})();
+</script>
+
+<style>
+.filter-dock{
+  display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;
+  padding:.6rem .8rem; background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.18); border-radius:.8rem;
+}
+.filter-title{ font-weight:600; color:#e8eef5; display:flex; align-items:center; gap:.4rem; }
+.divider{ width:1px; height:28px; background:rgba(255,255,255,.18); }
+.input-icon{ display:flex; align-items:center; gap:.4rem; color:#cbd6e2; }
+.input-icon input[type="date"]{
+  background:rgba(0,0,0,.25); color:#e8eef5;
+  border:1px solid rgba(255,255,255,.18); border-radius:.45rem; padding:.35rem .5rem;
+}
+.input-icon input[type="date"]:focus{
+  border-color:#8af5ff; box-shadow:0 0 0 2px rgba(138,245,255,.25); outline:0;
+}
+/* Item selects removed for now */
+.seg-group{ display:flex; gap:.25rem; padding:.15rem; border:1px solid rgba(255,255,255,.18); border-radius:.6rem; }
+.seg{ position:relative; }
+.seg input{ position:absolute; inset:0; opacity:0; }
+.seg label{
+  display:inline-flex; align-items:center; gap:.35rem; padding:.35rem .6rem;
+  border-radius:.5rem; color:#cbd6e2; cursor:pointer; user-select:none;
+}
+.seg input:checked + label{
+  background:rgba(138,245,255,.18); color:#fff; box-shadow:inset 0 0 0 1px rgba(138,245,255,.35);
+}
+.btn-apply{
+  border:1px solid rgba(138,245,255,.55); background:rgba(138,245,255,.12);
+  color:#e8ffff; border-radius:.55rem; padding:.45rem .8rem; font-weight:600;
+}
+.btn-ghost{
+  border:1px solid rgba(255,255,255,.18); background:transparent; color:#cbd6e2;
+  border-radius:.55rem; padding:.45rem .8rem;
+}
+.flex-grow-1{ flex:1; }
+.visually-hidden{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>
+
+<div class="kpi-grid">
+  <div class="kpi-card"><div class="text-muted small">Records</div><div class="value">{{ records|length }}</div></div>
+  <div class="kpi-card"><div class="text-muted small">Yield %</div><div class="value"><span id="kpi-yield">0.00</span></div></div>
+  <div class="kpi-card"><div class="text-muted small">Purity Δ</div><div class="value"><span id="kpi-purity">0.00</span></div></div>
+</div>
+
+{% if role != 'OPERATIONS_MANAGER' %}
+<div class="entry-card">
+  <div class="entry-head">
+    <div class="entry-title">
+      <i class="bi bi-clipboard2-check"></i> New Daily Record
+    </div>
+    <button class="erp-btn" type="button" id="record-form-toggle-2" aria-expanded="false" aria-controls="record-form-body">
+      <i class="bi bi-chevron-down chev" id="chev"></i> Toggle
+    </button>
+  </div>
+
+  <form method="post" id="daily-record-form" class="erp-form">
+    {% csrf_token %}
+    <div id="record-form-body" class="collapsible" aria-hidden="true">
+      <div class="entry-body">
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-grid">
+          {{ form.as_p }}
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button type="submit" name="submit_record" value="save_draft" class="btn-save">
+          <span class="btn-icon"><i class="bi bi-floppy2"></i></span> Save Draft
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+<div class="records-list">
+  {% for r in records %}
+  <div class="record-item">
+    <div class="lot-pill d-flex align-items-center gap-2"
+         data-in="{{ r.weight_in|default:0 }}"
+         data-cleaned="{{ r.weight_out|default:0 }}"
+         data-rejects="{{ r.rejects|default:0 }}"
+         data-purity-delta="{{ r.purity_delta|default:0 }}"
+         data-flagged="0">
+      <!-- Donut: Output (green) + Reject (red) vs Input; grey = wastage -->
+      <svg class="donut" viewBox="0 0 44 44" width="44" height="44" aria-hidden="true">
+        <g transform="rotate(-90 22 22)">
+          <circle class="track" cx="22" cy="22" r="18"></circle>
+          <circle class="halo"  cx="22" cy="22" r="18" data-animate="1"></circle>
+          <circle class="out"   cx="22" cy="22" r="18" data-animate="1"></circle>
+          <circle class="rej"   cx="22" cy="22" r="18" data-animate="1"></circle>
+        </g>
+        <text x="22" y="21.5" text-anchor="middle"><tspan class="donut-main">0%</tspan></text>
+        <text x="22" y="30" text-anchor="middle" class="sub"><tspan class="donut-sub">Rj 0%</tspan></text>
+      </svg>
+
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center gap-2">
+          <span class="owner-chip">{{ r.lot.owner.name|slice:":1" }}</span>
+          <span class="lot-code fw-600">{{ r.lot.in_out_no }}</span>
+          <span class="seed small text-muted">{{ r.lot.seed_type }} · G{{ r.lot.grade }}</span>
+          <span class="small text-muted">{{ r.date|ethiopian_date }}</span>
+          <span class="small text-muted">{{ r.created_at|time:"H:i" }}</span>
+        </div>
+
+        <!-- Split bar: composition within Output (green vs red) -->
+        <div class="split mt-1" role="progressbar" aria-label="Output composition">
+          <span class="seg seg-out" style="width:0%"></span>
+          <span class="seg seg-rej" style="width:0%"></span>
+        </div>
+
+        <div class="mt-1 d-flex gap-2 small">
+          <span class="badge purity">Purity {{ r.purity_after|floatformat:2 }}% / Target {{ r.target_purity|floatformat:2 }}%</span>
+          
+          {% if r.lot.weighbridge_certificate %}<a class="pin" href="{{ r.lot.weighbridge_certificate.url }}" target="_blank" title="Weighbridge"><i class="bi bi-truck"></i></a>{% endif %}
+          {% if r.lot.warehouse_document %}<a class="pin" href="{{ r.lot.warehouse_document.url }}" target="_blank" title="Warehouse Doc"><i class="bi bi-file-earmark-text"></i></a>{% endif %}
+          {% if r.lot.quality_form %}<a class="pin" href="{{ r.lot.quality_form.url }}" target="_blank" title="QC Form"><i class="bi bi-clipboard-check"></i></a>{% endif %}
+          <a class="pin" href="{% url 'bincard_detail' r.lot.id %}" title="Open lot"><i class="bi bi-qr-code-scan"></i></a>
+        </div>
+
+        <div class="mt-1 d-flex gap-2 small">
+          <span class="metric in-val"><i class="bi bi-arrow-down-right"></i> In {{ r.weight_in|floatformat:2 }} Qtls</span>
+          <span class="metric out-val"><i class="bi bi-archive"></i> Out {{ r.weight_out|floatformat:2 }} Qtls</span>
+          <span class="metric reject-val"><i class="bi bi-dash-circle"></i> Rj {{ r.rejects|floatformat:2 }} Qtls</span>
+          <span class="metric yield-val"><i class="bi bi-graph-up"></i> Yield {{ r.yield_percent|floatformat:2 }}%</span>
+          <span class="metric"><i class="bi bi-people"></i> Labor {{ r.total_labor_cost|floatformat:2 }} Etb</span>
+        </div>
+
+        {% if r.operation_type == 'CLEANING' or r.operation_type == 'RECLEANING' %}
+        <div class="hourly-progress" data-record-id="{{ r.id }}">
+          {% if r.status == 'DRAFT' and role != 'OPERATIONS_MANAGER' %}
+          <div class="row">
+            <div class="meta"><i class="bi bi-percent"></i> Hourly purity</div>
+            <input type="number" class="form-control form-control-sm hp-purity-input" placeholder="e.g., 99.0" min="0" max="100" step="0.01" style="width:110px" value="{{ r.purity_after|default:r.purity_before|floatformat:2 }}">
+            <button type="button" class="erp-btn btn-green hp-add" data-record="{{ r.id }}"><i class="bi bi-plus-circle"></i> Add Hour</button>
+          </div>
+          <div class="row">
+            <div class="meta"><i class="bi bi-dash-circle"></i> Rejects (qtl)</div>
+            <input type="number" class="form-control form-control-sm rj-weight-input" placeholder="e.g., 2.00" min="0" step="0.01" style="width:110px">
+            <div class="meta"><i class="bi bi-cash-coin"></i> Labor/Qtl (ETB)</div>
+            <input type="number" class="form-control form-control-sm rj-rate-input" placeholder="e.g., 10.00" min="0" step="0.01" style="width:110px">
+            <button type="button" class="erp-btn btn-green rj-weigh" data-record="{{ r.id }}"><i class="bi bi-check2"></i> Weigh</button>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        
+
+        {% if r.qc_rows %}
+          <table class="qc-table mt-1">
+            <thead><tr><th><i class="bi bi-bag"></i> Amt</th><th><i class="bi bi-archive"></i> Out</th><th><i class="bi bi-percent"></i> Purity</th><th><i class="bi bi-clock"></i> Time</th></tr></thead>
+            <tbody>
+              {% for q in r.qc_rows %}
+              <tr>
+                <td>{{ q.amount|floatformat:2 }}</td>
+                <td>{{ q.weight_out|floatformat:2 }}</td>
+                <td>{{ q.purity|floatformat:2 }}</td>
+                <td>{{ q.time|time:"H:i" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+
+        <div class="mt-1 d-flex gap-2 small align-items-center">
+          <!-- Receipt button removed -->
+          {% if r.status == 'DRAFT' and role != 'OPERATIONS_MANAGER' %}{% endif %}
+          <span class="{% if r.status == 'POSTED' %}status-posted{% elif r.status == 'DRAFT' %}status-draft{% else %}status-ready{% endif %}">{{ r.status|title }}</span>
+          <span class="text-muted">by {{ r.recorded_by.username }}</span>
+          {% if r.status == 'POSTED' %}
+          <a href="{% url 'bincard_detail' r.lot.id %}" class="lot-pill" title="{{ r.lot.in_out_no }} – {{ r.seed_type }}">{{ r.lot.in_out_no }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>No records today.</p>
+  {% endfor %}
+</div>
+
+{% if role != 'OPERATIONS_MANAGER' %}
+<div id="qc-modal" class="qc-modal" hidden>
+  <div class="qc-box">
+    <div class="d-flex justify-content-between align-items-center">
+      <strong>Quality Control</strong>
+      <button type="button" id="qc-edit" class="erp-btn" title="Edit defaults"><i class="bi bi-pencil"></i></button>
+    </div>
+    <form id="qc-form" class="mt-2">
+      <input type="hidden" name="record_id" id="qc-record">
+      <div class="field"><label>Sample (g)</label><input id="qc-sample" type="number" step="0.01" value="30" readonly></div>
+      <div class="field"><label>Piece (qtl)</label><input id="qc-piece" type="number" step="0.01" value="50" readonly></div>
+      <div class="field"><label>Rate (kg/h)</label><input id="qc-rate" type="number" step="0.01" value="50" readonly></div>
+      <div class="field"><label for="qc-sound">Sound (g)</label><input id="qc-sound" type="number" step="0.01"></div>
+      <div class="field"><label for="qc-reject">Reject (g)</label><input id="qc-reject" type="number" step="0.01"></div>
+      <div class="field"><label>Purity %</label><input id="qc-purity" type="text" readonly></div>
+      <div class="actions">
+        <button type="submit" class="erp-btn">Add QC</button>
+        <button type="button" id="qc-close" class="erp-btn">Close</button>
+      </div>
+    </form>
+    <div id="qc-result" class="small mt-2" style="color:#fff;"></div>
+  </div>
+</div>
+
+<div id="reject-modal" class="qc-modal" hidden>
+  <div class="qc-box">
+    <strong>Reject Weighing</strong>
+    <form id="reject-form" class="mt-2">
+      <input type="hidden" id="reject-record">
+      <div class="field"><label for="reject-weight">Actual Reject Weight</label><input id="reject-weight" type="number" step="0.001"></div>
+      <div class="field"><label for="reject-labor-payment">Labor Payment/Qtl</label><input id="reject-labor-payment" type="number" step="0.01"></div>
+      <div class="actions">
+        <button type="submit" class="erp-btn">Save</button>
+        <button type="button" id="reject-close" class="erp-btn">Close</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+<!-- Output receipt modal removed -->
+{% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+/* ES5-friendly */
+document.addEventListener('DOMContentLoaded', function () {
+  // ===== Filter dock helpers =====
+  var form = document.getElementById('filters');
+  var start = document.getElementById('start');
+  var resetBtn = document.getElementById('btn-reset-filters');
+
+  function setDirtyBadge(){
+    var any = (start && start.value) || (form && form.querySelector('input[name=period]:not(#p-all):checked'));
+    if(form){ if(any){form.classList.add('dirty');} else {form.classList.remove('dirty');} }
+  }
+
+  if(form){
+    form.addEventListener('input', setDirtyBadge);
+    setDirtyBadge();
+  }
+
+  function toYMD(d){
+    var m = d.getMonth()+1, day = d.getDate();
+    return d.getFullYear() + '-' + (m<10?'0'+m:m) + '-' + (day<10?'0'+day:day);
+  }
+
+  function pick(which){
+    var now = new Date();
+    var mondayOffset = (now.getDay()+6)%7; // 0=Mon
+    if(which==='today'){
+      if(start) start.value = toYMD(now);
+      var day = document.getElementById('p-day'); if(day) day.checked = true;
+    }
+    if(which==='this-week'){
+      var monday = new Date(now); monday.setDate(now.getDate()-mondayOffset);
+      if(start) start.value = toYMD(monday);
+      var wk = document.getElementById('p-week'); if(wk) wk.checked = true;
+    }
+    if(which==='this-month'){
+      var first = new Date(now.getFullYear(), now.getMonth(), 1);
+      if(start) start.value = toYMD(first);
+      var mo = document.getElementById('p-month'); if(mo) mo.checked = true;
+    }
+    if(which==='this-year'){
+      var jan = new Date(now.getFullYear(), 0, 1);
+      if(start) start.value = toYMD(jan);
+      var yr = document.getElementById('p-year'); if(yr) yr.checked = true;
+    }
+    if(which==='all'){
+      if(start) start.value = '';
+      var all = document.getElementById('p-all'); if(all) all.checked = true;
+    }
+    setDirtyBadge();
+  }
+
+  var chipBtns = document.querySelectorAll('.chip-btn[data-pick]');
+  for(var i=0;i<chipBtns.length;i++){
+    chipBtns[i].addEventListener('click', function(){ pick(this.getAttribute('data-pick')); });
+  }
+
+  if(resetBtn){
+    resetBtn.addEventListener('click', function(){ pick('all'); if(form) form.submit(); });
+  }
+
+  // ===== Existing code (untouched except small hooks) =====
+  var btn1=document.getElementById('record-form-toggle');
+  var btn2=document.getElementById('record-form-toggle-2');
+  var chev=document.getElementById('chev');
+  var body=document.getElementById('record-form-body');
+
+  function setState(open){
+    if(!body) return;
+    if(open){body.classList.add('open');}else{body.classList.remove('open');}
+    body.setAttribute('aria-hidden', String(!open));
+    if(btn1){btn1.setAttribute('aria-expanded', String(open)); btn1.innerHTML=open?'<i class="bi bi-dash-circle"></i> Close':'<i class="bi bi-plus-circle"></i> New Entry';}
+    if(btn2){btn2.setAttribute('aria-expanded', String(open));}
+    if(chev){if(open){chev.classList.add('rotate');}else{chev.classList.remove('rotate');}}
+  }
+  function toggle(){ setState(!body.classList.contains('open')); }
+  if(btn1) btn1.addEventListener('click', toggle);
+  if(btn2) btn2.addEventListener('click', toggle);
+  var hasErrors=document.getElementsByClassName('errorlist').length>0||document.getElementsByClassName('alert-danger').length>0;
+  setState(hasErrors?true:false);
+
+  /* Dependent selects (unchanged) */
+  var ownerEl=document.getElementById('id_owner');
+  var seedEl=document.getElementById('id_seed_type');
+  var lotEl=document.getElementById('id_lot');
+  var opEl=document.getElementById('id_operation_type');
+  function fillSelect(selectEl,items,valueKey,textKey){
+    if(!selectEl) return;
+    selectEl.innerHTML='<option value="">---------</option>';
+    for(var i=0;i<items.length;i++){
+      var opt=document.createElement('option');
+      opt.value=items[i][valueKey];
+      opt.textContent=items[i][textKey];
+      selectEl.appendChild(opt);
+    }
+  }
+  if(ownerEl&&seedEl&&lotEl&&opEl){
+    ownerEl.addEventListener('change',function(){
+      var owner=ownerEl.value||'';
+      fetch('/ajax/load-seed-types/?owner='+encodeURIComponent(owner))
+      .then(function(r){return r.json();})
+      .then(function(data){
+        fillSelect(seedEl,(data&&data.seed_types)?data.seed_types:[], 'id','name');
+        fillSelect(lotEl,[], 'id','name');
+      });
+    });
+    function updateLots(){
+      var owner=ownerEl.value||'';
+      var seed=seedEl.value||'';
+      var op=opEl.value||'';
+      fetch('/ajax/load-lots/?owner='+encodeURIComponent(owner)+'&seed_type='+encodeURIComponent(seed)+'&operation_type='+encodeURIComponent(op))
+      .then(function(r){return r.json();})
+      .then(function(data){
+        fillSelect(lotEl,(data&&data.lots)?data.lots:[], 'id','name');
+      });
+    }
+    seedEl.addEventListener('change',updateLots);
+    opEl.addEventListener('change',function(){toggleOpFields();updateLots();});
+    lotEl.addEventListener('change',function(){
+      var lot=lotEl.value||'';
+      if(!lot) return;
+      fetch('/ajax/lot-details/?lot='+encodeURIComponent(lot))
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var wi=document.getElementById('id_weight_in');
+        var pb=document.getElementById('id_purity_before');
+        if(wi) wi.value=data.weight_in||'';
+        if(pb) pb.value=data.purity||'';
+        // Initialize partial cleaning UI after loading lot details
+        initPartialCleaningUI(data.weight_in||0);
+        toggleOpFields();
+        recalcKPIs();
+      });
+    });
+  }
+
+  function toggleOpFields(){
+    var op=opEl?opEl.value:'';
+    var show=op==='CLEANING'||op==='RECLEANING';
+    var pa=document.getElementById('id_purity_after');
+    var rj=document.getElementById('id_rejects');
+    var wr=document.getElementById('id_recleaning_reason');
+    if(pa) pa.closest('p').style.display=show?'':'none';
+    if(rj) rj.closest('p').style.display=show?'':'none';
+    if(!show){
+      var pb=document.getElementById('id_purity_before');
+      if(pa&&pb) pa.value=pb.value;
+      if(rj) rj.value='0';
+    }
+    if(wr){
+      var wrap=wr.closest('p');
+      if(op==='RECLEANING'){wrap.style.display=''; wr.required=true;}
+      else{wrap.style.display='none'; wr.required=false; wr.value='';}
+    }
+    recalcKPIs();
+  }
+  if(opEl) toggleOpFields();
+
+  /* KPIs live update */
+  function recalcKPIs(){
+    var wi=document.getElementById('id_weight_in');
+    var rj=document.getElementById('id_rejects');
+    var pb=document.getElementById('id_purity_before');
+    var pa=document.getElementById('id_purity_after');
+
+    var weightIn=parseFloat(wi?wi.value:'0')||0;
+    var rejects=parseFloat(rj?rj.value:'0')||0;
+    var weightOutCalc=weightIn-rejects;
+    var purityB=parseFloat(pb?pb.value:'0')||0;
+    var purityA=parseFloat(pa?pa.value:'0')||0;
+
+    var yieldPct=weightIn?(weightOutCalc/weightIn)*100:0;
+    var purityD=purityA-purityB;
+
+    var yEl=document.getElementById('kpi-yield');
+    var pEl=document.getElementById('kpi-purity');
+    if(yEl) yEl.textContent=yieldPct.toFixed(2);
+    if(pEl) pEl.textContent=purityD.toFixed(2);
+  }
+  document.addEventListener('input', recalcKPIs);
+
+  /* ===== Partial cleaning: slider + quick picks + live estimates ===== */
+  function initPartialCleaningUI(maxWeight){
+    try{
+      var wi=document.getElementById('id_weight_in');
+      if(!wi) return;
+      var container = wi.closest('p');
+      if(!container) return;
+      // Avoid duplicating if already initialized
+      if(container.nextSibling && container.nextSibling.classList && container.nextSibling.classList.contains('partial-clean-wrap')) return;
+
+      var wrap=document.createElement('div');
+      wrap.className='partial-clean-wrap';
+      wrap.setAttribute('role','group');
+      wrap.setAttribute('aria-label','Partial cleaning controls');
+
+      var row=document.createElement('div');
+      row.className='partial-row';
+      var slider=document.createElement('input');
+      slider.type='range';
+      slider.className='partial-slider';
+      slider.min='0';
+      slider.max=String(maxWeight||0);
+      slider.step='0.01';
+      slider.value=wi.value||'0';
+
+      var chips=document.createElement('div');
+      chips.className='partial-chips';
+      function chip(label, fn){
+        var b=document.createElement('button');
+        b.type='button';
+        b.className='chip-btn';
+        b.textContent=label;
+        b.addEventListener('click', function(){ fn(); sync(); recalcKPIs(); });
+        chips.appendChild(b);
+      }
+      chip('25%', function(){ setWeight((maxWeight||0)*0.25); });
+      chip('50% (Half)', function(){ setWeight((maxWeight||0)*0.50); });
+      chip('75%', function(){ setWeight((maxWeight||0)*0.75); });
+      chip('One Piece (50)', function(){ setWeight(Math.min(50, maxWeight||0)); });
+      chip('All', function(){ setWeight(maxWeight||0); });
+
+      row.appendChild(slider);
+      row.appendChild(chips);
+
+      var est=document.createElement('div');
+      est.className='partial-est';
+      var pillClean=document.createElement('span'); pillClean.className='pill'; pillClean.id='est-clean'; pillClean.textContent='Est. Cleaned: –';
+      var pillRej=document.createElement('span'); pillRej.className='pill'; pillRej.id='est-rejects'; pillRej.textContent='Est. Rejects: –';
+      est.appendChild(pillClean); est.appendChild(pillRej);
+
+      wrap.appendChild(row);
+      wrap.appendChild(est);
+
+      container.parentNode.insertBefore(wrap, container.nextSibling);
+
+      function setWeight(v){
+        var m = Number(maxWeight||0);
+        if(v<0) v=0; if(v>m) v=m;
+        slider.value=String(v.toFixed(2));
+        wi.value=String(v.toFixed(2));
+      }
+
+      function sync(){
+        // Keep slider and input in sync
+        var v=parseFloat(wi.value||'0')||0;
+        var m=parseFloat(slider.max||'0')||0;
+        if(v<0) v=0; if(v>m) v=m;
+        slider.value=String(v.toFixed(2));
+        // Update estimates
+        updateEstimates(v);
+      }
+
+      function updateEstimates(weightIn){
+        var pb=document.getElementById('id_purity_before');
+        var tp=document.getElementById('id_target_purity');
+        var purityB=parseFloat(pb?pb.value:'0')||0;
+        var target =parseFloat(tp?tp.value:''||pb?.value||'0')||purityB||0;
+        var estClean = '–', estRej='–';
+        if(weightIn>0 && target>0 && purityB>0){
+          // Idealized rejects by purity delta: weight_in * (1 - purity_before/target)
+          var r = weightIn * Math.max(0, 1 - (purityB/target));
+          // Clip to [0, weightIn]
+          r = Math.max(0, Math.min(weightIn, r));
+          var c = weightIn - r;
+          estRej = r.toFixed(2);
+          estClean = c.toFixed(2);
+        }
+        var ec=document.getElementById('est-clean'); if(ec) ec.textContent='Est. Cleaned: '+estClean;
+        var er=document.getElementById('est-rejects'); if(er) er.textContent='Est. Rejects: '+estRej;
+      }
+
+      slider.addEventListener('input', function(){ wi.value=slider.value; updateEstimates(parseFloat(slider.value||'0')||0); recalcKPIs(); });
+      wi.addEventListener('input', function(){ sync(); });
+      var tp=document.getElementById('id_target_purity'); if(tp) tp.addEventListener('input', function(){ sync(); });
+      var pb=document.getElementById('id_purity_before'); if(pb) pb.addEventListener('input', function(){ sync(); });
+      // Initial estimates
+      sync();
+    }catch(e){/* no-op */}
+  }
+
+  // Initialize partial cleaning controls if the lot is already selected and weight present
+  (function bootstrapPartial(){
+    var wi=document.getElementById('id_weight_in');
+    if(wi && wi.value){
+      var maxVal = parseFloat(wi.value||'0')||0;
+      initPartialCleaningUI(maxVal);
+    }
+  })();
+
+  /* ===== Lot capsule renderer (Input-based) ===== */
+  var CIRC=2*Math.PI*18; // r=18
+  function setDash(el,len,offset){
+    if(!el) return;
+    el.setAttribute('stroke-dasharray', String(len)+' '+String(CIRC-len));
+    if(typeof offset==='number'){el.setAttribute('stroke-dashoffset', String(offset));}
+  }
+  function pct(n,d){return d>0?(n/d):0;}
+  function clamp01(x){return x<0?0:x>1?1:x;}
+
+  function renderPill(p){
+    var input = parseFloat(p.getAttribute('data-in')||'0')||0;      // weight_in
+    var cleaned = parseFloat(p.getAttribute('data-cleaned')||'0')||0; // cleaned/out
+    var rejects = parseFloat(p.getAttribute('data-rejects')||'0')||0;
+
+    var accounted = cleaned + rejects;             // total accounted weight
+    var waste = Math.max(input - accounted, 0);    // dust/spill
+
+    // Percentages vs INPUT
+    var cleanedPct = pct(cleaned, input);
+    var rejectPct  = pct(rejects, input);
+    var wastePct   = clamp01(1 - (cleanedPct + rejectPct));
+
+    // Donut arcs (rotate -90deg in <g>)
+    var cleanedArc = CIRC * cleanedPct;
+    var rejectArc  = CIRC * rejectPct;
+    var wasteArc   = CIRC * wastePct;
+
+    var halo = p.querySelector('.donut .halo');
+    var outArc  = p.querySelector('.donut .out');
+    var rej  = p.querySelector('.donut .rej');
+    setDash(halo, wasteArc, -(cleanedArc + rejectArc));
+    setDash(outArc,  cleanedArc, 0);
+    setDash(rej,  rejectArc,  -cleanedArc);
+
+    // Center labels
+    var main=p.querySelector('.donut-main');
+    var sub=p.querySelector('.donut-sub');
+    var outPct = pct(accounted, input) * 100;
+    if(main) main.textContent = (isFinite(outPct)?outPct:0).toFixed(0)+'%';
+    if(sub)  sub.textContent  = 'Rj '+(rejectPct*100).toFixed(0)+'%';
+
+    // Split bar = composition within Output
+    var segOut=p.querySelector('.split .seg-out');
+    var segRej=p.querySelector('.split .seg-rej');
+    var denom=Math.max(accounted, 0.000001);
+    if(segOut) segOut.style.width=(cleaned/denom*100).toFixed(2)+'%';
+    if(segRej) segRej.style.width=(rejects/denom*100).toFixed(2)+'%';
+
+    // Purity badge cue
+    var purity=parseFloat(p.getAttribute('data-purity-delta')||'0')||0;
+    var badge=p.querySelector('.badge.purity');
+    if(badge){
+      badge.style.borderColor='';
+      badge.style.background='';
+      if(purity>=0.5){badge.style.borderColor='#7dffb0';}
+      if(purity<=-0.5){badge.style.borderColor='#ff7676'; badge.style.background='rgba(255,0,0,.08)';}
+    }
+
+    // Update Out chip to show cleaned weight
+    var outChip=p.querySelector('.out-val');
+    if(outChip) outChip.textContent='Out '+cleaned.toFixed(2);
+  }
+
+  var pills=document.querySelectorAll('.lot-pill');
+  for(var i=0;i<pills.length;i++){ renderPill(pills[i]); }
+
+  /* ===== Hourly purity quick-add (no timers) ===== */
+  (function(){
+    var hps = document.querySelectorAll('.hourly-progress');
+    function initHourlyPurity(hp){
+      var addBtn = hp.querySelector('.hp-add');
+      var input  = hp.querySelector('.hp-purity-input');
+      var rjBtn  = hp.querySelector('.rj-weigh');
+      var rjIn   = hp.querySelector('.rj-weight-input');
+      var rjRate = hp.querySelector('.rj-rate-input');
+      if(!addBtn || !input) return;
+      var csrf = (document.querySelector('input[name=csrfmiddlewaretoken]')||{}).value;
+      addBtn.addEventListener('click', function(){
+        var recId = this.getAttribute('data-record');
+        var purity = parseFloat(input.value||'');
+        if(!(purity>=0 && purity<=100)){ alert('Enter purity between 0 and 100'); return; }
+        var fd = new FormData(); fd.append('purity', String(purity));
+        fetch('/daily-records/'+recId+'/hourly-purity/', { method:'POST', body: fd, headers:{'X-CSRFToken': csrf}, credentials:'same-origin' })
+          .then(function(r){ return r.json().then(function(j){ j.status=r.status; return j; }); })
+          .then(function(resp){
+            if(!resp.ok){
+              if(resp.no_more_stock){ alert('No more stock remaining for this record.'); }
+              else { alert('Could not add hourly purity'); }
+              return;
+            }
+            // Update pill visuals
+            var pill = hp.closest('.record-item')?.querySelector('.lot-pill');
+            if(pill){
+              pill.setAttribute('data-cleaned', (resp.weight_out||0).toFixed(2));
+              pill.setAttribute('data-rejects', (resp.rejects||0).toFixed(2));
+              renderPill(pill);
+              // Update yield chip
+              var inVal = parseFloat(pill.getAttribute('data-in')||'0')||0;
+              var yChip = hp.closest('.record-item')?.querySelector('.yield-val');
+              if(yChip){ var y = inVal? ((resp.weight_out||0)/inVal*100) : 0; yChip.textContent = 'Yield ' + y.toFixed(2) + '%'; }
+            }
+            // Append table row (cumulative Out shown)
+            var tbl = hp.closest('.record-item')?.querySelector('table.qc-table tbody');
+            if(tbl){
+              var tr = document.createElement('tr');
+              var nowTime = (resp.timestamp? new Date(resp.timestamp): new Date());
+              var hh = String(nowTime.getHours()).padStart(2,'0');
+              var mm = String(nowTime.getMinutes()).padStart(2,'0');
+              tr.innerHTML = '<td>'+ (resp.piece_used||50).toFixed(2) +'</td>'+
+                             '<td>'+ (resp.weight_out||0).toFixed(2) +'</td>'+
+                             '<td>'+ (resp.purity||0).toFixed(2) +'</td>'+
+                             '<td>'+ hh+':'+mm +'</td>';
+              tbl.appendChild(tr);
+            }
+            // If no table existed, we could reload; skipping to keep it light
+          })
+          .catch(function(){ alert('Network error while adding hourly purity'); });
+      });
+      // Simple inline Reject Weighing
+      if(rjBtn && rjIn){
+        rjBtn.addEventListener('click', function(){
+          var recId = this.getAttribute('data-record');
+          var w = parseFloat(rjIn.value||'');
+          if(!(w>0)){ alert('Enter a positive reject weight'); return; }
+          var fd = new FormData();
+          fd.append('actual_reject_weight', String(w));
+          var rate = parseFloat(rjRate && rjRate.value ? rjRate.value : '0') || 0;
+          fd.append('reject_labor_payment_per_qtl', String(rate));
+          fetch('/daily-records/'+recId+'/weigh/', { method:'POST', body: fd, headers:{'X-CSRFToken': csrf, 'X-Requested-With':'XMLHttpRequest'}, credentials:'same-origin' })
+            .then(function(r){ return r.json().then(function(j){ j.status=r.status; return j; }); })
+            .then(function(resp){
+              if(!resp.ok){ alert('Reject weighing error'); return; }
+              // Mark as posted and disable controls
+              var stEl = hp.closest('.record-item')?.querySelector('span.status-posted, span.status-draft, span.status-ready');
+              if(stEl){ stEl.textContent='Posted'; stEl.className='status-posted'; }
+              addBtn.disabled = true; input.disabled = true; rjBtn.disabled = true; rjIn.disabled = true; if(rjRate){rjRate.disabled=true;}
+              // Update pill visuals
+              var pill = hp.closest('.record-item')?.querySelector('.lot-pill');
+              if(pill){
+                pill.setAttribute('data-cleaned', (resp.weight_out||0).toFixed(2));
+                pill.setAttribute('data-rejects', (resp.rejects||0).toFixed(2));
+                renderPill(pill);
+                var inVal = parseFloat(pill.getAttribute('data-in')||'0')||0;
+                var yChip = hp.closest('.record-item')?.querySelector('.yield-val');
+                if(yChip){ var y = inVal? (((resp.weight_out||0)/inVal)*100) : 0; yChip.textContent = 'Yield ' + y.toFixed(2) + '%'; }
+              }
+              // Update labor metric
+              var laborMetricIcon = hp.closest('.record-item')?.querySelector('.metric i.bi-people');
+              if(laborMetricIcon && typeof resp.total_labor_cost !== 'undefined'){
+                var parent = laborMetricIcon.parentElement;
+                if(parent){ parent.innerHTML = '<i class="bi bi-people"></i> Labor ' + Number(resp.total_labor_cost||0).toFixed(2) + ' Etb'; }
+              }
+            })
+            .catch(function(){ alert('Network error while weighing reject'); });
+        });
+      }
+    }
+    for(var i=0;i<hps.length;i++){ initHourlyPurity(hps[i]); }
+  })();
+
+  /* ===== QC modal logic (unchanged server endpoints) ===== */
+  var qcModal=document.getElementById('qc-modal');
+  var qcForm=document.getElementById('qc-form');
+  if(qcModal&&qcForm){
+    var qcBtns=document.getElementsByClassName('qc-open');
+    for(var j=0;j<qcBtns.length;j++){
+      qcBtns[j].addEventListener('click',function(){
+        qcModal.removeAttribute('hidden');
+        var rec=document.getElementById('qc-record');
+        if(rec) rec.value=this.getAttribute('data-record');
+      });
+    }
+    var closeBtn=document.getElementById('qc-close');
+    if(closeBtn) closeBtn.addEventListener('click',function(){qcModal.setAttribute('hidden','');});
+
+    var sample=document.getElementById('qc-sample');
+    var piece=document.getElementById('qc-piece');
+    var rate=document.getElementById('qc-rate');
+    var snd=document.getElementById('qc-sound');
+    var rej=document.getElementById('qc-reject');
+    var pur=document.getElementById('qc-purity');
+    var edit=document.getElementById('qc-edit');
+    var result=document.getElementById('qc-result');
+
+    function updatePur(){
+      var s=parseFloat(snd.value||'0');
+      var r=parseFloat(rej.value||'0');
+      var t=s+r;
+      pur.value=t?(s/t*100).toFixed(2):'';
+    }
+    if(snd) snd.addEventListener('input',updatePur);
+    if(rej) rej.addEventListener('input',updatePur);
+    if(edit) edit.addEventListener('click',function(){
+      var ro=sample.hasAttribute('readonly');
+      [sample,piece,rate].forEach(function(el){if(!el)return; if(ro)el.removeAttribute('readonly'); else el.setAttribute('readonly','readonly');});
+    });
+
+    qcForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      var recId=document.getElementById('qc-record').value;
+      var data=new FormData();
+      data.append('weight_sound_g', snd.value||'');
+      data.append('weight_reject_g', rej.value||'');
+      data.append('sample_weight_g', sample.value||'30');
+      data.append('piece_quintals', piece.value||'50');
+      data.append('machine_rate_kgph', rate.value||'50');
+      data.append('csrfmiddlewaretoken', document.querySelector('input[name=csrfmiddlewaretoken]').value);
+      fetch('/daily-records/'+recId+'/qc/add/',{method:'POST',body:data})
+        .then(function(r){return r.json().then(function(j){j.status=r.status;return j;});})
+        .then(function(resp){
+          if(!resp.ok){
+            if(resp.no_more_stock){
+              alert('No more stock available for QC.');
+              if(resp.remaining_quintals!==undefined){piece.value=resp.remaining_quintals.toFixed(2);}
+            }else{alert('QC error');}
+            return;
+          }
+          result.textContent='Added '+resp.c_number+'. Purity(avg) '+resp.purity_after.toFixed(2)+'%. Consumed '+resp.consumed_quintals+' qtl, Remaining '+resp.remaining_quintals+' qtl.';
+          var kpi=document.getElementById('kpi-purity'); if(kpi) kpi.textContent=resp.purity_after.toFixed(2);
+          snd.value=''; rej.value=''; pur.value=''; piece.value=resp.next_piece.toFixed(2);
+
+          // Live refresh of pill: cleaned=resp.weight_out (server naming), rejects=resp.rejects
+          var pillBtn=document.querySelector('button.qc-open[data-record="'+recId+'"]');
+          if(pillBtn){
+            var pill=pillBtn.closest('.lot-pill');
+            if(pill){
+              pill.setAttribute('data-cleaned', (resp.weight_out||resp.cleaning_balance||0).toFixed(2));
+              pill.setAttribute('data-rejects', (resp.rejects||0).toFixed(2));
+              renderPill(pill);
+              var rejSpan=pill.querySelector('.reject-val'); if(rejSpan) rejSpan.textContent='Rj '+(resp.rejects||0).toFixed(2);
+              var inEl=pill.querySelector('.in-val');
+              var inVal=parseFloat(inEl?inEl.textContent.replace(/[^0-9.]/g,''):'0')||0;
+              var yieldSpan=pill.querySelector('.yield-val');
+              if(yieldSpan){ yieldSpan.textContent='Yield '+(inVal?(((inVal-(resp.rejects||0))/inVal)*100).toFixed(2):'0.00')+'%'; }
+            }
+          }
+          qcModal.setAttribute('hidden','');
+        })
+        .catch(function(){alert('Network error while adding QC');});
+    });
+  }
+
+  /* Reject modal */
+  var rejectModal=document.getElementById('reject-modal');
+  var rejectForm=document.getElementById('reject-form');
+  if(rejectModal&&rejectForm){
+    var rBtns=document.getElementsByClassName('reject-open');
+    for(var k=0;k<rBtns.length;k++){
+      rBtns[k].addEventListener('click',function(){
+        rejectModal.removeAttribute('hidden');
+        document.getElementById('reject-record').value=this.getAttribute('data-record');
+        document.getElementById('reject-weight').value='';
+        document.getElementById('reject-labor-payment').value='';
+      });
+    }
+    var rClose=document.getElementById('reject-close');
+    if(rClose) rClose.addEventListener('click',function(){rejectModal.setAttribute('hidden','');});
+    rejectForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      var recId=document.getElementById('reject-record').value;
+      var w=document.getElementById('reject-weight').value;
+      var lp=document.getElementById('reject-labor-payment').value;
+      var data=new FormData();
+      data.append('actual_reject_weight', w);
+      data.append('reject_labor_payment_per_qtl', lp);
+      data.append('csrfmiddlewaretoken', document.querySelector('input[name=csrfmiddlewaretoken]').value);
+      fetch('/daily-records/'+recId+'/weigh/',{method:'POST',body:data,headers:{'X-Requested-With':'XMLHttpRequest'}})
+        .then(function(r){return r.json().then(function(j){j.status=r.status;return j;});})
+        .then(function(resp){
+          if(!resp.ok){alert('Reject weighing error');return;}
+          rejectModal.setAttribute('hidden','');
+          var btn=document.querySelector('button.reject-open[data-record="'+recId+'"]');
+          if(btn){
+            var pill=btn.closest('.lot-pill');
+            var container=btn.parentElement;
+            btn.remove();
+            var qb=container.querySelector('button.qc-open'); if(qb) qb.remove();
+            var status=container.querySelector('span.status-posted, span.status-draft, span.status-ready');
+            if(status){status.textContent='Posted'; status.className='status-posted';}
+            if(pill){
+              pill.setAttribute('data-cleaned', (resp.weight_out||resp.cleaning_balance||0).toFixed(2));
+              pill.setAttribute('data-rejects', (resp.rejects||0).toFixed(2));
+              renderPill(pill);
+              var rejSpan=pill.querySelector('.reject-val'); if(rejSpan) rejSpan.textContent='Rj '+(resp.rejects||0).toFixed(2);
+              var inEl=pill.querySelector('.in-val');
+              var inVal=parseFloat(inEl?inEl.textContent.replace(/[^0-9.]/g,''):'0')||0;
+              var yieldSpan=pill.querySelector('.yield-val');
+              if(yieldSpan){ yieldSpan.textContent='Yield '+(inVal?(((inVal-(resp.rejects||0))/inVal)*100).toFixed(2):'0.00')+'%'; }
+            }
+          }
+        })
+        .catch(function(){alert('Network error while weighing reject');});
+    });
+  }
+
+  // Output receipt removed
+});
+</script>
+{% endblock %}

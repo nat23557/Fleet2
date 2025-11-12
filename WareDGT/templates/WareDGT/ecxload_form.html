@@ -1,0 +1,11 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}{{ form_title|default:'Record ECX Load' }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">{{ form_title|default:'Record ECX Load' }}</h1>
+<form method="post" class="erp-form" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="erp-btn">{{ submit_label|default:'Save' }}</button>
+</form>
+{% endblock %}

@@ -1,0 +1,10 @@
+ECX Trade Request Declined
+
+Your ECX trade request (NOR: {{ request_obj.net_obligation_receipt_no }}) was declined by {{ accountant.get_full_name|default:accountant.username }}.
+Reason: {{ note }}
+
+Receipt Lines:
+{% for l in lines %}- {{ l.warehouse_receipt_no }} — {{ l.quantity }} Qtls
+{% endfor %}
+
+Please contact the accounting team for further clarification.

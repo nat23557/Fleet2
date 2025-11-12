@@ -1,0 +1,36 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Contract Stock Requests{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Contract Stock Approval Requests</h1>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Submitted</th>
+      <th>Submitter</th>
+      <th>Owner</th>
+      <th>Warehouse</th>
+      <th>Category</th>
+      <th>Symbol</th>
+      <th>Quantity (Qtls)</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req in object_list %}
+    <tr>
+      <td>{{ req.created_at }}</td>
+      <td>{{ req.created_by.get_full_name|default:req.created_by.username }}</td>
+      <td>{{ req.owner }}</td>
+      <td>{{ req.warehouse }}</td>
+      <td>{{ req.payload.category }}</td>
+      <td>{{ req.payload.symbol }}</td>
+      <td>{{ req.payload.quantity_quintals }}</td>
+      <td><a class="erp-btn" href="{% url 'contract_movement_request_review' req.pk %}">Review</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8">No requests.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

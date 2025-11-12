@@ -1,0 +1,212 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:960px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:1rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">New Transaction</h1>
+      <p class="dashboard-subtext">A focused, fast entry experience.</p>
+    </div>
+    <div class="dashboard-hero-meta">
+      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}">⬅ Back</a>
+    </div>
+  </div>
+
+  <section class="section">
+    <form method="post" class="form txn-grid" id="txnForm" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="txn-card">
+        <div class="form-row">
+          <label class="label" for="id_account">Account</label>
+          {{ form.account }}
+          <div class="text-muted" id="accMeta" style="margin-top:.25rem; font-size:.9rem;">
+            Balance: <span id="accBal">0.00</span> <span id="accCcy"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="label" for="id_date">Date</label>
+          {{ form.date }}
+        </div>
+
+        <div class="form-row">
+          <label class="label" for="id_description">Description</label>
+          <input type="text" name="description" id="id_description" class="input" list="descList" value="{{ form.description.value|default:'' }}" />
+          <datalist id="descList">
+            {% for d in desc_suggestions %}
+            <option value="{{ d }}"></option>
+            {% endfor %}
+          </datalist>
+        </div>
+
+        <div class="form-row">
+          <label class="label" for="id_reference">Reference</label>
+          {{ form.reference }}
+        </div>
+
+        <div class="form-row">
+          <label class="label" style="margin-bottom:.35rem;">Type</label>
+          <div class="seg-toggle" role="tablist" aria-label="Type">
+            <button type="button" class="opt active" data-type="credit">Credit</button>
+            <button type="button" class="opt" data-type="debit">Debit</button>
+          </div>
+        </div>
+
+        <div class="form-row amount-wrap">
+          <div>
+            <label class="label" for="amount">Amount</label>
+            <input id="amount" type="number" step="0.01" min="0" class="amount-input" placeholder="0.00" />
+          </div>
+          <div class="amount-chips">
+            <button type="button" class="chip-btn amt" data-val="1000">+1k</button>
+            <button type="button" class="chip-btn amt" data-val="5000">+5k</button>
+            <button type="button" class="chip-btn amt" data-val="10000">+10k</button>
+            <button type="button" class="chip-btn" id="clearAmt">Clear</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="label">Attachment</label>
+          <label class="dropzone" for="id_attachment" id="dz">
+            <div class="dropzone-thumb"><span>📎</span><img id="dzImg" alt="preview" style="display:none;" /></div>
+            <div>
+              <div><strong>Drop image</strong> or click to upload</div>
+              <div class="hint">JPG/PNG; will be stored with the record.</div>
+            </div>
+            <div><span class="btn btn-ghost btn-sm">Browse</span></div>
+          </label>
+          {{ form.attachment }}
+          <div class="text-muted">Required unless you are a superuser.</div>
+        </div>
+
+        <!-- Hidden real fields (kept synced by JS) -->
+        <div style="display:none;">
+          {{ form.debit }}
+          {{ form.credit }}
+        </div>
+
+        <div style="display:flex; gap:.5rem; margin-top:.5rem;">
+          <button class="cta-button" type="submit">Save</button>
+          <a class="btn btn-ghost" href="{% url 'cash_management:dashboard' %}">Cancel</a>
+        </div>
+        <p class="text-muted" style="margin-top:.5rem;">Tip: Credit for money in, Debit for money out. Shortcuts: C=Credit, D=Debit, Ctrl+Enter=Save.</p>
+      </div>
+
+      <aside class="txn-card balance-card">
+        <div class="balance-kpis">
+          <div class="kpi">
+            <div class="t">Current</div>
+            <div class="v" id="kCur">0.00</div>
+          </div>
+          <div class="kpi">
+            <div class="t">Delta</div>
+            <div class="v"><span id="kDelta" class="delta-chip">+ 0.00</span></div>
+          </div>
+          <div class="kpi">
+            <div class="t">Projected</div>
+            <div class="v" id="kNew">0.00</div>
+          </div>
+        </div>
+        <div class="meter" title="Threshold">
+          <div class="fill" id="mFill" style="width:0%;"></div>
+          <div class="mark" id="mMark" style="left:0%"></div>
+        </div>
+        <div class="meter-legend"><span>0</span><span id="kCcy"></span></div>
+      </aside>
+
+    </form>
+  </section>
+</div>
+
+<script>
+  (function(){
+    const data = {{ account_data|safe }};
+    const sel = document.getElementById('id_account');
+    const balEl = document.getElementById('accBal');
+    const ccyEl = document.getElementById('accCcy');
+    const amt = document.getElementById('amount');
+    const debit = document.getElementById('id_debit');
+    const credit = document.getElementById('id_credit');
+    const today = new Date().toISOString().slice(0,10);
+    const dateInput = document.getElementById('id_date');
+    if (dateInput && !dateInput.value) dateInput.value = today;
+
+    const seg = document.querySelectorAll('.seg-toggle .opt');
+    let typeSel = 'credit';
+    seg.forEach(btn => btn.addEventListener('click', function(){
+      seg.forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      typeSel = this.dataset.type;
+      refresh();
+    }));
+
+    const kCur = document.getElementById('kCur');
+    const kNew = document.getElementById('kNew');
+    const kDelta = document.getElementById('kDelta');
+    const kCcy = document.getElementById('kCcy');
+    const mFill = document.getElementById('mFill');
+    const mMark = document.getElementById('mMark');
+    const dz = document.getElementById('dz');
+    const dzImg = document.getElementById('dzImg');
+    const file = document.getElementById('id_attachment');
+    const clearBtn = document.getElementById('clearAmt');
+
+    function fmt(x){ return (Math.round(x * 100)/100).toFixed(2); }
+    function refresh(){
+      const info = data[sel.value] || {balance: 0, currency: '', threshold: 0, limit: 0};
+      const type = typeSel;
+      const a = parseFloat(amt.value || '0') || 0;
+      balEl.textContent = fmt(info.balance);
+      ccyEl.textContent = info.currency || '';
+      // live card
+      kCur.textContent = fmt(info.balance);
+      kCcy.textContent = info.currency || '';
+      const nb = type === 'credit' ? info.balance + a : info.balance - a;
+      kNew.textContent = fmt(nb);
+      kDelta.textContent = (type === 'credit' ? '+ ' : '- ') + fmt(a);
+      kDelta.className = 'delta-chip ' + (type === 'credit' ? 'delta-plus' : 'delta-minus');
+      const maxAbs = Math.max(Math.abs(info.balance), Math.abs(nb), Math.abs(info.threshold||0), 1);
+      const percent = Math.min(100, Math.max(0, (Math.abs(nb) / maxAbs) * 100));
+      mFill.style.width = percent.toFixed(2) + '%';
+      const mark = (info.threshold > 0) ? Math.min(100, (Math.abs(info.threshold) / maxAbs) * 100) : 0;
+      mMark.style.left = mark.toFixed(2) + '%';
+      // sync hidden fields
+      if (type === 'credit') { credit.value = a; debit.value = 0; }
+      else { debit.value = a; credit.value = 0; }
+    }
+    sel.addEventListener('change', refresh);
+    amt.addEventListener('input', refresh);
+    document.querySelectorAll('.amt').forEach(b => b.addEventListener('click', function(){
+      const v = parseFloat(this.dataset.val);
+      amt.value = ((parseFloat(amt.value||'0')||0) + v).toFixed(2);
+      refresh();
+    }));
+    clearBtn.addEventListener('click', function(){ amt.value = ''; refresh(); });
+
+    // Attachment dropzone
+    file.style.display = 'none';
+    dz.addEventListener('click', function(){ file.click(); });
+    dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag'); });
+    dz.addEventListener('dragleave', function(){ dz.classList.remove('drag'); });
+    dz.addEventListener('drop', function(e){ e.preventDefault(); dz.classList.remove('drag'); if (e.dataTransfer.files && e.dataTransfer.files[0]) { file.files = e.dataTransfer.files; previewFile(); }});
+    file.addEventListener('change', previewFile);
+    function previewFile(){
+      const f = file.files && file.files[0];
+      if (!f) { dzImg.style.display='none'; dzImg.src=''; return; }
+      const reader = new FileReader();
+      reader.onload = function(ev){ dzImg.src = ev.target.result; dzImg.style.display = 'block'; };
+      reader.readAsDataURL(f);
+    }
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', function(ev){
+      if (ev.key && ev.key.toLowerCase() === 'c') { seg[0].click(); }
+      if (ev.key && ev.key.toLowerCase() === 'd') { seg[1].click(); }
+      if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { document.getElementById('txnForm').requestSubmit(); }
+    });
+    refresh();
+  })();
+</script>
+{% endblock %}

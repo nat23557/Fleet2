@@ -1,0 +1,61 @@
+{% extends 'WareDGT/layout.html' %}
+{% load static %}
+
+{% block title %}Submit ECX Trade for Approval{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Submit ECX Trade for Approval</h1>
+<form method="post" class="erp-form ecx-trade-form" enctype="multipart/form-data" id="ecx-trade-form">
+  {% csrf_token %}
+
+  <p>
+    <label for="id_owner">Owner:</label>
+    {{ form.owner }}
+  </p>
+
+  <p>
+    <label for="id_net_obligation_receipt_no">Net Obligation Receipt No:</label>
+    {{ form.net_obligation_receipt_no }}
+  </p>
+
+  <div class="erp-card" style="margin: 12px 0;">
+    <div class="erp-card__header">Purchases (one or more warehouses)</div>
+    <div class="erp-card__body">
+      <div id="groups"></div>
+      <button type="button" class="erp-btn" id="add_group">Add Warehouse Purchase</button>
+    </div>
+  </div>
+
+  <p>
+    <label for="id_purchase_date">Purchase date:</label>
+    {{ form.purchase_date }}
+  </p>
+
+  <p>
+    <label for="id_receipt_file">Receipt file:</label>
+    {{ form.receipt_file }}
+    <small>Upload an image or PDF of the Net Obligation Receipt</small>
+  </p>
+
+  {{ form.groups_json }}
+
+  <button type="submit" class="erp-btn primary">Submit for Approval</button>
+
+  <div style="display:none;">
+    {{ form.category }}
+    {{ form.symbol }}
+    {{ form.grade }}
+    {{ form.warehouse }}
+    {{ form.receipt_entries }}
+    {{ form.category2 }}
+    {{ form.symbol2 }}
+    {{ form.grade2 }}
+    {{ form.warehouse2 }}
+    {{ form.receipt_entries2 }}
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'WareDGT/js/ecxtrade_form.js' %}"></script>
+{% endblock %}

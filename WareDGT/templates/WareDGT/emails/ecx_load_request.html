@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <body style="background:#0D1E00;color:#FDFEFD;font-family:Arial,sans-serif;padding:20px;">
+    <h2 style="color:#9AEC25;">ECX Load Request Pending</h2>
+    <p>{{ req.created_by.get_full_name|default:req.created_by.username }} submitted a load request for {{ req.warehouse }}.</p>
+    <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+      <tr style="background:#000;border:1px solid #9AEC25;color:#FDFEFD;">
+        <th align="left" style="padding:4px;border:1px solid #9AEC25;">Commodity</th>
+        <th align="left" style="padding:4px;border:1px solid #9AEC25;">WR No.</th>
+        <th align="right" style="padding:4px;border:1px solid #9AEC25;">Qty (qtls)</th>
+      </tr>
+      {% for t in req.trades.all %}
+      <tr>
+        <td style="padding:4px;border:1px solid #9AEC25;">{{ t.commodity }}</td>
+        <td style="padding:4px;border:1px solid #9AEC25;">{{ t.warehouse_receipt_no }}</td>
+        <td style="padding:4px;border:1px solid #9AEC25;" align="right">{{ t.quantity_quintals }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% if req.truck_image %}<p style="margin-top:20px;"><img src="{{ req.truck_image.url }}" alt="Truck image" style="max-width:100%;"/></p>{% endif %}
+    {% for rf in req.receipt_files.all %}<p><img src="{{ rf.file.url }}" alt="Load request receipt" style="max-width:100%;margin-top:4px;"/></p>{% endfor %}
+    <p style="margin-top:20px;">Review the request:</p>
+    <p><a href="{{ review_url }}" style="background:#9AEC25;color:#000;padding:8px 12px;text-decoration:none;">View Request</a></p>
+  </body>
+</html>

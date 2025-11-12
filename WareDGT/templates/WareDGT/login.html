@@ -1,0 +1,31 @@
+{# WareDGT/templates/WareDGT/login.html #}
+{% extends 'WareDGT/base.html' %}
+{% load static %}      {# ← ADD THIS LINE #}
+
+{% block title %}Sign In{% endblock %}
+
+{% block extra_css %}
+  <link href="{% static 'WareDGT/css/styles.css' %}" rel="stylesheet">
+  <link href="{% static 'WareDGT/css/login.css' %}"  rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="login-container{% if messages %} shake{% endif %}">
+  <img 
+    src="{% static 'WareDGT/images/logo.png' %}" 
+    alt="DGT Logo" 
+    class="login-logo" 
+  />
+  <form method="post">
+    {% csrf_token %}
+    <h2>Welcome Back</h2>
+    <input type="text"  name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Log In</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'WareDGT/js/login.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}New Stock Movement{% endblock %}
+
+{% block content %}
+<h1>Record Stock Movement</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Save</button>
+</form>
+{% endblock %}

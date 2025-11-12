@@ -1,0 +1,25 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Attach Weighbridge Slip{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Attach Weighbridge Slip</h1>
+<p>Request ID: {{ req.id }}</p>
+<p><strong>Warehouse:</strong> {{ req.warehouse }}</p>
+<p><strong>Owner:</strong> {{ req.owner }}</p>
+
+<form method="post" enctype="multipart/form-data" class="erp-form">
+  {% csrf_token %}
+  <div class="form-row">
+    <label for="id_weighbridge_certificate">Weighbridge Certificate (PDF/Image) *</label>
+    <input type="file" name="weighbridge_certificate" id="id_weighbridge_certificate" required>
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="erp-btn primary">Upload and Notify</button>
+    <a href="{% url 'dashboard' %}" class="erp-btn">Cancel</a>
+  </div>
+  <p class="help">Required before the request is sent to the Logistics Manager.</p>
+  {% if req.weighbridge_certificate %}
+    <p>Current file: <a href="{{ req.weighbridge_certificate.url }}" target="_blank">{{ req.weighbridge_certificate.name }}</a></p>
+  {% endif %}
+{% endblock %}
+

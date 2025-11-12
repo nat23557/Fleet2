@@ -1,0 +1,819 @@
+{% extends 'WareDGT/layout.html' %}
+{% load static %}
+{% block title %}Stock Levels{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'waredgt/css/stock-levels.css' %}?v=8">
+<style>
+  /* ===== Dark polish (style-only, safe) ===== */
+  :root{
+    --panel:#111826; --muted:#9fb2c5; --ink:#0b0f14;
+    --accent:#8af5ff; --good:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+  }
+
+  .page-title{letter-spacing:.2px;margin-bottom:.35rem}
+
+  /* “Notice” style for messages (Django messages or manual block) */
+  .notice-stack{display:grid;gap:.5rem;margin:.5rem 0 1rem}
+  .notice{
+    display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;border-radius:.8rem;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.08); color:#e7f0f8; box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 20px 50px rgba(0,0,0,.35);
+  }
+  .notice .dot{width:.55rem;height:.55rem;border-radius:999px}
+  .notice.info  .dot{background:var(--accent)}
+  .notice.success .dot{background:var(--good)}
+  .notice.warning .dot{background:var(--warn)}
+  .notice.error   .dot{background:var(--bad)}
+
+  /* Filters bar contrast (keeps your structure) */
+  #stock-filters .filter-bar{
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:.8rem;
+    padding:.6rem .8rem;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  .filter-inputs label{display:inline-flex;flex-direction:column;gap:.25rem;font-size:.85rem;color:var(--muted);margin-right:.6rem}
+  .filter-inputs select,.filter-inputs input[type=date]{
+    background:#0d141e;color:#e6eef6;border:1px solid rgba(255,255,255,.08);
+    border-radius:.5rem;padding:.45rem .55rem;min-width:9.5rem
+  }
+  #loadBtn{padding:.5rem .8rem;border-radius:.6rem;border:1px solid rgba(255,255,255,.12)}
+
+  /* Active filter chips */
+  .active-filters{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem}
+  .filter-chip{
+    background:#162233;color:#dbe7f3;border:1px solid rgba(255,255,255,.1);
+    padding:.25rem .6rem;border-radius:999px
+  }
+  .filter-chip .count{opacity:.8;margin-left:.25rem}
+
+  /* As-of pill */
+  .as-of-pill{
+    display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .6rem;border-radius:999px;
+    background:rgba(138,245,255,.08); color:#cfe6f7; border:1px solid rgba(138,245,255,.25)
+  }
+
+  /* Orientation alert tint (notice look) */
+  #orientation-alert.alert-info{
+    background:linear-gradient(180deg,rgba(138,245,255,.12),rgba(138,245,255,.06));
+    border-color:rgba(138,245,255,.35); color:#e6f7ff
+  }
+
+  /* Chart wrapper: ensure visible height, soft glow, no JS needed */
+  .chart-wrapper{
+    position:relative; border-radius:1rem; overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+    background:
+      radial-gradient(1200px 400px at 10% 0%, rgba(138,245,255,.08), transparent 60%),
+      radial-gradient(800px 300px at 100% 100%, rgba(34,197,94,.07), transparent 60%),
+      #0f1620;
+    min-height: 420px;
+  }
+  /* Guarantee canvas renders even if parent sizing is weird */
+  #stockChart{display:block; width:100% !important; height:420px !important}
+
+  /* Doc preview thumb on hover (if your JS sets it) */
+  #docPreview{
+    position:absolute; display:none; gap:.35rem; padding:.4rem; border-radius:.5rem;
+    background:rgba(15,22,32,.92); border:1px solid rgba(255,255,255,.08)
+  }
+  #docPreview img{width:120px;height:80px;object-fit:cover;border-radius:.35rem;border:1px solid rgba(255,255,255,.06)}
+
+  /* Small focus/hover polish */
+  select:focus,input[type=date]:focus,#loadBtn:focus{outline:2px solid rgba(138,245,255,.45); outline-offset:2px}
+  #loadBtn:hover{background:rgba(255,255,255,.04)}
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# Optional: show Django messages in a “notice” style; safe/no JS #}
+{% if messages %}
+  <div class="notice-stack">
+    {% for message in messages %}
+      <div class="notice {{ message.tags|default:'info' }}">
+        <span class="dot"></span>
+        <div class="text">{{ message }}</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+<div id="stock-levels-viewport">
+  <h1 class="page-title">Stock Levels</h1>
+
+  <div class="collapse" id="stock-filters">
+    <div class="filter-bar">
+      <div class="filter-inputs">
+        <label>Owner
+          <select id="ownerId"></select>
+        </label>
+        <label>Warehouse
+          <select id="warehouseId"></select>
+        </label>
+        <label>Seed Type
+          <select id="seedType"></select>
+        </label>
+        <label>Status
+          <select id="cleanStatus">
+            <option value=""></option>
+            <option value="uncleaned">Uncleaned</option>
+            <option value="cleaned">Cleaned</option>
+          </select>
+        </label>
+        <label id="gradeLabel">Grade
+          <select id="grade"></select>
+        </label>
+        <label id="purityLabel">Purity
+          <select id="purity"></select>
+        </label>
+        
+        <label>From <input type="date" id="fromDate" /></label>
+        <label>To <input type="date" id="toDate" /></label>
+        <div class="filter-quick" style="display:inline-flex; gap:.35rem; align-items:center; margin-left:.5rem;">
+          <button type="button" class="erp-btn" data-range="30">30d</button>
+          <button type="button" class="erp-btn" data-range="90">90d</button>
+          <button type="button" class="erp-btn" data-range="eth">ETH Year</button>
+          <label style="display:inline-flex; align-items:center; gap:.35rem; margin-left:.35rem;">
+            <input type="checkbox" id="yoyToggle"> YoY Compare
+          </label>
+        </div>
+        <label>Unit
+          <select id="unitToggle">
+            <option value="kg">kg</option>
+            <option value="bags">bags</option>
+          </select>
+        </label>
+        <label>View
+          <select id="viewMode">
+            <option value="total">Total</option>
+            <option value="by_warehouse">By Warehouse</option>
+          </select>
+        </label>
+        <label id="stackLabel" style="display:none">Stack
+          <select id="stackMode">
+            <option value="off">Off</option>
+            <option value="on">On</option>
+          </select>
+        </label>
+        <label id="splitLimitLabel" style="display:none">Top N
+          <select id="splitLimit">
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="8">8</option>
+          </select>
+        </label>
+        <button id="loadBtn" type="button">Load</button>
+      </div>
+      <div id="activeFilters" class="active-filters"></div>
+      <div id="asOfRibbon" class="as-of-pill">As of <span id="asOfDate"></span></div>
+    </div>
+  </div>
+  <div class="chart-wrapper" id="chartWrapper">
+    <canvas id="stockChart"></canvas>
+    <div id="docPreview"></div>
+  </div>
+
+  <div class="dashboard-grid" style="margin-top:1rem; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+    <div class="dashboard-widget">
+      <div class="widget-header">Composition (Cleaned, Reject, Uncleaned)</div>
+      <canvas id="compositionChart" height="220"></canvas>
+    </div>
+    <div class="dashboard-widget">
+      <div class="widget-header">Utilization by Warehouse</div>
+      <canvas id="utilizationChart" height="220"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'waredgt/js/stock-levels.js' %}?v=8"></script>
+<script>
+function ewma(arr, span) {
+  const alpha = 2 / (span + 1);
+  let prev = arr[0] || 0;
+  return arr.map(v => {
+    prev = alpha * v + (1 - alpha) * prev;
+    return prev;
+  });
+}
+
+function colorForIntegrity(v) {
+  if (v >= 0.9) return 'rgba(22,163,74,0.3)';
+  if (v >= 0.6) return 'rgba(251,191,36,0.3)';
+  return 'rgba(220,38,38,0.3)';
+}
+
+let chart;
+const canvas = document.getElementById('stockChart');
+const canvasCtx = canvas.getContext('2d');
+const asOfRibbon = document.getElementById('asOfRibbon');
+const asOfDateEl = document.getElementById('asOfDate');
+let compChart, utilChart;
+
+async function loadFilters() {
+  const ownerSel = document.getElementById('ownerId');
+  const whSel = document.getElementById('warehouseId');
+  const seedSel = document.getElementById('seedType');
+  const gradeSel = document.getElementById('grade');
+  const puritySel = document.getElementById('purity');
+
+  // Preserve current selections while refreshing options
+  const current = {
+    owner: ownerSel.value,
+    warehouse: whSel.value,
+    seed: seedSel.value,
+    grade: gradeSel.value,
+    purity: puritySel.value,
+  };
+
+  const params = new URLSearchParams();
+  if (current.owner) {
+    const ownerOpt = ownerSel.options[ownerSel.selectedIndex];
+    const ownerName = ownerOpt.dataset.name || ownerOpt.text.replace(/\s*\(.*\)$/, '');
+    params.append('owner', ownerName);
+  }
+  if (current.warehouse) params.append('warehouse', current.warehouse);
+  if (current.seed) params.append('seed_type', current.seed);
+  if (current.grade) params.append('grade', current.grade);
+  const asOf = document.getElementById('toDate').value;
+  if (asOf) params.append('as_of', asOf);
+  const status = document.getElementById('cleanStatus').value;
+  if (status) params.append('status', status);
+
+  try {
+    const resp = await fetch(`/api/stock-filters/?${params.toString()}`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+    ownerSel.innerHTML = '<option value=""></option>' +
+      data.owners.map(o => `<option value="${o.id}" data-name="${o.name}">${o.name} (${o.count})</option>`).join('');
+    whSel.innerHTML = '<option value=""></option>' +
+      data.warehouses.map(w => `<option value="${w.id}">${w.code} (${w.count})</option>`).join('');
+    seedSel.innerHTML = '<option value=""></option>' +
+      data.seed_types.map(s => `<option value="${s.id}">${s.symbol} – ${s.name} (${s.count})</option>`).join('');
+    gradeSel.innerHTML = '<option value=""></option>' +
+      data.grades.map(g => `<option value="${g.value}">${g.value} (${g.count})</option>`).join('');
+    puritySel.innerHTML = '<option value=""></option>' +
+      data.purities.map(p => `<option value="${p.value}">${p.value} (${p.count})</option>`).join('');
+
+    ownerSel.value = current.owner;
+    whSel.value = current.warehouse;
+    seedSel.value = current.seed;
+    gradeSel.value = current.grade;
+    puritySel.value = current.purity;
+
+    const statusVal = document.getElementById('cleanStatus').value;
+    document.getElementById('gradeLabel').style.display = (statusVal === 'uncleaned' || !statusVal) ? '' : 'none';
+    document.getElementById('purityLabel').style.display = statusVal === 'cleaned' ? '' : 'none';
+  } catch (e) {
+    // ignore errors
+  }
+}
+async function updateComposition() {
+  try {
+    const wh = document.getElementById('warehouseId').value;
+    const stbUrl = wh ? `/api/seed-type-balances/?warehouse=${encodeURIComponent(wh)}` : '/api/seed-type-balances/';
+    const resp = await fetch(stbUrl);
+    if (!resp.ok) return;
+    const rows = await resp.json();
+    let cleaned = 0, rejects = 0;
+    rows.forEach(r => { cleaned += parseFloat(r.cleaned_kg || 0); rejects += parseFloat(r.rejects_kg || 0); });
+
+    // Fetch uncleaned (raw) balance from lots, server filters by warehouse if provided
+    let uncleaned = 0;
+    try {
+      const lotsUrl = wh ? `/api/lots/?warehouse=${encodeURIComponent(wh)}` : '/api/lots/';
+      const lotsResp = await fetch(lotsUrl);
+      if (lotsResp.ok) {
+        const lots = await lotsResp.json();
+        // If server didn't filter, filter client-side as a fallback safeguard
+        const lotsFiltered = Array.isArray(lots) ? lots.filter(l => !wh || String(l.warehouse) === String(wh)) : [];
+        // Ignore stock-out rows and any negatives by clamping to >= 0
+        lotsFiltered.forEach(l => {
+          const v = parseFloat(l.raw_balance_kg || 0);
+          if (v > 0) uncleaned += v;
+        });
+      }
+    } catch (e) { /* ignore */ }
+    const ctx = document.getElementById('compositionChart').getContext('2d');
+    if (compChart) compChart.destroy();
+    compChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Cleaned', 'Reject', 'Uncleaned'],
+        datasets: [{ data: [cleaned, rejects, uncleaned], backgroundColor: ['#34d399','#f87171', '#60a5fa'] }]
+      },
+      options: { plugins: { legend: { position: 'bottom' } } }
+    });
+  } catch (e) { /* noop */ }
+}
+
+async function updateUtilization() {
+  try {
+    const whSelected = document.getElementById('warehouseId').value;
+    const whResp = await fetch('/api/warehouses/');
+    if (!whResp.ok) return;
+    const warehouses = (await whResp.json()).filter(w => w.warehouse_type === 'DGT');
+    const target = whSelected ? warehouses.filter(w => String(w.id) === String(whSelected)) : warehouses.slice(0, 6);
+
+    // Capacity is stored in quintals. SeedTypeBalance and BinCardEntry raw balances
+    // are also in quintals (despite the *_kg naming). Keep everything in qtls and
+    // compute percentage consistently.
+    const used = [];
+    for (const w of target) {
+      // Cleaned + rejects from denormalized balances (qtls)
+      const r = await fetch(`/api/seed-type-balances/?warehouse=${encodeURIComponent(w.id)}`);
+      const rows = r.ok ? await r.json() : [];
+      const cleanedRejectQtls = rows.reduce((acc, x) => acc + parseFloat(x.cleaned_kg||0) + parseFloat(x.rejects_kg||0), 0);
+
+      // Uncleaned (raw) balance from lots (qtls)
+      let rawQtls = 0;
+      try {
+        const lr = await fetch(`/api/lots/?warehouse=${encodeURIComponent(w.id)}`);
+        if (lr.ok) {
+          const lots = await lr.json();
+          // Only count positive raw balances; ignore stock-out negatives
+          rawQtls = (Array.isArray(lots) ? lots : []).reduce((a, l) => {
+            const v = parseFloat(l.raw_balance_kg||0);
+            return a + (v > 0 ? v : 0);
+          }, 0);
+        }
+      } catch {}
+
+      const usedQtls = cleanedRejectQtls + rawQtls;
+      const capQtls = parseFloat(w.capacity_quintals || 0);
+      const pct = capQtls ? Math.min(100, (usedQtls / capQtls) * 100) : 0;
+      used.push({ code: w.code, pct: +pct.toFixed(1) });
+    }
+
+    const ctx = document.getElementById('utilizationChart').getContext('2d');
+    if (utilChart) utilChart.destroy();
+    utilChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: used.map(u => u.code),
+        datasets: [{ label: '% Used', data: used.map(u => u.pct), backgroundColor: '#60a5fa' }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true, suggestedMax: 100, ticks: { callback: v => v + '%' } } },
+        plugins: { legend: { display: false } }
+      }
+    });
+  } catch (e) { /* noop */ }
+}
+
+function updateChips(count) {
+  const defs = [
+    ['ownerId', 'Owner'],
+    ['warehouseId', 'Warehouse'],
+    ['seedType', 'Seed'],
+    ['cleanStatus', 'Status'],
+    ['grade', 'Grade'],
+    ['purity', 'Purity'],
+  ];
+  const container = document.getElementById('activeFilters');
+  if (!container) return;
+  container.innerHTML = '';
+  defs.forEach(([id, label]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = (el.value || '').trim();
+    if (val) {
+      const text = el.options ? el.options[el.selectedIndex].text : val;
+      const btn = document.createElement('button');
+      btn.className = 'filter-chip';
+      btn.innerHTML = `<span>${label}: ${text}</span><span class="count">(${count})</span>`;
+      btn.addEventListener('click', () => {
+        el.value = '';
+        loadData();
+      });
+      container.appendChild(btn);
+    }
+  });
+  if (!container.childElementCount) {
+    const empty = document.createElement('div');
+    empty.className = 'filter-chip';
+    empty.style.opacity = '0.6';
+    empty.style.pointerEvents = 'none';
+    empty.textContent = 'No filters applied';
+    container.appendChild(empty);
+  }
+}
+async function loadData() {
+  const params = new URLSearchParams({
+    owner_id: document.getElementById('ownerId').value,
+    warehouse_id: document.getElementById('warehouseId').value,
+    seed_type: document.getElementById('seedType').value,
+    status: document.getElementById('cleanStatus').value,
+    grade: document.getElementById('grade').value,
+    purity: document.getElementById('purity').value,
+    from: document.getElementById('fromDate').value,
+    to: document.getElementById('toDate').value,
+    status: document.getElementById('cleanStatus').value,
+  });
+  const unit = document.getElementById('unitToggle').value;
+  const yoy = document.getElementById('yoyToggle')?.checked;
+  const viewMode = document.getElementById('viewMode')?.value || 'total';
+  const splitLimit = parseInt(document.getElementById('splitLimit')?.value || '5', 10);
+  const stack = (document.getElementById('stackMode')?.value || 'off') === 'on';
+
+  let series = [];
+  let events = [];
+  try {
+    if (viewMode === 'by_warehouse') {
+      // Fetch top-N warehouses for split view
+      const filtersResp = await fetch(`/api/stock-filters/?${params}`);
+      const f = filtersResp.ok ? await filtersResp.json() : { warehouses: [] };
+      const selectedWh = document.getElementById('warehouseId').value;
+      let whList = [];
+      if (selectedWh) {
+        whList = (f.warehouses || []).filter(w => w.id === selectedWh);
+      } else {
+        whList = (f.warehouses || []).slice().sort((a,b) => (b.count||0)-(a.count||0)).slice(0, splitLimit);
+      }
+      const seriesByWh = await Promise.all(
+        whList.map(w => fetch(`/api/stock-series/?${new URLSearchParams({...Object.fromEntries(params), warehouse_id: w.id}).toString()}`)
+          .then(r => r.ok ? r.json() : [] )
+          .then(arr => ({ id: w.id, code: w.code, data: arr })))
+      );
+      series = { mode: 'split', items: seriesByWh, stack };
+      // events not used in split mode overlay
+    } else {
+      const [seriesResp, eventsResp] = await Promise.all([
+        fetch(`/api/stock-series/?${params}`),
+        fetch(`/api/stock-events/?${params}`)
+      ]);
+      if (seriesResp.ok) series = await seriesResp.json();
+      if (eventsResp.ok) events = await eventsResp.json();
+      // YoY overlay: fetch previous period aligned by days
+      if (yoy) {
+        const fromStr = document.getElementById('fromDate').value;
+        const toStr = document.getElementById('toDate').value;
+        if (fromStr && toStr) {
+          const from = new Date(fromStr);
+          const to = new Date(toStr);
+          const delta = to.getTime() - from.getTime();
+          const prevTo = new Date(from.getTime() - 24*60*60*1000);
+          const prevFrom = new Date(prevTo.getTime() - delta);
+          const p = new URLSearchParams(Object.fromEntries(params));
+          p.set('from', prevFrom.toISOString().slice(0,10));
+          p.set('to', prevTo.toISOString().slice(0,10));
+          const prevResp = await fetch(`/api/stock-series/?${p}`);
+          if (prevResp.ok) {
+            const prev = await prevResp.json();
+            // keep for rendering later
+            series._yoy = prev;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    // ignore network/parse errors, handled below
+  }
+
+  // Require series data but allow events to be empty (handle split mode object)
+  const noSeries = (Array.isArray(series) && !series.length) || (!Array.isArray(series) && (!series || (series.mode==='split' && (!series.items || !series.items.length))));
+  if (noSeries) {
+    if (chart) chart.destroy();
+    chart = null;
+    canvas.onclick = null;
+    canvas.onmousemove = null;
+    document.getElementById('docPreview').style.display = 'none';
+    asOfRibbon.style.display = 'none';
+    updateChips(0);
+    updateComposition();
+    updateUtilization();
+    return;
+  }
+  if (!Array.isArray(events)) events = [];
+
+  // Build datasets depending on view mode
+  let seriesData = series;
+  let labels = [];
+  let datasets = [];
+  if (!Array.isArray(series) && series && series.mode === 'split') {
+    // Union of all labels
+    const labelSet = new Set();
+    series.items.forEach(s => (s.data||[]).forEach(p => labelSet.add(p.ts)));
+    labels = Array.from(labelSet).sort();
+    const colors = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#f87171','#22d3ee','#4ade80'];
+    datasets = series.items.map((s, idx) => {
+      const map = Object.fromEntries((s.data||[]).map(p => [p.ts, p]));
+      const values = labels.map(ts => (map[ts]?.balance_kg ?? null));
+      return {
+        label: s.code || `WH-${idx+1}`,
+        data: values,
+        borderColor: colors[idx % colors.length],
+        backgroundColor: colors[idx % colors.length] + '33',
+        fill: stack ? 'origin' : false,
+        stack: stack ? 'wh' : undefined,
+        pointRadius: 0,
+        tension: 0.25,
+      };
+    });
+  }
+
+  if (Array.isArray(seriesData) && unit === 'bags') {
+    // compute bag balance using events
+    const flows = {};
+    events.forEach(e => {
+      const d = e.ts;
+      if (!flows[d]) flows[d] = {in:0,out:0};
+      if (/out/i.test(e.message)) flows[d].out += e.num_bags;
+      else flows[d].in += e.num_bags;
+    });
+    let bal = 0;
+    seriesData = seriesData.map(pt => {
+      const fl = flows[pt.ts] || {in:0,out:0};
+      bal += fl.in - fl.out;
+      return {
+        ts: pt.ts,
+        balance_kg: bal,
+        inflow_kg: fl.in,
+        outflow_kg: fl.out,
+        purity_wavg: pt.purity_wavg,
+        doc_integrity: pt.doc_integrity,
+      };
+    });
+  }
+
+  // forward fill missing days
+  const parse = s => new Date(s);
+  if (Array.isArray(seriesData) && seriesData.length > 0) {
+    const start = parse(seriesData[0].ts);
+    const end = parse(seriesData[seriesData.length - 1].ts);
+    const map = Object.fromEntries(seriesData.map(p => [p.ts, p]));
+    const filled = [];
+    let prev = seriesData[0];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().slice(0,10);
+      if (map[key]) {
+        prev = map[key];
+      } else {
+        prev = {
+          ts: key,
+          balance_kg: prev.balance_kg,
+          inflow_kg: 0,
+          outflow_kg: 0,
+          purity_wavg: null,
+          doc_integrity: prev.doc_integrity,
+        };
+      }
+      filled.push(prev);
+    }
+    seriesData = filled;
+  }
+
+  if (!labels.length && Array.isArray(seriesData)) labels = seriesData.map(p => p.ts);
+  // If pre-aggregated outflow is all zeros but raw events exist with weights,
+  // derive flows from events as a graceful fallback (quintals).
+  if (Array.isArray(seriesData) && Array.isArray(events) && events.length) {
+    const hasAnyOut = seriesData.some(p => (p.outflow_kg || 0) > 0);
+    if (!hasAnyOut) {
+      const flows = {};
+      events.forEach(e => {
+        const d = e.ts;
+        const w = Number(e.weight || 0);
+        if (!flows[d]) flows[d] = {in:0,out:0};
+        if (w < 0 || (/out/i.test(e.message||''))) flows[d].out += Math.abs(w);
+        else flows[d].in += Math.abs(w);
+      });
+      seriesData = seriesData.map(pt => {
+        const fl = flows[pt.ts] || {in:0,out:0};
+        return { ...pt, inflow_kg: fl.in, outflow_kg: fl.out };
+      });
+    }
+  }
+  const inflow = Array.isArray(seriesData) ? ewma(seriesData.map(p => p.inflow_kg), 7) : null;
+  const outflow = Array.isArray(seriesData) ? ewma(seriesData.map(p => p.outflow_kg), 7) : null;
+  const balance = Array.isArray(seriesData) ? seriesData.map(p => p.balance_kg) : null;
+  const integrityColors = Array.isArray(seriesData) ? seriesData.map(p => colorForIntegrity(p.doc_integrity)) : labels.map(() => 'rgba(99,102,241,0.2)');
+  const maxIdx = Array.isArray(balance) ? balance.indexOf(Math.max(...balance)) : 0;
+  const minIdx = Array.isArray(balance) ? balance.indexOf(Math.min(...balance)) : 0;
+
+  asOfRibbon.style.display = 'inline-flex';
+  asOfDateEl.textContent = labels[labels.length - 1];
+  const chipCount = Array.isArray(seriesData) ? seriesData.length : labels.length;
+  updateChips(chipCount);
+
+  if (chart) chart.destroy();
+  const baseDatasets = (!Array.isArray(series) && series && series.mode === 'split' && datasets.length)
+    ? datasets
+    : [
+        {
+          label: 'Balance',
+          data: balance,
+          borderColor: '#4b5563',
+          backgroundColor: ctx => integrityColors[ctx.dataIndex],
+          fill: 'start',
+          pointRadius: 0,
+          pointHitRadius: 10,
+          tension: 0.3,
+        },
+        {
+          label: 'Inflow (7d EWMA)',
+          data: inflow,
+          borderColor: 'rgba(37,99,235,0.5)',
+          pointRadius: 0,
+          tension: 0.3,
+          yAxisID: 'y',
+        },
+        {
+          label: 'Outflow (7d EWMA)',
+          data: outflow,
+          borderColor: 'rgba(239,68,68,0.55)',
+          pointRadius: 0,
+          tension: 0.3,
+          yAxisID: 'y',
+        }
+      ];
+  // Add YoY overlay if present
+  if (Array.isArray(series._yoy)) {
+    const prevBal = series._yoy.map(p => p.balance_kg);
+    // Align lengths by trimming/padding with nulls
+    const L = Math.min(prevBal.length, labels.length);
+    const aligned = new Array(labels.length).fill(null);
+    for (let i=0;i<L;i++) aligned[i] = prevBal[prevBal.length - L + i];
+    baseDatasets.push({
+      label: 'Balance (YoY)',
+      data: aligned,
+      borderColor: 'rgba(148,163,184,0.5)',
+      borderDash: [6,4],
+      pointRadius: 0,
+      tension: 0.25,
+      fill: false,
+    });
+  }
+  chart = new Chart(canvasCtx, {
+    type: 'line',
+    data: { labels, datasets: baseDatasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      scales: { y: { stacked: (!Array.isArray(series) && series && series.mode === 'split' && series.stack) } },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterBody: ctx => {
+              if (!Array.isArray(seriesData)) return '';
+              const p = seriesData[ctx[0].dataIndex];
+              return `Purity: ${p.purity_wavg ?? 'N/A'}, Doc: ${p.doc_integrity?.toFixed(2) ?? 'N/A'}`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // draw pins for events
+  const baseMeta = chart.getDatasetMeta(0);
+  if (Array.isArray(seriesData)) {
+    const meta = baseMeta;
+    events.forEach(ev => {
+      const idx = labels.indexOf(ev.ts);
+      if (idx !== -1) {
+        const pt = meta.data[idx];
+        const color = ev.type === 'ecx' ? 'blue' : 'purple';
+        chart.ctx.fillStyle = color;
+        chart.ctx.beginPath();
+        chart.ctx.arc(pt.x, pt.y, 4, 0, 2 * Math.PI);
+        chart.ctx.fill();
+        pt.$event = ev;
+      }
+    });
+  }
+
+  // annotate peaks/troughs
+  const annotate = (idx, label) => {
+    const pt = baseMeta.data[idx];
+    chart.ctx.save();
+    chart.ctx.fillStyle = '#000';
+    chart.ctx.font = '12px sans-serif';
+    chart.ctx.textAlign = 'center';
+    chart.ctx.fillText(label, pt.x, pt.y - 8);
+    chart.ctx.restore();
+  };
+  if (Array.isArray(balance)) {
+    annotate(maxIdx, `${balance[maxIdx]} ${unit}`);
+    annotate(minIdx, `${balance[minIdx]} ${unit}`);
+  }
+
+  canvas.onclick = function(evt) {
+    if (!Array.isArray(seriesData)) return;
+    const points = chart.getElementsAtEventForMode(evt, 'nearest', {intersect: true}, false);
+    if (points.length) {
+      const pt = chart.getDatasetMeta(0).data[points[0].index];
+      if (pt.$event && pt.$event.pdf_file) {
+        window.open(pt.$event.pdf_file, '_blank');
+      }
+    }
+  };
+
+  // preview thumbnails on hover
+  const preview = document.getElementById('docPreview');
+  const wrapper = document.getElementById('chartWrapper');
+  canvas.onmousemove = function(evt) {
+    if (!Array.isArray(seriesData)) return;
+    const points = chart.getElementsAtEventForMode(evt, 'nearest', {intersect: true}, false);
+    if (points.length) {
+      const pt = chart.getDatasetMeta(0).data[points[0].index];
+      if (
+        pt.$event &&
+        (pt.$event.weighbridge_certificate || pt.$event.warehouse_document || pt.$event.quality_form)
+      ) {
+        let html = '';
+        ['weighbridge_certificate', 'warehouse_document', 'quality_form'].forEach(k => {
+          if (pt.$event[k]) html += `<img src="${pt.$event[k]}">`;
+        });
+        preview.innerHTML = html;
+        preview.style.display = 'block';
+        const rect = wrapper.getBoundingClientRect();
+        preview.style.left = (evt.clientX - rect.left + 15) + 'px';
+        preview.style.top = (evt.clientY - rect.top + 15) + 'px';
+        return;
+      }
+    }
+    preview.style.display = 'none';
+  };
+  // Update companion charts after main chart renders
+  updateComposition();
+  updateUtilization();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Default to last Ethiopian year range on first load
+  const toEl = document.getElementById('toDate');
+  const fromEl = document.getElementById('fromDate');
+  const today = new Date();
+  const end = new Date(today.getFullYear(), 8, 10); // Sep 10
+  let start = new Date(today.getFullYear()-1, 8, 11); // Sep 11 last year
+  let to = today;
+  if (today <= end) {
+    start = new Date(today.getFullYear()-2, 8, 11);
+    to = new Date(today.getFullYear()-1, 8, 10);
+  }
+  fromEl.value = start.toISOString().slice(0,10);
+  toEl.value = to.toISOString().slice(0,10);
+  loadFilters().then(loadData);
+});
+document.getElementById('loadBtn').addEventListener('click', loadData);
+document.getElementById('unitToggle').addEventListener('change', loadData);
+['ownerId','warehouseId','seedType','grade','purity','toDate','cleanStatus'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', () => { loadFilters(); });
+});
+const statusEl = document.getElementById('cleanStatus');
+if (statusEl) statusEl.addEventListener('change', () => {
+  const gradeEl = document.getElementById('grade');
+  const purityEl = document.getElementById('purity');
+  if (gradeEl) gradeEl.value = '';
+  if (purityEl) purityEl.value = '';
+  loadFilters();
+});
+
+// Quick range buttons
+document.querySelectorAll('.filter-quick .erp-btn[data-range]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const toEl = document.getElementById('toDate');
+    const fromEl = document.getElementById('fromDate');
+    const now = new Date();
+    let to = now; let from = null;
+    const r = btn.getAttribute('data-range');
+    if (r === '30') from = new Date(now.getTime() - 29*24*60*60*1000);
+    else if (r === '90') from = new Date(now.getTime() - 89*24*60*60*1000);
+    else if (r === 'eth') {
+      const end = new Date(now.getFullYear(), 8, 10);
+      from = new Date(now.getFullYear()-1, 8, 11);
+      to = now;
+      if (now <= end) { from = new Date(now.getFullYear()-2, 8, 11); to = new Date(now.getFullYear()-1, 8, 10); }
+    }
+    if (from) {
+      fromEl.value = from.toISOString().slice(0,10);
+      toEl.value = to.toISOString().slice(0,10);
+      loadData();
+    }
+  });
+});
+
+
+// Split view toggles
+const viewModeSel = document.getElementById('viewMode');
+const stackLabel = document.getElementById('stackLabel');
+const splitLimitLabel = document.getElementById('splitLimitLabel');
+if (viewModeSel) viewModeSel.addEventListener('change', () => {
+  const split = viewModeSel.value === 'by_warehouse';
+  stackLabel.style.display = split ? '' : 'none';
+  splitLimitLabel.style.display = split ? '' : 'none';
+  loadData();
+});
+['stackMode','splitLimit'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', loadData);
+});
+</script>
+{% endblock %}

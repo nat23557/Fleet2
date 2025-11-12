@@ -1,0 +1,45 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Review Bin Card Request{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Bin Card Entry Request</h1>
+<div class="erp-card">
+  <div class="erp-card__body">
+    <p><strong>Officer:</strong> {{ req.created_by.get_full_name|default:req.created_by.username }}</p>
+    <p><strong>Warehouse:</strong> {{ req.warehouse }}</p>
+    <p><strong>Direction:</strong> {{ req.direction }}</p>
+    <table class="erp-table">
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        {% for label, value in rows %}
+        <tr><th>{{ label }}</th><td>{{ value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if req.warehouse_document or req.quality_form %}
+    <div class="mt-2">
+      {% if req.warehouse_document %}
+      <p><a href="{{ req.warehouse_document.url }}" target="_blank">Warehouse Document</a></p>
+      {% endif %}
+      {% if req.quality_form %}
+      <p><a href="{{ req.quality_form.url }}" target="_blank">Quality Form</a></p>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if not token_ok %}
+    <div class="erp-alert erp-alert--warning mt-3">Approval token missing or invalid. Use the email link.</div>
+    {% endif %}
+    {% if req.status == req.PENDING %}
+    <div class="mt-3">
+      <a href="{% url 'approve_bincard_request' req.pk %}?t={{ req.approval_token }}" class="erp-btn primary">Approve</a>
+      <a href="{% url 'decline_bincard_request' req.pk %}?t={{ req.approval_token }}" class="erp-btn danger">Decline</a>
+    </div>
+    {% elif req.status == req.APPROVED and req.pdf_file %}
+    <p class="mt-3"><a href="{{ req.pdf_file.url }}" target="_blank">View PDF</a></p>
+    {% elif req.status == req.DECLINED %}
+    <p class="mt-3">Request declined.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

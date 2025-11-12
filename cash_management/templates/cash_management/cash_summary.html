@@ -1,0 +1,94 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:1100px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:.5rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">All Bank Cash Summary</h1>
+      <p class="dashboard-subtext">Balances by account with ETB conversion (CBE daily rate).</p>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center;">
+      <a class="btn btn-ghost" href="{% url 'cash_management:dashboard' %}">← Back</a>
+    </div>
+  </div>
+
+  <section class="section" style="margin-top:.25rem;">
+    <div class="section-header">
+      <div class="section-title">Summary</div>
+      <div class="text-muted" style="font-size:.9rem;">
+        Rates:&nbsp;
+        {% if rates %}
+          {% for code, rate in rates.items %}
+            <span style="margin-right:1rem;">{{ code }} @ {{ rate|floatformat:4 }}</span>
+          {% endfor %}
+        {% else %}
+          <em>No CBE rate available; using 1.0 for ETB only.</em>
+        {% endif %}
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">ETB Accounts Total</div>
+        <div class="kpi-value">{{ total_etb_native|floatformat:2 }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">FOREX Total (ETB)</div>
+        <div class="kpi-value">{{ total_forex_to_etb|floatformat:2 }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Grand Total (ETB)</div>
+        <div class="kpi-value">{{ grand_total|floatformat:2 }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="margin-top:.5rem;">
+    <div class="section-header">
+      <div class="section-title">Accounts</div>
+    </div>
+
+    <div class="table" style="overflow-x:auto; overflow-y:visible; max-width:100%;">
+      <table class="table-compact table-creative no-sticky" style="width:100%;min-width:840px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;">#</th>
+            <th style="text-align:left;">Bank Name</th>
+            <th style="text-align:left;">Account</th>
+            <th style="text-align:right;">Balance</th>
+            <th style="text-align:center;">CCY</th>
+            <th style="text-align:right;">Rate</th>
+            <th style="text-align:right;">ETB Equivalent</th>
+            <th style="text-align:left;">Remark</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr class="{{ r.row_class }}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ r.bank }}</td>
+            <td>{{ r.name }}</td>
+            <td style="text-align:right; font-variant-numeric:tabular-nums;">{{ r.balance|floatformat:2 }}</td>
+            <td style="text-align:center;">{{ r.currency }}</td>
+            <td style="text-align:right; font-variant-numeric:tabular-nums;">{% if r.rate %}{{ r.rate|floatformat:4 }}{% else %}-{% endif %}</td>
+            <td style="text-align:right; font-variant-numeric:tabular-nums;">
+              {% if r.etb_equiv is not None %}
+                <div>{{ r.etb_equiv|floatformat:2 }}</div>
+                {% if r.share_pct %}
+                <div class="metric-bar" aria-hidden="true"><div class="bar" style="width: {{ r.share_pct }}%;"></div></div>
+                {% endif %}
+              {% else %}-{% endif %}
+            </td>
+            <td>
+              {% if r.remark %}<span class="remark-chip {{ r.row_class|default:'' }}">{{ r.remark }}</span>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="empty">No accounts found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

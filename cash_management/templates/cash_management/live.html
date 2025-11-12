@@ -1,0 +1,273 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard" style="max-width:1100px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:.5rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">Cash Monitor</h1>
+      <p class="dashboard-subtext">Live ticker of today’s cash movements.</p>
+    </div>
+    <div class="dashboard-hero-meta" style="display:flex; gap:.5rem; align-items:center;">
+      <a class="qa-btn" href="{% url 'cash_management:banks' %}">⬅ Banks</a>
+    </div>
+  </div>
+
+  <section class="section" style="margin-top:.25rem;">
+    <div class="section-header">
+      <div class="section-title">Date</div>
+      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+        <button id="prevDay" class="btn btn-ghost btn-sm" title="Previous day">◀</button>
+        <input id="datePicker" type="date" class="input" value="{{ selected_date|date:'Y-m-d' }}" />
+        <button id="nextDay" class="btn btn-ghost btn-sm" title="Next day">▶</button>
+        <a class="btn btn-sm" id="goToday" href="{% url 'cash_management:live' %}">Today</a>
+        <span class="spacer" style="width:1px; height:24px; background:var(--border);"></span>
+        <label class="chip"><input type="checkbox" id="autoToggle" {% if is_today %}checked{% endif %}> Auto-refresh</label>
+        <select id="speed" class="input" style="max-width:120px;">
+          <option value="3000">3s</option>
+          <option value="5000" selected>5s</option>
+          <option value="10000">10s</option>
+        </select>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card accent-green">
+        <div class="kpi-title">Inflow</div>
+        <div class="kpi-value" id="kIn">{{ kpi_inflow|floatformat:2 }}</div>
+      </div>
+      <div class="kpi-card accent-purple">
+        <div class="kpi-title">Outflow</div>
+        <div class="kpi-value" id="kOut">{{ kpi_outflow|floatformat:2 }}</div>
+      </div>
+      <div class="kpi-card accent-amber">
+        <div class="kpi-title">Net</div>
+        <div class="kpi-value" id="kNet">{{ kpi_net|floatformat:2 }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="margin-top:.5rem;">
+    <div class="section-header">
+      <div class="section-title">Ticker</div>
+    </div>
+    <div class="table" style="overflow-x:auto; max-width:100%;">
+      <table class="table-compact table-creative no-sticky terminal-table" id="liveTable" style="width:100%;min-width:960px;">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Bank</th>
+            <th>Account</th>
+            <th style="text-align:right;">Debit</th>
+            <th style="text-align:right;">Credit</th>
+            <th style="text-align:right;">Signed</th>
+            <th style="text-align:right;">ETB</th>
+            <th>Description</th>
+            <th>Ref</th>
+            <th>Att</th>
+          </tr>
+        </thead>
+        <tbody id="liveBody">
+          {% for r in rows %}
+          <tr data-id="{{ r.id }}" {% if r.attachment %}class="has-att"{% endif %}>
+            <td class="mono">{{ r.time }}</td>
+            <td>{{ r.bank }}</td>
+            <td>{{ r.account }}</td>
+            <td style="text-align:right;" class="mono neg">{{ r.debit|floatformat:2 }}</td>
+            <td style="text-align:right;" class="mono pos">{{ r.credit|floatformat:2 }}</td>
+            <td style="text-align:right;" class="mono {% if r.amount >= 0 %}pos{% else %}neg{% endif %}">{{ r.amount|floatformat:2 }}</td>
+            <td style="text-align:right;" class="mono">{{ r.etb|floatformat:2 }}</td>
+            <td class="meta-sub">{{ r.desc }}</td>
+            <td class="meta-sub">{{ r.ref }}</td>
+            <td>{% if r.attachment %}
+              <a class="action-link att-link"
+                 href="{{ r.attachment }}"
+                 data-attachment="{{ r.attachment }}"
+                 data-time="{{ r.time }}"
+                 data-bank="{{ r.bank }}"
+                 data-account="{{ r.account }}"
+                 data-currency="{{ r.currency }}"
+                 data-debit="{{ r.debit|floatformat:2 }}"
+                 data-credit="{{ r.credit|floatformat:2 }}"
+                 data-amount="{{ r.amount|floatformat:2 }}"
+                 data-etb="{{ r.etb|floatformat:2 }}"
+                 data-desc="{{ r.desc }}"
+                 data-ref="{{ r.ref }}"
+                 >📎</a>
+            {% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- Docked attachment viewer (Bloomberg-style) -->
+<div id="viewerDock" class="viewer-dock" aria-hidden="true">
+  <div class="viewer-header">
+    <div>
+      <div class="viewer-title" id="vAccount">—</div>
+      <div class="viewer-sub" id="vMeta">—</div>
+    </div>
+    <div class="viewer-actions">
+      <button id="vPrev" class="btn btn-ghost btn-sm" title="Previous (↑)">↑</button>
+      <button id="vNext" class="btn btn-ghost btn-sm" title="Next (↓)">↓</button>
+      <button id="vClose" class="btn btn-ghost btn-sm" title="Close (Esc)">✕</button>
+    </div>
+  </div>
+  <div class="viewer-body">
+    <img id="vImg" alt="Attachment" />
+  </div>
+  <div class="viewer-footer" id="vDesc">—</div>
+  <a id="vOpen" class="action-link" href="#" target="_blank" rel="noopener">Open in new tab ↗</a>
+  <div id="vOverlay" class="viewer-overlay" title="Click to close"></div>
+</div>
+
+<script>
+  (function(){
+    let lastId = {{ last_id|default:0 }};
+    const selectedDate = "{{ selected_date|date:'Y-m-d' }}";
+    const body = document.getElementById('liveBody');
+    const table = document.getElementById('liveTable');
+    const kIn = document.getElementById('kIn');
+    const kOut = document.getElementById('kOut');
+    const kNet = document.getElementById('kNet');
+    const auto = document.getElementById('autoToggle');
+    const speed = document.getElementById('speed');
+    const datePicker = document.getElementById('datePicker');
+    const prevDay = document.getElementById('prevDay');
+    const nextDay = document.getElementById('nextDay');
+    const goToday = document.getElementById('goToday');
+    const dock = document.getElementById('viewerDock');
+    const vImg = document.getElementById('vImg');
+    const vAccount = document.getElementById('vAccount');
+    const vMeta = document.getElementById('vMeta');
+    const vDesc = document.getElementById('vDesc');
+    const vOpen = document.getElementById('vOpen');
+    const vClose = document.getElementById('vClose');
+    const vPrev = document.getElementById('vPrev');
+    const vNext = document.getElementById('vNext');
+    const vOverlay = document.getElementById('vOverlay');
+
+    function fmt(n){ return (Math.round(n*100)/100).toFixed(2); }
+
+    function addRow(r){
+      const tr = document.createElement('tr');
+      tr.dataset.id = r.id;
+      tr.className = 'flash-in' + (r.attachment ? ' has-att' : '');
+      tr.innerHTML = `
+        <td class="mono">${r.time}</td>
+        <td>${r.bank}</td>
+        <td>${r.account}</td>
+        <td style="text-align:right;" class="mono neg">${fmt(r.debit)}</td>
+        <td style="text-align:right;" class="mono pos">${fmt(r.credit)}</td>
+        <td style="text-align:right;" class="mono ${r.amount>=0?'pos':'neg'}">${fmt(r.amount)}</td>
+        <td style="text-align:right;" class="mono">${fmt(r.etb)}</td>
+        <td class="meta-sub">${(r.desc||'')}</td>
+        <td class="meta-sub">${(r.ref||'')}</td>
+        <td>${r.attachment?`<a class="action-link att-link" href="${r.attachment}" data-attachment="${r.attachment}" data-time="${r.time}" data-bank="${r.bank}" data-account="${r.account}" data-currency="${r.currency}" data-debit="${fmt(r.debit)}" data-credit="${fmt(r.credit)}" data-amount="${fmt(r.amount)}" data-etb="${fmt(r.etb)}" data-desc="${(r.desc||'').replace(/"/g,'&quot;')}" data-ref="${(r.ref||'').replace(/"/g,'&quot;')}">📎</a>`:''}</td>
+      `;
+      body.appendChild(tr);
+      // Keep the list from growing unbounded
+      const extra = body.children.length - 200;
+      if (extra > 0) { for (let i=0;i<extra;i++) body.removeChild(body.firstElementChild); }
+    }
+
+    async function poll(){
+      if (!auto.checked) return;
+      const res = await fetch(`{% url 'cash_management:live_feed' %}?after=${lastId}&date=${encodeURIComponent(selectedDate)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      (data.rows||[]).forEach(addRow);
+      if (typeof data.last_id === 'number') lastId = data.last_id;
+      if (data.kpi){ kIn.textContent = fmt(data.kpi.inflow||0); kOut.textContent = fmt(data.kpi.outflow||0); kNet.textContent = fmt(data.kpi.net||0); }
+    }
+
+    let timer = setInterval(poll, parseInt(speed.value, 10));
+    speed.addEventListener('change', function(){
+      clearInterval(timer);
+      timer = setInterval(poll, parseInt(speed.value, 10));
+    });
+
+    // Date navigation
+    function navToDate(d){
+      const url = new URL(window.location.href);
+      if (d) url.searchParams.set('date', d); else url.searchParams.delete('date');
+      window.location.assign(url.toString());
+    }
+    function addDays(iso, delta){
+      const [y,m,d] = (iso||'').split('-').map(n=>parseInt(n,10));
+      if (!y||!m||!d) return '';
+      const dt = new Date(y, m-1, d);
+      dt.setDate(dt.getDate()+delta);
+      const pad = n=>String(n).padStart(2,'0');
+      return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+    }
+    datePicker.addEventListener('change', function(){ if (this.value) navToDate(this.value); });
+    prevDay.addEventListener('click', ()=> navToDate(addDays(datePicker.value, -1)));
+    nextDay.addEventListener('click', ()=> navToDate(addDays(datePicker.value, +1)));
+
+    // Attachment viewer logic
+    function openViewer(link){
+      const url = link.dataset.attachment || link.getAttribute('href');
+      vImg.src = url;
+      vAccount.textContent = link.dataset.account || '';
+      const meta = `${link.dataset.bank||''} • ${link.dataset.currency||''} • ${link.dataset.time||''} • Δ ${link.dataset.amount||''} (ETB ${link.dataset.etb||''})`;
+      vMeta.textContent = meta;
+      const d = link.dataset.desc || '';
+      const r = link.dataset.ref || '';
+      vDesc.textContent = d || r || '';
+      vOpen.href = url;
+      dock.setAttribute('aria-hidden','false');
+      dock.classList.add('open');
+      // mark current
+      table.querySelectorAll('.att-link[aria-current]')?.forEach(el=>el.removeAttribute('aria-current'));
+      link.setAttribute('aria-current','true');
+    }
+    function closeViewer(){
+      dock.classList.remove('open');
+      dock.setAttribute('aria-hidden','true');
+      vImg.removeAttribute('src');
+      table.querySelectorAll('.att-link[aria-current]')?.forEach(el=>el.removeAttribute('aria-current'));
+    }
+    function rowFromLink(link){ return link.closest('tr'); }
+    function findSiblingWithAttachment(el, dir){
+      while (el){
+        el = dir>0 ? el.nextElementSibling : el.previousElementSibling;
+        if (!el) return null;
+        if (el.classList.contains('has-att')) return el;
+      }
+      return null;
+    }
+    function openFromRow(row){ const link = row && row.querySelector('.att-link'); if (link) openViewer(link); }
+
+    table.addEventListener('click', function(ev){
+      const a = ev.target.closest('.att-link');
+      if (!a) return;
+      ev.preventDefault();
+      openViewer(a);
+    });
+    vClose.addEventListener('click', closeViewer);
+    vOverlay.addEventListener('click', closeViewer);
+    vPrev.addEventListener('click', function(){
+      const open = table.querySelector('.att-link[aria-current="true"]');
+      let row = open ? rowFromLink(open) : body.lastElementChild;
+      row = row ? findSiblingWithAttachment(row, -1) : null;
+      if (row) openFromRow(row);
+    });
+    vNext.addEventListener('click', function(){
+      const open = table.querySelector('.att-link[aria-current="true"]');
+      let row = open ? rowFromLink(open) : body.firstElementChild;
+      row = row ? findSiblingWithAttachment(row, +1) : null;
+      if (row) openFromRow(row);
+    });
+    window.addEventListener('keydown', function(ev){
+      if (dock.classList.contains('open')){
+        if (ev.key === 'Escape'){ closeViewer(); }
+        if (ev.key === 'ArrowUp'){ ev.preventDefault(); vPrev.click(); }
+        if (ev.key === 'ArrowDown'){ ev.preventDefault(); vNext.click(); }
+      }
+    });
+  })();
+</script>
+{% endblock %}

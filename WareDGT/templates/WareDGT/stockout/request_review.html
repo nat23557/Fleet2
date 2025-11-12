@@ -1,0 +1,52 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Review Stock Out Request{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Stock Out Request</h1>
+<div class="erp-card">
+  <div class="erp-card__body">
+    <p><strong>Officer:</strong> {{ req.created_by.get_full_name|default:req.created_by.username }}</p>
+    <p><strong>Warehouse:</strong> {{ req.warehouse }}</p>
+    <p><strong>Status:</strong> {{ req.get_status_display }}</p>
+    <table class="erp-table">
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        {% for label, value in rows %}
+        <tr><th>{{ label }}</th><td>{{ value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if req.warehouse_document or req.weighbridge_certificate %}
+    <div class="mt-2">
+      {% if req.warehouse_document %}
+      <p><a href="{{ req.warehouse_document.url }}" target="_blank">Warehouse Document</a></p>
+      {% endif %}
+      {% if req.weighbridge_certificate %}
+      <p><a href="{{ req.weighbridge_certificate.url }}" target="_blank">Weighbridge Certificate</a></p>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if req.reason %}
+    <div class="erp-alert mt-3">Reason: {{ req.reason }}</div>
+    {% endif %}
+    {% if not token_ok %}
+    <div class="erp-alert erp-alert--warning mt-3">Approval token missing or invalid. Use the email link.</div>
+    {% endif %}
+    {% if req.status == req.PENDING %}
+      <div class="mt-3">
+        <a href="{% url 'approve_stockout_request' req.pk %}?t={{ req.approval_token }}" class="erp-btn primary">Approve</a>
+        <a href="{% url 'decline_stockout_request' req.pk %}?t={{ req.approval_token }}" class="erp-btn danger">Decline</a>
+      </div>
+    {% elif req.status == req.PENDING_SM %}
+      <div class="mt-3">
+        <a href="{% url 'approve_stockout_request_sm' req.pk %}?t={{ req.approval_token }}" class="erp-btn primary">Approve (System Manager)</a>
+        <a href="{% url 'decline_stockout_request_sm' req.pk %}?t={{ req.approval_token }}" class="erp-btn danger">Decline</a>
+      </div>
+    {% elif req.status == req.APPROVED and req.pdf_file %}
+      <p class="mt-3"><a href="{{ req.pdf_file.url }}" target="_blank">View PDF</a></p>
+    {% elif req.status == req.DECLINED %}
+      <p class="mt-3">Request declined.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'WareDGT/layout.html' %}
+{% block title %}Local Purchases{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Local Purchases</h1>
+
+<div class="erp-card" style="margin-bottom: 10px;">
+  <div class="erp-card__header">Overview</div>
+  <div class="erp-card__body" style="display:flex; gap:16px; flex-wrap: wrap;">
+    <div class="erp-stat">
+      <div class="erp-stat__label">Pending Requests</div>
+      <div class="erp-stat__value">{{ pending_count }}</div>
+    </div>
+    <div class="erp-stat">
+      <div class="erp-stat__label">Pending Total (qtl)</div>
+      <div class="erp-stat__value">{{ pending_total }}</div>
+    </div>
+    <div class="erp-stat">
+      <div class="erp-stat__label">Recorded Entries</div>
+      <div class="erp-stat__value">{{ recorded_count }}</div>
+    </div>
+    <div class="erp-stat">
+      <div class="erp-stat__label">Recorded Total (qtl)</div>
+      <div class="erp-stat__value">{{ recorded_total }}</div>
+    </div>
+  </div>
+  <div class="erp-card__body" style="padding-top:0.25rem;">
+    <form id="filterForm" method="get" class="erp-form" style="display:grid; grid-template-columns: repeat(5, minmax(140px, 1fr)); gap: 8px; align-items:end;">
+      <label>Owner
+        <select name="owner">
+          <option value="">All</option>
+          {% for o in owners %}
+          <option value="{{ o.id }}" {% if selected_owner == o.id|stringformat:'s' %}selected{% endif %}>{{ o.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Warehouse
+        <select name="warehouse">
+          <option value="">All</option>
+          {% for w in warehouses %}
+          <option value="{{ w.id }}" {% if selected_warehouse == w.id|stringformat:'s' %}selected{% endif %}>{{ w.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Seed Type
+        <select name="seed">
+          <option value="">All</option>
+          {% for s in seeds %}
+          <option value="{{ s.id }}" {% if selected_seed == s.id|stringformat:'s' %}selected{% endif %}>{{ s.symbol }} – {{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>From
+        <input type="date" name="start" value="{{ start }}" />
+      </label>
+      <label>To
+        <input type="date" name="end" value="{{ end }}" />
+      </label>
+      <div style="grid-column: 1 / -1; display:flex; gap:8px; justify-content:flex-end;">
+        <button type="submit" class="erp-btn">Apply Filters</button>
+        <a href="{% url 'local_purchases' %}" class="erp-btn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2);">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<h2 class="mt-6">Pending Approvals</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Submitted</th>
+      <th>Owner</th>
+      <th>Warehouse</th>
+      <th>Seed</th>
+      <th>Qty (qtl)</th>
+      <th>By</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in pending %}
+    <tr>
+      <td>{{ r.created_at }}</td>
+      <td>{{ r.owner_name }}</td>
+      <td>{{ r.warehouse_name }}</td>
+      <td>{{ r.seed_name }}</td>
+      <td>{{ r.weight_display }}</td>
+      <td>{{ r.created_by.username }}</td>
+      <td>{{ r.get_status_display }}</td>
+      <td>
+        {% if role == 'OPERATIONS_MANAGER' %}
+          <a class="erp-btn" href="{% url 'bincard_request_review' r.pk %}">Review</a>
+        {% else %}
+          -
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8">No pending local purchases.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="mt-6">Recorded Local Purchases</h2>
+<table class="erp-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Owner</th>
+      <th>Warehouse</th>
+      <th>Seed</th>
+      <th>Purity</th>
+      <th>Weight (qtl)</th>
+      <th>In/Out No</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in recorded %}
+    <tr>
+      <td>{{ e.date }}</td>
+      <td>{{ e.owner }}</td>
+      <td>{{ e.warehouse }}</td>
+      <td>{{ e.get_seed_type_display|default:e.seed_type }}</td>
+      <td>{{ e.purity }}%</td>
+      <td>{{ e.weight }}</td>
+      <td>{{ e.in_out_no }}</td>
+      <td>{{ e.description }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8">No local purchases recorded.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
+{% block extra_js %}{% endblock %}

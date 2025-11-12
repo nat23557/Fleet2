@@ -1,0 +1,32 @@
+{% extends 'WareDGT/layout.html' %}
+{% load ethiopian_calendar %}
+{% block title %}Purchase Orders{% endblock %}
+
+{% block content %}
+<h1>Purchase Orders</h1>
+<table class="table-auto w-full border-collapse">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Seed Type</th>
+      <th>Quantity (qtls)</th>
+      <th>Purchase Date</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for po in object_list %}
+    <tr>
+      <td>{{ po.id }}</td>
+      <td>{{ po.seed_type }}</td>
+      <td>{{ po.quantity_quintals }}</td>
+      <td>{{ po.purchase_date|ethiopian_date }}</td>
+      <td>{{ po.status }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No purchase orders found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="mt-4"><a href="{% url 'purchaseorder_create' %}">Create Purchase Order</a></p>
+{% endblock %}
