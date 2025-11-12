@@ -71,10 +71,14 @@ def dashboard(request):
     for r in totals_qs:
         ccy = (r['account__currency'] or 'ETB').upper()
         totals[ccy] = float(r['balance'] or 0)
+    # Ensure expected currency keys exist to avoid template lookup errors
+    totals.setdefault('ETB', 0.0)
+    totals.setdefault('USD', 0.0)
 
     # Live CBE conversion snapshot
     rates = get_or_update_today_rates()
     total_etb_native = float(totals.get('ETB', 0.0))
+    total_usd_native = float(totals.get('USD', 0.0))
     total_forex_to_etb = 0.0
     for ccy, bal in totals.items():
         if ccy == 'ETB':
@@ -113,6 +117,7 @@ def dashboard(request):
         "grand_total": grand_total,
         "account_rows": account_rows,
         "can_add_txn": in_group(request.user, 'Clerk') or in_group(request.user, 'Owner') or request.user.is_superuser,
+        "total_usd_native": total_usd_native,
     }
     return render(request, "cash_management/dashboard.html", context)
 
@@ -160,10 +165,14 @@ def banks(request):
     for r in totals_qs:
         ccy = (r['account__currency'] or 'ETB').upper()
         totals[ccy] = float(r['balance'] or 0)
+    # Ensure expected currency keys exist for safe template access
+    totals.setdefault('ETB', 0.0)
+    totals.setdefault('USD', 0.0)
 
     # Cash snapshot (aggregated) – include FOREX conversion and grand total
     rates = get_or_update_today_rates()
     total_etb_native = float(totals.get('ETB', 0.0))
+    total_usd_native = float(totals.get('USD', 0.0))
     total_forex_to_etb = 0.0
     for ccy, bal in totals.items():
         if ccy == 'ETB':
@@ -181,6 +190,7 @@ def banks(request):
         'total_forex_to_etb': total_forex_to_etb,
         'grand_total': grand_total,
         'can_add_txn': in_group(request.user, 'Clerk') or in_group(request.user, 'Owner') or request.user.is_superuser,
+        'total_usd_native': total_usd_native,
     }
     return render(request, 'cash_management/banks.html', context)
 

@@ -32,11 +32,11 @@
     <div class="kpi-grid">
       <div class="kpi-card accent-green">
         <div class="kpi-title">ETB Accounts</div>
-        <div class="kpi-value">{{ total_etb_native|default:totals.ETB|default:0|floatformat:2 }}</div>
+        <div class="kpi-value">{{ total_etb_native|floatformat:2 }}</div>
       </div>
       <div class="kpi-card accent-blue">
         <div class="kpi-title">USD Accounts</div>
-        <div class="kpi-value">{{ totals.USD|default:0|floatformat:2 }}</div>
+        <div class="kpi-value">{{ total_usd_native|floatformat:2 }}</div>
       </div>
       <div class="kpi-card accent-purple">
         <div class="kpi-title">FOREX in ETB</div>
