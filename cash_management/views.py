@@ -10,7 +10,7 @@ from django.http import Http404, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from .forms import TransactionForm, BankAccountForm
+from .forms import TransactionForm, BankAccountForm, BankRegistrationForm
 from .models import BankAccount, Transaction
 from .exchange import get_or_update_today_rates
 from .exchange import get_or_update_today_rates
@@ -191,6 +191,7 @@ def banks(request):
         'grand_total': grand_total,
         'can_add_txn': in_group(request.user, 'Clerk') or in_group(request.user, 'Owner') or request.user.is_superuser,
         'total_usd_native': total_usd_native,
+        'can_register_bank': in_group(request.user, 'Owner') or request.user.is_superuser,
     }
     return render(request, 'cash_management/banks.html', context)
 
@@ -730,3 +731,19 @@ def account_edit(request, pk: int):
     else:
         form = BankAccountForm(instance=account)
     return render(request, 'cash_management/account_form.html', {'form': form, 'title': 'Edit Account'})
+
+
+@login_required
+@owner_required
+def bank_register(request):
+    """Simple, admin-only form to register a bank account with currency type, branch and purpose."""
+    if request.method == 'POST':
+        form = BankRegistrationForm(request.POST)
+        if form.is_valid():
+            obj = form.save()
+            messages.success(request, 'Bank registered successfully.')
+            # Redirect to the bank detail page if possible
+            return redirect('cash_management:bank_detail', name=obj.bank_name)
+    else:
+        form = BankRegistrationForm()
+    return render(request, 'cash_management/bank_register.html', {'form': form, 'title': 'Register Bank'})

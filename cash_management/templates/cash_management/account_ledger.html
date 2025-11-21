@@ -13,7 +13,8 @@
         <div class="kpi-title" style="margin:0;">Current Balance</div>
         <div class="kpi-value">{{ current_balance|floatformat:2 }} {{ account.currency }}</div>
       </div>
-      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}" style="margin-left:.5rem;">⬅ Back</a>
+      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}" style="margin-left:.5rem;"
+         onclick="if (document.referrer) { window.history.back(); return false; }">⬅ Back</a>
     </div>
   </div>
 

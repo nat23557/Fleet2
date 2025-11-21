@@ -5,7 +5,7 @@ from .models import BankAccount, Transaction, ExchangeRate
 
 @admin.register(BankAccount)
 class BankAccountAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "bank_name", "currency", "created_at")
+    list_display = ("id", "name", "bank_name", "branch", "purpose", "account_number", "currency", "created_at")
     search_fields = ("name", "bank_name")
 
 

@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from .models import Transaction, BankAccount
 from django.contrib.auth.models import Group
 
@@ -74,4 +75,58 @@ class TransactionForm(forms.ModelForm):
 class BankAccountForm(forms.ModelForm):
     class Meta:
         model = BankAccount
-        fields = ['name', 'bank_name', 'currency', 'threshold', 'large_txn_limit']
+        fields = ['name', 'bank_name', 'currency', 'branch', 'purpose', 'account_number', 'threshold', 'large_txn_limit']
+
+
+class BankRegistrationForm(forms.ModelForm):
+    CURRENCY_CHOICES = (
+        ("ETB", "ETB (Birr)"),
+        ("USD", "USD (Dollar)"),
+    )
+
+    bank_name = forms.CharField(label="Bank Name", widget=forms.TextInput(attrs={
+        "placeholder": "e.g. Commercial Bank of Ethiopia",
+    }))
+    currency = forms.ChoiceField(label="Type", choices=CURRENCY_CHOICES, widget=forms.RadioSelect)
+    branch = forms.CharField(label="Branch", required=False, widget=forms.TextInput(attrs={
+        "placeholder": "e.g. Piassa Branch",
+    }))
+    purpose = forms.CharField(label="Purpose", required=False, widget=forms.TextInput(attrs={
+        "placeholder": "e.g. Payroll, Operations, ECX",
+    }))
+    account_number = forms.CharField(
+        label="Account Number",
+        help_text="Digits only — no spaces.",
+        widget=forms.TextInput(attrs={
+            "placeholder": "e.g. 1000123456789",
+            "inputmode": "numeric",
+            "pattern": "\\d*",
+            "maxlength": "32",
+            "autocomplete": "off",
+        }),
+        validators=[RegexValidator(r"^\\d{4,32}$", message="Provide 4-32 digits.")],
+    )
+
+    class Meta:
+        model = BankAccount
+        # Name is derived from bank name + branch for simplicity
+        fields = ["bank_name", "currency", "branch", "purpose", "account_number"]
+
+    def save(self, commit=True):
+        obj: BankAccount = super().save(commit=False)
+        # Derive a simple, friendly account name if not explicitly set
+        bn = (self.cleaned_data.get("bank_name") or "").strip()
+        br = (self.cleaned_data.get("branch") or "").strip()
+        obj.name = f"{bn} ({br})" if br else bn
+        obj.account_number = (self.cleaned_data.get("account_number") or "").strip()
+        if commit:
+            obj.save()
+        return obj
+
+    def clean_account_number(self):
+        num = (self.cleaned_data.get("account_number") or "").strip()
+        if not num.isdigit():
+            raise ValidationError("Account number must be digits only.")
+        if len(num) < 4 or len(num) > 32:
+            raise ValidationError("Provide 4-32 digits.")
+        return num

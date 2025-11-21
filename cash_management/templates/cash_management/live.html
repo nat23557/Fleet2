@@ -51,7 +51,7 @@
       <div class="section-title">Ticker</div>
     </div>
     <div class="table" style="overflow-x:auto; max-width:100%;">
-      <table class="table-compact table-creative no-sticky terminal-table" id="liveTable" style="width:100%;min-width:960px;">
+      <table class="table-compact table-creative no-sticky terminal-table" id="liveTable" style="width:100%;">
         <thead>
           <tr>
             <th>Time</th>
@@ -69,16 +69,16 @@
         <tbody id="liveBody">
           {% for r in rows %}
           <tr data-id="{{ r.id }}" {% if r.attachment %}class="has-att"{% endif %}>
-            <td class="mono">{{ r.time }}</td>
-            <td>{{ r.bank }}</td>
-            <td>{{ r.account }}</td>
-            <td style="text-align:right;" class="mono neg">{{ r.debit|floatformat:2 }}</td>
-            <td style="text-align:right;" class="mono pos">{{ r.credit|floatformat:2 }}</td>
-            <td style="text-align:right;" class="mono {% if r.amount >= 0 %}pos{% else %}neg{% endif %}">{{ r.amount|floatformat:2 }}</td>
-            <td style="text-align:right;" class="mono">{{ r.etb|floatformat:2 }}</td>
-            <td class="meta-sub">{{ r.desc }}</td>
-            <td class="meta-sub">{{ r.ref }}</td>
-            <td>{% if r.attachment %}
+            <td class="mono" data-label="Time">{{ r.time }}</td>
+            <td data-label="Bank">{{ r.bank }}</td>
+            <td data-label="Account">{{ r.account }}</td>
+            <td style="text-align:right;" class="mono neg" data-label="Debit">{{ r.debit|floatformat:2 }}</td>
+            <td style="text-align:right;" class="mono pos" data-label="Credit">{{ r.credit|floatformat:2 }}</td>
+            <td style="text-align:right;" class="mono {% if r.amount >= 0 %}pos{% else %}neg{% endif %}" data-label="Signed">{{ r.amount|floatformat:2 }}</td>
+            <td style="text-align:right;" class="mono" data-label="ETB">{{ r.etb|floatformat:2 }}</td>
+            <td class="meta-sub" data-label="Description">{{ r.desc }}</td>
+            <td class="meta-sub" data-label="Ref">{{ r.ref }}</td>
+            <td data-label="Att">{% if r.attachment %}
               <a class="action-link att-link"
                  href="{{ r.attachment }}"
                  data-attachment="{{ r.attachment }}"
@@ -92,6 +92,7 @@
                  data-etb="{{ r.etb|floatformat:2 }}"
                  data-desc="{{ r.desc }}"
                  data-ref="{{ r.ref }}"
+                 aria-label="View attachment"
                  >📎</a>
             {% endif %}</td>
           </tr>

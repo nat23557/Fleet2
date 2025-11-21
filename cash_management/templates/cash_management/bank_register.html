@@ -1,0 +1,299 @@
+{% extends "index.html" %}
+{% load static crispy_forms_tags %}
+
+{% block content %}
+<style>
+/* Inline Bloomberg-inspired accents to avoid missing static files */
+.bb-card { background: var(--surface, #0b0c0f); border: 1px solid var(--border, #1b1f24); border-radius: 10px; padding: .9rem; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02); }
+.bb-card-header { font-weight: 600; letter-spacing: .3px; margin-bottom: .5rem; color: var(--text-strong, #e4e7eb); }
+.bb-search-box { margin-bottom: .5rem; }
+.bb-search { width: 100%; background: #0e1116; color: #e6edf3; border: 1px solid #263040; border-radius: 8px; padding: .55rem .7rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.bb-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .5rem; max-height: 480px; overflow-y:auto; overflow-x:hidden; padding-right: .25rem; }
+.bb-bank { display: block; text-align: left; background: linear-gradient(180deg, #0f141c, #0c1016); color: #e8eef8; border: 1px solid #273242; border-radius: 8px; padding: .6rem .7rem; cursor: pointer; transition: transform .06s ease, border-color .12s ease; }
+.bb-bank:hover { transform: translateY(-1px); border-color: #3b82f6; }
+.bb-bank-title { font-weight: 600; font-size: .95rem; }
+.bb-bank-sub { color: #7e8a9a; font-size: .8rem; margin: .2rem 0 .35rem 0; }
+.bb-bank-tags { display: flex; flex-wrap: wrap; gap: .25rem; }
+.bb-badge { background: #17212f; color: #b7c9e6; border: 1px solid #243044; border-radius: 999px; padding: .15rem .45rem; font-size: .72rem; }
+/* Hide ticker chips to avoid duplicate bank listing; keep only the directory below */
+.bb-ticker { display: none !important; }
+.bb-tick { display: inline-flex; align-items: center; gap: .35rem; background: #0e121a; border: 1px solid #2a3241; padding: .25rem .45rem; border-radius: 7px; }
+.bb-tick-sym { font-family: ui-monospace, Menlo, Consolas, monospace; color: #9ad5ff; font-weight: 600; }
+.bb-tick-tag { background: #1e293b; color: #b6c2d5; border-radius: 999px; font-size: .7rem; padding: .05rem .35rem; border: 1px solid #2c3a52; }
+@media (max-width: 980px) { .bb-wrap { grid-template-columns: 1fr; } }
+/* Avoid page-level horizontal scroll */
+html, body { overflow-x: hidden; }
+.dashboard { padding-left: .5rem; padding-right: .5rem; }
+.txn-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; align-items: start; }
+@media (max-width: 980px) { .txn-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="dashboard" style="max-width:1100px;margin-inline:auto;">
+  <div class="dashboard-hero" style="margin-bottom:1rem;">
+    <div class="dashboard-hero-main">
+      <h1 style="margin:0;">{{ title }}</h1>
+      <p class="dashboard-subtext">A focused, fast entry experience. Press / to search; Enter to quick-select.</p>
+    </div>
+    <div class="dashboard-hero-meta">
+      <a class="qa-btn" href="{% url 'cash_management:banks' %}"
+         onclick="if (document.referrer) { window.history.back(); return false; }">⬅ Back</a>
+    </div>
+  </div>
+
+  <section class="section">
+    <form method="post" class="form txn-grid" id="bankForm">
+      {% csrf_token %}
+
+      <!-- Left: like txn-card -->
+      <div class="txn-card">
+        <div class="form-row">
+          <label class="label" for="id_bank_name">Bank</label>
+          {{ form.bank_name }}
+          <datalist id="banksData"></datalist>
+        </div>
+
+        <div class="form-row">
+          <label class="label" style="margin-bottom:.35rem;">Type</label>
+          <div class="seg-toggle" role="tablist" aria-label="Type">
+            <button type="button" class="opt active" data-ccy="ETB">ETB</button>
+            <button type="button" class="opt" data-ccy="USD">USD</button>
+          </div>
+          <div style="display:none;">
+            {{ form.currency }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="label" for="id_account_number">Account Number</label>
+          {{ form.account_number }}
+          <div class="text-muted">Digits only; no spaces.</div>
+        </div>
+
+        <div class="form-row">
+          <label class="label" for="id_branch">Branch</label>
+          {{ form.branch }}
+          <datalist id="branchesData"></datalist>
+          <div class="text-muted">Suggestions appear only for banks with verified branch data.</div>
+        </div>
+
+        <div class="form-row">
+          <label class="label" for="id_purpose">Purpose</label>
+          <div style="display:flex; gap:.35rem; flex-wrap:wrap; margin-bottom:.35rem;">
+            <button type="button" class="chip-btn purpose" data-val="Payroll">Payroll</button>
+            <button type="button" class="chip-btn purpose" data-val="Operations">Operations</button>
+            <button type="button" class="chip-btn purpose" data-val="ECX">ECX</button>
+            <button type="button" class="chip-btn purpose" data-val="Retention">Retention</button>
+            <button type="button" class="chip-btn purpose" data-val="Current">Current</button>
+            <button type="button" class="chip-btn purpose" data-val="Transport">Transport</button>
+            <button type="button" class="chip-btn purpose" data-val="Special">Special</button>
+            <button type="button" class="chip-btn purpose" data-val="OD">OD</button>
+          </div>
+          {{ form.purpose }}
+        </div>
+
+        <div style="display:flex; gap:.5rem; margin-top:.5rem;">
+          <button class="cta-button" type="submit">Register</button>
+          <a class="btn btn-ghost" href="{% url 'cash_management:banks' %}">Cancel</a>
+        </div>
+      </div>
+
+      <!-- Right: Directory & KPIs styled like balance-card -->
+      <aside class="txn-card balance-card">
+        <div class="balance-kpis">
+          <div class="kpi">
+            <div class="t">Banks</div>
+            <div class="v" id="kBanks">0</div>
+          </div>
+          <div class="kpi">
+            <div class="t">Branches</div>
+            <div class="v" id="kBranches">0</div>
+          </div>
+          <div class="kpi">
+            <div class="t">Preview</div>
+            <div class="v" id="kPreview">—</div>
+          </div>
+        </div>
+
+        <div class="bb-card" style="margin-top:.6rem;">
+          <div class="bb-card-header">Ethiopia Banks Directory</div>
+          <div class="bb-search-box">
+            <input id="bb-search" class="bb-search" type="search" placeholder="Search banks or branches (/)" autocomplete="off">
+          </div>
+          <!-- Ticker removed to avoid duplication of bank list -->
+          <div id="bb-list" class="bb-list"></div>
+        </div>
+      </aside>
+
+    </form>
+  </section>
+</div>
+
+<!-- Inline Ethiopia banks dataset to avoid missing static files -->
+<script>
+window.ETH_BANKS = [
+  { name: 'Commercial Bank of Ethiopia', canonical: 'COMMERCIAL BANK OF ETHIOPIA', branches: [] },
+  { name: 'Bank of Abyssinia', canonical: 'BANK OF ABYSSINIA', branches: [] },
+  { name: 'Dashen Bank S.C', canonical: 'DASHEN BANK S.C', branches: [] },
+  { name: 'Awash Bank S.C', canonical: 'AWASH BANK S.C', branches: [] },
+  { name: 'Zemen Bank S.C', canonical: 'ZEMEN BANK S.C', branches: [] },
+  { name: 'Wegagen Bank S.C', canonical: 'WEGAGEN BANK S.C', branches: [] },
+  { name: 'Cooperative Bank of Ethiopia', canonical: 'COOPERATIVE BANK OF ETHIOPIA', branches: [] },
+  { name: 'Nib International Bank', canonical: 'NIB INTERNATIONAL BANK', branches: [] },
+  { name: 'Hibret Bank S.C', canonical: 'HIBRET BANK S.C', branches: [] },
+  { name: 'Berhan Bank S.C', canonical: 'BERHAN BANK S.C', branches: [] },
+  { name: 'Enat Bank S.C', canonical: 'ENAT BANK S.C', branches: [] },
+  { name: 'Buna Bank S.C', canonical: 'BUNA BANK S.C', branches: [] },
+  { name: 'Addis International Bank S.C', canonical: 'ADDIS INTERNATIONAL BANK S.C', branches: [] },
+  { name: 'Debub Global Bank S.C', canonical: 'DEBUB GLOBAL BANK S.C', branches: [] },
+  { name: 'Gadaa Bank S.C', canonical: 'GADAA BANK S.C', branches: [] },
+  { name: 'Siinqee Bank S.C', canonical: 'SIINQEE BANK S.C', branches: [] },
+  { name: 'ZamZam Bank S.C', canonical: 'ZAMZAM BANK S.C', branches: [] },
+  { name: 'Amhara Bank S.C', canonical: 'AMHARA BANK S.C', branches: [] },
+  { name: 'Oromia International Bank S.C', canonical: 'OROMIA INTERNATIONAL BANK S.C', branches: [] },
+  { name: 'Abay Bank S.C', canonical: 'ABAY BANK S.C', branches: [] },
+  { name: 'Ahadu Bank S.C', canonical: 'AHADU BANK S.C', branches: [] },
+];
+</script>
+<script>
+(function(){
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+  const banks = (window.ETH_BANKS || []).map((b, i) => ({ idx: i, ...b }));
+
+  const bankInput = $('#id_bank_name');
+  const branchInput = $('#id_branch');
+  const acctInput = $('#id_account_number');
+  const purposeInput = $('#id_purpose');
+  const search = $('#bb-search');
+  const list = $('#bb-list');
+  const ticker = $('#bb-ticker');
+  const seg = $$('.seg-toggle .opt');
+  const ccyRadio = document.querySelector('input[name="currency"]');
+  const kBanks = $('#kBanks');
+  const kBranches = $('#kBranches');
+  const kPreview = $('#kPreview');
+
+  // Attach datalists to inputs for native suggestions
+  if (bankInput) bankInput.setAttribute('list', 'banksData');
+  if (branchInput) branchInput.setAttribute('list', 'branchesData');
+
+  const dlBanks = $('#banksData');
+  const dlBranches = $('#branchesData');
+
+  // Populate bank datalist and ticker
+  function renderDatalist() {
+    if (!dlBanks) return;
+    dlBanks.innerHTML = banks.map(b => `<option value="${b.name}"></option>`).join('');
+    if (kBanks) kBanks.textContent = String(banks.length);
+  }
+
+  function renderTicker() {
+    if (!ticker) return;
+    const items = banks.map(b => {
+      const c = b.canonical || b.name.toUpperCase();
+      const tag = (b.branches || []).length;
+      return `<div class="bb-tick"><span class="bb-tick-sym">${c.replace(/\s+S\.C$/,'')}</span><span class="bb-tick-tag">${tag}</span></div>`;
+    }).join('');
+    ticker.innerHTML = items;
+  }
+
+  // Render bank directory grid
+  function renderList(filter='') {
+    const q = filter.trim().toLowerCase();
+    const matches = q ? banks.filter(b => {
+      const inBank = b.name.toLowerCase().includes(q) || (b.canonical||'').toLowerCase().includes(q);
+      const inBranch = (b.branches||[]).some(x => x.toLowerCase().includes(q));
+      return inBank || inBranch;
+    }) : banks;
+
+    list.innerHTML = matches.map(b => {
+      const blist = (b.branches || []);
+      const branchCount = blist.length;
+      const branches = blist.slice(0, 6).map(x => `<span class="bb-badge">${x}</span>`).join('');
+      return `
+      <button type="button" class="bb-bank" data-name="${b.name}">
+        <div class="bb-bank-title">${b.name}</div>
+        <div class="bb-bank-sub">Branches (${branchCount || '—'})</div>
+        <div class="bb-bank-tags">${branches}</div>
+      </button>`;
+    }).join('');
+  }
+
+  function updateBranchesFor(name) {
+    const b = banks.find(x => x.name.toLowerCase() === String(name||'').toLowerCase());
+    const branches = b ? (b.branches||[]) : [];
+    if (dlBranches) {
+      dlBranches.innerHTML = branches.length ? branches.map(x => `<option value="${x}"></option>`).join('') : '';
+    }
+    if (kBranches) kBranches.textContent = String(branches.length);
+  }
+
+  // Interactions
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && !e.target.matches('input,textarea')) { e.preventDefault(); search.focus(); }
+  });
+
+  search.addEventListener('input', () => renderList(search.value));
+  search.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const first = list.querySelector('.bb-bank');
+      if (first) first.click();
+    }
+  });
+
+  list.addEventListener('click', (e) => {
+    const btn = e.target.closest('.bb-bank');
+    if (!btn) return;
+    const name = btn.getAttribute('data-name');
+    if (bankInput) bankInput.value = name;
+    updateBranchesFor(name);
+    if (branchInput) branchInput.focus();
+  });
+
+  if (bankInput) {
+    bankInput.addEventListener('change', () => updateBranchesFor(bankInput.value));
+  }
+
+  if (acctInput) {
+    acctInput.addEventListener('input', () => {
+      // Lightweight numeric mask
+      const digits = acctInput.value.replace(/\D+/g, '');
+      if (acctInput.value !== digits) acctInput.value = digits;
+      renderPreview();
+    });
+  }
+
+  // Purpose chips
+  $$('.chip-btn.purpose').forEach(btn => btn.addEventListener('click', () => {
+    if (!purposeInput) return;
+    purposeInput.value = btn.getAttribute('data-val') || '';
+    renderPreview();
+  }));
+
+  // Currency seg toggle drives hidden radio
+  seg.forEach(btn => btn.addEventListener('click', function(){
+    seg.forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    const v = this.getAttribute('data-ccy') || 'ETB';
+    const input = document.querySelector(`#bankForm input[name=currency][value='${v}']`) || document.querySelector(`#bankForm input[name=currency]`);
+    if (input) { input.checked = true; }
+    renderPreview();
+  }));
+
+  function renderPreview(){
+    const bank = (bankInput && bankInput.value) || '';
+    const br = (branchInput && branchInput.value) || '';
+    const acct = (acctInput && acctInput.value) || '';
+    const masked = acct ? (acct.length <= 6 ? acct : acct.slice(0,4) + '••••' + acct.slice(-2)) : '—';
+    const combo = bank ? (br ? `${bank} (${br})` : bank) : '—';
+    if (kPreview) kPreview.textContent = `${combo} • ${masked}`;
+  }
+
+  // Boot
+  renderDatalist();
+  renderList();
+  renderPreview();
+})();
+</script>
+{% endblock %}

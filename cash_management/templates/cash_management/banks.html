@@ -9,7 +9,8 @@
       <p class="dashboard-subtext">Aggregated balances by bank{% if selected_currency %} • {{ selected_currency }}{% endif %}</p>
     </div>
     <div class="dashboard-hero-meta" style="display:flex;gap:.5rem;align-items:center;">
-      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}">⬅ Back</a>
+      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}"
+         onclick="if (document.referrer) { window.history.back(); return false; }">⬅ Back</a>
     </div>
   </div>
 
@@ -22,6 +23,9 @@
           <a class="seg-item {% if selected_currency == 'ETB' %}active{% endif %}" href="{% url 'cash_management:banks' %}?currency=ETB">ETB</a>
           <a class="seg-item {% if selected_currency == 'USD' %}active{% endif %}" href="{% url 'cash_management:banks' %}?currency=USD">USD</a>
         </div>
+        {% if can_register_bank %}
+        <a class="cta-button btn-sm" href="{% url 'cash_management:bank_register' %}">➕ Register Bank</a>
+        {% endif %}
         {% if can_add_txn %}
         <a class="cta-button btn-sm" href="{% url 'cash_management:new_transaction' %}">➕ New Transaction</a>
         {% endif %}

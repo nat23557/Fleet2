@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("summary/", views.cash_summary, name="cash_summary"),
     path("banks/", views.banks, name="banks"),
+    path("banks/register/", views.bank_register, name="bank_register"),
     path("banks/<str:name>/", views.bank_detail, name="bank_detail"),
     path("daily/", views.daily, name="daily"),
     path("live/", views.live_cash, name="live"),

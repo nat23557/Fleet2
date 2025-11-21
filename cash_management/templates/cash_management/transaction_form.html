@@ -9,7 +9,8 @@
       <p class="dashboard-subtext">A focused, fast entry experience.</p>
     </div>
     <div class="dashboard-hero-meta">
-      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}">⬅ Back</a>
+      <a class="qa-btn" href="{% url 'cash_management:dashboard' %}"
+         onclick="if (document.referrer) { window.history.back(); return false; }">⬅ Back</a>
     </div>
   </div>
 

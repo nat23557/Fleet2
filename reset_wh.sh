@@ -34,30 +34,15 @@ fi
 : "${DB_PORT:=3306}"
 export DB_ENGINE DB_NAME DB_USER DB_PASSWORD DB_HOST DB_PORT
 
-# ─── 2) Drop & recreate DB ────────────────────────────────────────────────────
-echo "🗑 Dropping & recreating database…"
-python manage.py reset_db
+# ─── 2) Prepare DB (no full reset) ────────────────────────────────────────────
+echo "🗄 Skipping full DB reset; targeting WareDGT tables only…"
 
-# ─── 3) Clean old app files ───────────────────────────────────────────────────
-echo "🧹 Removing old migrations & caches…"
-cd WareDGT
-rm -rf __init__.py __pycache__ migrations
-cd ..
+# ─── 3) Keep migrations; ensure schema is applied ─────────────────────────────
+echo "🔄 Applying WareDGT migrations (schema up-to-date)…"
+python manage.py migrate WareDGT --noinput || true
 
-# ─── 4) Rebuild migrations & apply ────────────────────────────────────────────
-echo "📑 Making & applying migrations…"
-python manage.py makemigrations WareDGT
-python manage.py migrate
-
-# ─── 5) Preload default data ──────────────────────────────────────────────────
-echo "🚚 Importing default DGT warehouses & seeds…"
-python manage.py create_companies
-
-python manage.py import_warehouses
-
-# Seed finance bank accounts from the CASH BALANCE mapping
-python manage.py seed_bank_types --file \
-  "/mnt/c/Users/natma/Downloads/ethiopian_banks_with_types.csv" || true
+# ─── 4) Truncate only WareDGT tables ──────────────────────────────────────────
+echo "🧽 Truncating WareDGT tables…"
 
 # Use same defaults as Django settings.py
 DB_HOST="${DB_HOST:-127.0.0.1}"
@@ -66,7 +51,68 @@ DB_USER="${DB_USER:-wh_user}"
 DB_PASSWORD="${DB_PASSWORD:-strong_password}"
 DB_NAME="${DB_NAME:-warehouse_db}"
 
-mysql --host="${DB_HOST}" \
+SQL=$(cat << 'EOSQL'
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE `WareDGT_authevent`;
+TRUNCATE TABLE `WareDGT_bincard`;
+TRUNCATE TABLE `WareDGT_bincardattachment`;
+TRUNCATE TABLE `WareDGT_bincardentry`;
+TRUNCATE TABLE `WareDGT_bincardentryrequest`;
+TRUNCATE TABLE `WareDGT_bincardtransaction`;
+TRUNCATE TABLE `WareDGT_cleanedstockout`;
+TRUNCATE TABLE `WareDGT_commodity`;
+TRUNCATE TABLE `WareDGT_company`;
+TRUNCATE TABLE `WareDGT_contractmovement`;
+TRUNCATE TABLE `WareDGT_contractmovementrequest`;
+TRUNCATE TABLE `WareDGT_dailyrecord`;
+TRUNCATE TABLE `WareDGT_dailyrecord_workers`;
+TRUNCATE TABLE `WareDGT_dailyrecordassessment`;
+TRUNCATE TABLE `WareDGT_dashboardconfig`;
+TRUNCATE TABLE `WareDGT_ecxload`;
+TRUNCATE TABLE `WareDGT_ecxload_trades`;
+TRUNCATE TABLE `WareDGT_ecxloadrequest`;
+TRUNCATE TABLE `WareDGT_ecxloadrequest_trades`;
+TRUNCATE TABLE `WareDGT_ecxloadrequestreceiptfile`;
+TRUNCATE TABLE `WareDGT_ecxmovement`;
+TRUNCATE TABLE `WareDGT_ecxmovementreceiptfile`;
+TRUNCATE TABLE `WareDGT_ecxshipment`;
+TRUNCATE TABLE `WareDGT_ecxtrade`;
+TRUNCATE TABLE `WareDGT_ecxtradereceiptfile`;
+TRUNCATE TABLE `WareDGT_ecxtraderequest`;
+TRUNCATE TABLE `WareDGT_ecxtraderequestfile`;
+TRUNCATE TABLE `WareDGT_laborpayment`;
+TRUNCATE TABLE `WareDGT_purchaseditemtype`;
+TRUNCATE TABLE `WareDGT_purchaseorder`;
+TRUNCATE TABLE `WareDGT_qualityanalysis`;
+TRUNCATE TABLE `WareDGT_qualitycheck`;
+TRUNCATE TABLE `WareDGT_seedgradeparameter`;
+TRUNCATE TABLE `WareDGT_seedtype`;
+TRUNCATE TABLE `WareDGT_seedtypebalance`;
+TRUNCATE TABLE `WareDGT_seedtypedetail`;
+TRUNCATE TABLE `WareDGT_stockmovement`;
+TRUNCATE TABLE `WareDGT_stockout`;
+TRUNCATE TABLE `WareDGT_stockoutrequest`;
+TRUNCATE TABLE `WareDGT_userevent`;
+TRUNCATE TABLE `WareDGT_userprofile`;
+TRUNCATE TABLE `WareDGT_userprofile_warehouses`;
+TRUNCATE TABLE `WareDGT_warehouse`;
+TRUNCATE TABLE `WareDGT_weighbridgeslipimage`;
+SET FOREIGN_KEY_CHECKS = 1;
+EOSQL
+)
+
+mysql -f --host="${DB_HOST}" \
+      --port="${DB_PORT}" \
+      --user="${DB_USER}" \
+      --password="${DB_PASSWORD}" \
+      "${DB_NAME}" \
+      -e "$SQL"
+
+# ─── 5) Preload WareDGT data only ─────────────────────────────────────────────
+echo "🚚 Importing default DGT warehouses & seeds…"
+python manage.py create_companies
+python manage.py import_warehouses
+mysql -f --host="${DB_HOST}" \
       --port="${DB_PORT}" \
       --user="${DB_USER}" \
       --password="${DB_PASSWORD}" \
@@ -107,4 +153,4 @@ if [ $# -ge 1 ]; then
   python manage.py import_ecx_trades "${EXCEL_FILE}" --user Admin
 fi
 
-echo "✅ Done: env set up, DB reset, migrations applied, data imported, typo fixed, superuser created, and ECX import (if provided)."
+echo "✅ Done: targeted WareDGT tables truncated, migrations ensured, WareDGT data re-seeded, and optional ECX imports completed."

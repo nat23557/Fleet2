@@ -9,7 +9,8 @@
       <p class="dashboard-subtext">Accounts{% if selected_currency %} • {{ selected_currency }}{% endif %}</p>
     </div>
     <div class="dashboard-hero-meta" style="display:flex;gap:.5rem;align-items:center;">
-      <a class="qa-btn" href="{% url 'cash_management:banks' %}{% if selected_currency %}?currency={{ selected_currency }}{% endif %}">⬅ Back</a>
+      <a class="qa-btn" href="{% url 'cash_management:banks' %}{% if selected_currency %}?currency={{ selected_currency }}{% endif %}"
+         onclick="if (document.referrer) { window.history.back(); return false; }">⬅ Back</a>
     </div>
   </div>
 
