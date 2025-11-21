@@ -27,6 +27,9 @@
           <em>No CBE rate available; using 1.0 for ETB only.</em>
         {% endif %}
       </div>
+      <div class="print-hide">
+        <button class="btn btn-ghost btn-sm" type="button" onclick="window.print()">🖨 Print</button>
+      </div>
     </div>
     <div class="kpi-grid">
       <div class="kpi-card">
@@ -50,7 +53,7 @@
     </div>
 
     <div class="table" style="overflow-x:auto; overflow-y:visible; max-width:100%;">
-      <table class="table-compact table-creative no-sticky" style="width:100%;min-width:840px;">
+      <table class="table-compact table-creative no-sticky print-table" style="width:100%;min-width:840px;">
         <thead>
           <tr>
             <th style="text-align:left;">#</th>

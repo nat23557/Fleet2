@@ -26,6 +26,8 @@ html, body { overflow-x: hidden; }
 .dashboard { padding-left: .5rem; padding-right: .5rem; }
 .txn-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; align-items: start; }
 @media (max-width: 980px) { .txn-grid { grid-template-columns: 1fr; } }
+.text-error { color: #fca5a5; font-size: .85rem; margin-top: .25rem; }
+.alert-error { background: #2a0f12; color: #fecaca; border: 1px solid #7f1d1d; padding: .5rem .7rem; border-radius: 8px; margin-bottom:.6rem; }
 </style>
 
 <div class="dashboard" style="max-width:1100px;margin-inline:auto;">
@@ -34,21 +36,33 @@ html, body { overflow-x: hidden; }
       <h1 style="margin:0;">{{ title }}</h1>
       <p class="dashboard-subtext">A focused, fast entry experience. Press / to search; Enter to quick-select.</p>
     </div>
-    <div class="dashboard-hero-meta">
+    <div class="dashboard-hero-meta" style="display:flex;gap:.5rem;align-items:center;">
       <a class="qa-btn" href="{% url 'cash_management:banks' %}"
          onclick="if (document.referrer) { window.history.back(); return false; }">⬅ Back</a>
+      {% if editing %}
+      <a class="btn btn-ghost" href="{% url 'cash_management:bank_register' %}">➕ New</a>
+      {% endif %}
     </div>
   </div>
 
   <section class="section">
     <form method="post" class="form txn-grid" id="bankForm">
       {% csrf_token %}
+      {% if editing %}
+      <input type="hidden" name="account_id" value="{{ editing_id }}">
+      {% endif %}
+      {% if form.non_field_errors %}
+      <div class="alert alert-error">{{ form.non_field_errors|join:" " }}</div>
+      {% endif %}
 
       <!-- Left: like txn-card -->
       <div class="txn-card">
         <div class="form-row">
           <label class="label" for="id_bank_name">Bank</label>
           {{ form.bank_name }}
+          {% if form.bank_name.errors %}
+          <div class="text-error">{{ form.bank_name.errors|join:" " }}</div>
+          {% endif %}
           <datalist id="banksData"></datalist>
         </div>
 
@@ -61,12 +75,18 @@ html, body { overflow-x: hidden; }
           <div style="display:none;">
             {{ form.currency }}
           </div>
+          {% if form.currency.errors %}
+          <div class="text-error">{{ form.currency.errors|join:" " }}</div>
+          {% endif %}
         </div>
 
         <div class="form-row">
           <label class="label" for="id_account_number">Account Number</label>
           {{ form.account_number }}
           <div class="text-muted">Digits only; no spaces.</div>
+          {% if form.account_number.errors %}
+          <div class="text-error">{{ form.account_number.errors|join:" " }}</div>
+          {% endif %}
         </div>
 
         <div class="form-row">
@@ -74,6 +94,9 @@ html, body { overflow-x: hidden; }
           {{ form.branch }}
           <datalist id="branchesData"></datalist>
           <div class="text-muted">Suggestions appear only for banks with verified branch data.</div>
+          {% if form.branch.errors %}
+          <div class="text-error">{{ form.branch.errors|join:" " }}</div>
+          {% endif %}
         </div>
 
         <div class="form-row">
@@ -89,16 +112,40 @@ html, body { overflow-x: hidden; }
             <button type="button" class="chip-btn purpose" data-val="OD">OD</button>
           </div>
           {{ form.purpose }}
+          {% if form.purpose.errors %}
+          <div class="text-error">{{ form.purpose.errors|join:" " }}</div>
+          {% endif %}
         </div>
 
         <div style="display:flex; gap:.5rem; margin-top:.5rem;">
-          <button class="cta-button" type="submit">Register</button>
+          <button class="cta-button" type="submit">{% if editing %}Update{% else %}Register{% endif %}</button>
           <a class="btn btn-ghost" href="{% url 'cash_management:banks' %}">Cancel</a>
         </div>
       </div>
 
       <!-- Right: Directory & KPIs styled like balance-card -->
       <aside class="txn-card balance-card">
+        <!-- Existing accounts quick edit -->
+        <div class="bb-card" style="margin-bottom:.6rem;">
+          <div class="bb-card-header">Existing Accounts</div>
+          <div class="bb-search-box">
+            <input id="acct-search" class="bb-search" type="search" placeholder="Search accounts (name, bank, branch)" autocomplete="off">
+          </div>
+          <div id="acct-list" class="bb-list">
+            {% for a in accounts %}
+              <a class="bb-bank" href="{% url 'cash_management:bank_register' %}?id={{ a.id }}" data-name="{{ a.name|escape }}" data-bank="{{ a.bank_name|escape }}" data-branch="{{ a.branch|default:''|escape }}">
+                <div class="bb-bank-title">{{ a.name }}</div>
+                <div class="bb-bank-sub">{{ a.bank_name }}{% if a.branch %} — {{ a.branch }}{% endif %}</div>
+                <div class="bb-bank-tags">
+                  <span class="bb-badge">{{ a.currency }}</span>
+                  {% if a.purpose %}<span class="bb-badge">{{ a.purpose }}</span>{% endif %}
+                </div>
+              </a>
+            {% empty %}
+              <div class="text-muted">No accounts yet.</div>
+            {% endfor %}
+          </div>
+        </div>
         <div class="balance-kpis">
           <div class="kpi">
             <div class="t">Banks</div>
@@ -168,7 +215,7 @@ window.ETH_BANKS = [
   const list = $('#bb-list');
   const ticker = $('#bb-ticker');
   const seg = $$('.seg-toggle .opt');
-  const ccyRadio = document.querySelector('input[name="currency"]');
+  const ccyRadios = $$('#bankForm input[name="currency"]');
   const kBanks = $('#kBanks');
   const kBranches = $('#kBranches');
   const kPreview = $('#kPreview');
@@ -290,10 +337,44 @@ window.ETH_BANKS = [
     if (kPreview) kPreview.textContent = `${combo} • ${masked}`;
   }
 
+  // Filter existing accounts list
+  const acctSearch = document.getElementById('acct-search');
+  const acctList = document.getElementById('acct-list');
+  if (acctSearch && acctList) {
+    acctSearch.addEventListener('input', () => {
+      const q = (acctSearch.value || '').toLowerCase();
+      acctList.querySelectorAll('.bb-bank').forEach(el => {
+        const name = (el.getAttribute('data-name') || '').toLowerCase();
+        const bank = (el.getAttribute('data-bank') || '').toLowerCase();
+        const branch = (el.getAttribute('data-branch') || '').toLowerCase();
+        const show = !q || name.includes(q) || bank.includes(q) || branch.includes(q);
+        el.style.display = show ? '' : 'none';
+      });
+    });
+  }
+
+  // Ensure a currency is selected (hidden radios may be required)
+  (function ensureCurrencyDefault(){
+    const anyChecked = (ccyRadios || []).some ? (ccyRadios || []).some(r => r.checked) : Array.from(ccyRadios||[]).some(r => r.checked);
+    if (!anyChecked) {
+      const etb = document.querySelector("#bankForm input[name=currency][value='ETB']");
+      if (etb) etb.checked = true;
+    }
+  })();
+
   // Boot
   renderDatalist();
   renderList();
   renderPreview();
+
+  // Initialize currency toggle to current radio selection
+  const checked = (ccyRadios.find ? ccyRadios.find(r => r.checked) : ccyRadios.filter(r => r.checked)[0]) || null;
+  const current = checked ? checked.value : 'ETB';
+  const btn = seg.find ? seg.find(b => (b.getAttribute('data-ccy')||'') === current) : null;
+  if (btn) {
+    seg.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
 })();
 </script>
 {% endblock %}

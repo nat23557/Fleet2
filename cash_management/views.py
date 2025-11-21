@@ -321,7 +321,8 @@ def account_ledger(request, pk: int):
         running += float(t.credit) - float(t.debit)
         rows.append((t, running))
 
-    can_reverse = in_group(request.user, 'Owner') or request.user.is_superuser
+    # Only superusers can reverse transactions
+    can_reverse = bool(request.user.is_superuser)
     context = {
         'account': account,
         'rows': rows,
@@ -391,7 +392,7 @@ def new_transaction(request):
 
 
 @login_required
-@owner_required
+@user_passes_test(lambda u: u.is_superuser)
 def reverse_transaction(request, tx_id: int):
     txn = get_object_or_404(Transaction, pk=tx_id)
     if request.method != 'POST':
@@ -736,14 +737,48 @@ def account_edit(request, pk: int):
 @login_required
 @owner_required
 def bank_register(request):
-    """Simple, admin-only form to register a bank account with currency type, branch and purpose."""
+    """Admin form to register a new bank account or edit an existing one.
+
+    GET may include ?id=<account_id> to load an existing account for editing.
+    POST may include hidden field account_id to update that record.
+    """
+    from .models import BankAccount
+
+    # Determine if we are editing an existing account
+    edit_id = None
+    instance = None
+    if request.method == 'GET':
+        try:
+            edit_id = int(request.GET.get('id') or 0)
+        except Exception:
+            edit_id = 0
+    else:  # POST
+        try:
+            edit_id = int(request.POST.get('account_id') or 0)
+        except Exception:
+            edit_id = 0
+
+    if edit_id:
+        instance = get_object_or_404(BankAccount, pk=edit_id)
+
     if request.method == 'POST':
-        form = BankRegistrationForm(request.POST)
+        form = BankRegistrationForm(request.POST, instance=instance)
         if form.is_valid():
             obj = form.save()
-            messages.success(request, 'Bank registered successfully.')
-            # Redirect to the bank detail page if possible
+            if instance:
+                messages.success(request, 'Bank updated successfully.')
+            else:
+                messages.success(request, 'Bank registered successfully.')
             return redirect('cash_management:bank_detail', name=obj.bank_name)
     else:
-        form = BankRegistrationForm()
-    return render(request, 'cash_management/bank_register.html', {'form': form, 'title': 'Register Bank'})
+        form = BankRegistrationForm(instance=instance)
+
+    accounts = BankAccount.objects.all().order_by('bank_name', 'name')
+    context = {
+        'form': form,
+        'title': 'Edit Bank' if instance else 'Register Bank',
+        'editing': bool(instance),
+        'editing_id': instance.id if instance else None,
+        'accounts': accounts,
+    }
+    return render(request, 'cash_management/bank_register.html', context)

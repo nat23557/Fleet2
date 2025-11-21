@@ -21,12 +21,13 @@
   <section class="section" style="margin-top:.5rem;">
     <div class="section-header">
       <div class="section-title">Ledger</div>
-      <div>
+      <div class="print-hide">
         <a class="cta-button btn-sm" href="{% url 'cash_management:new_transaction' %}">➕ New Transaction</a>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="window.print()">🖨 Print</button>
       </div>
     </div>
     <div class="table" style="overflow-x:auto;">
-      <table class="table-basic" style="min-width:760px;">
+      <table class="table-basic print-table" style="min-width:760px;">
         <thead>
           <tr>
             <th>Date</th>
@@ -34,7 +35,7 @@
             <th style="text-align:right;">Debit</th>
             <th style="text-align:right;">Credit</th>
             <th style="text-align:right;">Balance</th>
-            {% if can_reverse %}<th></th>{% endif %}
+            {% if can_reverse %}<th class="print-hide"></th>{% endif %}
           </tr>
         </thead>
         <tbody>
@@ -49,7 +50,7 @@
             <td style="text-align:right;">{{ t.credit|floatformat:2 }}</td>
             <td style="text-align:right; font-variant-numeric: tabular-nums;">{{ bal|floatformat:2 }}</td>
             {% if can_reverse %}
-            <td style="text-align:right;">
+            <td style="text-align:right;" class="print-hide">
               <form method="post" action="{% url 'cash_management:reverse_transaction' t.id %}" onsubmit="return confirm('Create reversing entry?');">
                 {% csrf_token %}
                 <button class="btn btn-ghost btn-sm" type="submit">↩ Reverse</button>

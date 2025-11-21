@@ -16,7 +16,7 @@
   <section class="section" style="margin-top:.25rem;">
     <div class="section-header">
       <div class="section-title">Date</div>
-      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;" class="print-hide">
         <button id="prevDay" class="btn btn-ghost btn-sm" title="Previous day">◀</button>
         <input id="datePicker" type="date" class="input" value="{{ selected_date|date:'Y-m-d' }}" />
         <button id="nextDay" class="btn btn-ghost btn-sm" title="Next day">▶</button>
@@ -28,6 +28,7 @@
           <option value="5000" selected>5s</option>
           <option value="10000">10s</option>
         </select>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="window.print()">🖨 Print</button>
       </div>
     </div>
     <div class="kpi-grid">
@@ -51,7 +52,7 @@
       <div class="section-title">Ticker</div>
     </div>
     <div class="table" style="overflow-x:auto; max-width:100%;">
-      <table class="table-compact table-creative no-sticky terminal-table" id="liveTable" style="width:100%;">
+      <table class="table-compact table-creative no-sticky terminal-table print-table" id="liveTable" style="width:100%;">
         <thead>
           <tr>
             <th>Time</th>

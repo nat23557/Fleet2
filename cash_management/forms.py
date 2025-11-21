@@ -87,7 +87,12 @@ class BankRegistrationForm(forms.ModelForm):
     bank_name = forms.CharField(label="Bank Name", widget=forms.TextInput(attrs={
         "placeholder": "e.g. Commercial Bank of Ethiopia",
     }))
-    currency = forms.ChoiceField(label="Type", choices=CURRENCY_CHOICES, widget=forms.RadioSelect)
+    currency = forms.ChoiceField(
+        label="Type",
+        choices=CURRENCY_CHOICES,
+        widget=forms.RadioSelect,
+        initial="ETB",
+    )
     branch = forms.CharField(label="Branch", required=False, widget=forms.TextInput(attrs={
         "placeholder": "e.g. Piassa Branch",
     }))
@@ -104,7 +109,7 @@ class BankRegistrationForm(forms.ModelForm):
             "maxlength": "32",
             "autocomplete": "off",
         }),
-        validators=[RegexValidator(r"^\\d{4,32}$", message="Provide 4-32 digits.")],
+        # Validation handled in clean_account_number; HTML pattern handles client-side.
     )
 
     class Meta:

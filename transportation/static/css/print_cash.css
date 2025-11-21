@@ -1,0 +1,36 @@
+/* Print-optimized styles for Cash module (ledger, summary, live monitor) */
+
+@media print {
+  /* Reset background & shadows for a clean page */
+  :root { color-scheme: light only; }
+  html, body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Hide app chrome and interactive controls */
+  .header, .navbar, .wrapper .quick-actions, .viewer-dock,
+  .print-hide, .qa-btn, .segmented, .btn, .chip, .input,
+  #messages, .user-menu, .viewer-actions, .viewer-overlay { display: none !important; }
+
+  /* Maximize width and use readable typography */
+  .dashboard, .section, .main-content { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  .section-header { display: flex; justify-content: space-between; align-items: end; border-bottom: 2px solid #000; padding: 0 0 .3rem 0; margin: 0 0 .5rem 0; }
+  .section-title { font-size: 16pt !important; font-weight: 700 !important; color: #000 !important; }
+
+  /* Tables: add borders and condensed spacing */
+  table.print-table { width: 100% !important; border-collapse: collapse !important; font-size: 10pt; }
+  table.print-table th, table.print-table td { border: 1px solid #000 !important; padding: 4px 6px !important; background: #fff !important; color: #000 !important; }
+  table.print-table thead th { background: #f2f2f2 !important; }
+
+  /* KPI cards -> inline summary line for print */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0 0 8px 0; }
+  .kpi-card { background: #fff !important; border: 1px solid #000 !important; box-shadow: none !important; padding: 6px 8px !important; }
+  .kpi-title { color: #000 !important; font-weight: 600; }
+  .kpi-value { color: #000 !important; font-weight: 700; }
+
+  /* Terminal table stripes not needed on paper */
+  .terminal-table tr.flash-in { animation: none !important; }
+
+  /* Page break control for long tables */
+  .section { break-inside: avoid; page-break-inside: avoid; }
+  tr { break-inside: avoid; page-break-inside: avoid; }
+}
+
